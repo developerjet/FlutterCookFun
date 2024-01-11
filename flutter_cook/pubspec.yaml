@@ -34,11 +34,27 @@ dependencies:
   #UI布局
   getwidget: ^4.0.0
 
+  #轮播图
+  carousel_slider: ^4.2.1
+
   #toast
   fluttertoast: ^8.2.4
 
   #网络请求
   dio: ^5.4.0
+
+  #WebView
+  webview_flutter: ^4.4.4
+
+  #JSON转Model
+  json_annotation: ^4.8.1
+
+  #视频播放
+  flick_video_player: ^0.7.0
+  
+  #系统信息
+  #package_info_plus:
+
 
 
 dev_dependencies:
@@ -46,12 +62,14 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^2.0.0
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.7
 
 
 flutter:
-
   uses-material-design: true
 
 #本地图片资源使用
   assets:
     - assets/images/
+    - assets/bumble_bee_captions.srt

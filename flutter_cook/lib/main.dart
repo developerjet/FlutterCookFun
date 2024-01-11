@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/utils/colors.dart';
 import 'package:get/get.dart';
 
 import './routers/routers.dart';
@@ -24,12 +25,13 @@ class MyApp extends StatelessWidget {
       // locale: const Locale('zh', 'CN'), // 默认设置的语言
       locale: systemLocale, //获取系统语言
       fallbackLocale: const Locale('en', 'US'), // 回调语言选项
-
       initialBinding: AllControllerBinding(), //全部绑定Getx BindingController
       theme: ThemeData(
-          primarySwatch: Colors.green,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          primarySwatch: CustomColors.createMaterialColor(Color(0XFF00CC99)),
           appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0XFF00CC99),
+            backgroundColor: CustomColors.themeColor,
             centerTitle: true,
           )),
       initialRoute: "/", // 配置初始路由
