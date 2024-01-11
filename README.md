@@ -13,7 +13,7 @@ Flutter 3.16.5 实现的美食烹饪APP.
 
 | 菜谱 | 设置 |
 | -- | -- |
-|![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_04.png)|![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_05)|
+|![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_04.png)|![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_05.png)|
 
 
 ### 主要功能
