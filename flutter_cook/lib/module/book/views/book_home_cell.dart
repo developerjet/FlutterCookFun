@@ -18,13 +18,13 @@ class BookHomeCell extends StatelessWidget {
             child: Wrap(
               children: [
                 Container(
-                    padding: EdgeInsets.all(10.0),
+                    padding: EdgeInsets.all(5.0),
                     color: CustomColors.bg2Color(),
                     child: Column(
                       children: [
                         SizedBox(height: 5.0),
                         Container(
-                            height: 105,
+                            height: 120,
                             child: GFImageOverlay(
                               image: NetworkImage(model.sceneBackground ?? ''),
                               boxFit: BoxFit.cover, //填充模式

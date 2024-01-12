@@ -14,9 +14,10 @@ Flutter 3.16.5 实现的美食烹饪APP，后续功能继续完善中....
 | -- | -- |
 |![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_04.png)|![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_05.png)|
 
-### APK安装
-- 厨艺乐
-![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/Install_apk.jpg)|
+### APP安装
+| APK |
+| -- |
+|![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/Install_apk.jpg)|
 
 
 ### 主要功能
