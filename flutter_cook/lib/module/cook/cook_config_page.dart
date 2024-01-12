@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/toast.dart';
 import '../cook/views/cook_config_cell.dart';
@@ -23,6 +24,7 @@ class _CookConfigPageState extends State<CookConfigPage> {
   void initState() {
     super.initState();
 
+    HudLoading.show('Loading...');
     _fetchConfigCooking();
   }
 
@@ -34,6 +36,7 @@ class _CookConfigPageState extends State<CookConfigPage> {
     List jsonList = response.data['data']['data'];
 
     late List<CookConfigListModel> tempList = [];
+    HudLoading.dismiss();
 
     if (jsonList.length > 0) {
       for (var data in jsonList) {

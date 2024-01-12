@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/views/cook_home_cell.dart';
 import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
 import 'package:flutter_cook/utils/toast.dart';
@@ -28,6 +29,7 @@ class _CookPageState extends State<CookPage> {
   void initState() {
     super.initState();
 
+    HudLoading.show('Loading...');
     _fetchCooksData();
   }
 
@@ -39,8 +41,9 @@ class _CookPageState extends State<CookPage> {
     };
 
     final response = await DioClient.get('', queryParameters: params);
-
     List jsonList = response.data['data']['data'];
+
+    HudLoading.dismiss();
 
     if (jsonList.length > 0) {
       List<CookHomeListModel> tempList = [];
@@ -70,7 +73,7 @@ class _CookPageState extends State<CookPage> {
 
   _showDeleteAlert() {
     if (_selectedList.length == 0) {
-      ToastUtils.showShortToast("您还未选择食材");
+      ToastUtils.showSnackbar("温馨提示", "您还未选择食材");
       return;
     }
 
@@ -167,7 +170,7 @@ class _CookPageState extends State<CookPage> {
                       type: GFButtonType.outline2x,
                       onPressed: () {
                         if (_selectedList.length == 0) {
-                          ToastUtils.showShortToast("您还未选择食材");
+                          ToastUtils.showSnackbar("温馨提示", "您还未选择食材");
                           return;
                         }
 

@@ -51,11 +51,13 @@ dependencies:
 
   #视频播放
   flick_video_player: ^0.7.0
-  
-  #系统信息
-  #package_info_plus:
+  visibility_detector: ^0.4.0+2
 
+  #HUDLoading
+  flutter_easyloading:
 
+  #列表上下拉刷新
+  easy_refresh: ^3.3.4
 
 dev_dependencies:
   flutter_test:

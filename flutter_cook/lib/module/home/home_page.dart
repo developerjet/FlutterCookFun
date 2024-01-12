@@ -3,6 +3,7 @@ import 'package:flutter_cook/module/home/controller/foodClassController.dart';
 import 'package:flutter_cook/module/home/model/home_model.dart';
 import 'package:flutter_cook/module/home/views/home_banner.dart';
 import 'package:flutter_cook/module/home/views/home_data_cell.dart';
+import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/colors.dart';
 import 'package:get/get.dart';
@@ -40,6 +41,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchHomeData() async {
+    HudLoading.show('Loading...');
+
     Map<String, dynamic>? params = {
       'methodName': 'CategoryIndex',
       'version': '4.3.2'
@@ -48,6 +51,7 @@ class _HomePageState extends State<HomePage> {
     final response = await DioClient.get('', queryParameters: params);
 
     HomeDataModel model = HomeDataModel.fromJson(response.data['data']);
+    HudLoading.dismiss();
 
     if (model.data.length > 0) {
       //print("HomeList===$dataList");

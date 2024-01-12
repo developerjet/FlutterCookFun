@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../module/home/home_page.dart';
 import '../module/cook/cook_home_page.dart';
-import '../module/book/book_page.dart';
+import '../module/book/book_home_page.dart';
 import '../module/mine/mine_page.dart';
 import '../utils/colors.dart';
 

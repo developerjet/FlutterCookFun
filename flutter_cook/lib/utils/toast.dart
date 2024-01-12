@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 
 // toast弹框封装
 class ToastUtils {
+  
   static void showShortToast(String message) {
     _showToast(message, Toast.LENGTH_SHORT);
   }
@@ -28,7 +30,7 @@ class ToastUtils {
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
+      gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: 1,
       backgroundColor: backgroundColor,
       textColor: textColor,
@@ -40,11 +42,15 @@ class ToastUtils {
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
+      gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: durationInSeconds,
       backgroundColor: Colors.black,
       textColor: Colors.white,
       fontSize: 16.0,
     );
+  }
+
+  static void showSnackbar(String title, String message) {
+    Get.snackbar(title, message, duration: Duration(seconds: 2));
   }
 }

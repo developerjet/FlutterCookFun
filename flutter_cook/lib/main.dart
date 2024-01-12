@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
 import './routers/routers.dart';
@@ -16,14 +17,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Locale systemLocale = ui.window.locale;
+    // 获取系统语言
+    // Locale systemLocale = ui.window.locale;
 
     return GetMaterialApp(
       defaultGlobalState: true,
       title: "Cook Fun",
       translations: Messages(), // 你的翻译
-      // locale: const Locale('zh', 'CN'), // 默认设置的语言
-      locale: systemLocale, //获取系统语言
+      locale: const Locale('zh', 'CN'), // 默认中文
+
       fallbackLocale: const Locale('en', 'US'), // 回调语言选项
       initialBinding: AllControllerBinding(), //全部绑定Getx BindingController
       theme: ThemeData(
@@ -36,6 +38,7 @@ class MyApp extends StatelessWidget {
           )),
       initialRoute: "/", // 配置初始路由
       getPages: AppPage.routers,
+      builder: EasyLoading.init(), //加载Loading
     );
   }
 }

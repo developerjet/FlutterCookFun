@@ -58,13 +58,15 @@ class _MinePageState extends State<MinePage> {
                   Text(
                     "厨艺乐",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: CustomColors.textMainColor(), fontSize: 15),
+                    style: TextStyle(
+                        color: CustomColors.textMainColor(), fontSize: 15),
                   ),
                   SizedBox(height: 4.0),
                   Text(
                     "v${_version}",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: CustomColors.textGrayColor(), fontSize: 13),
+                    style: TextStyle(
+                        color: CustomColors.textGrayColor(), fontSize: 13),
                   )
                 ]),
               ),
@@ -108,10 +110,13 @@ class _MinePageState extends State<MinePage> {
 
       case 1:
         Get.toNamed('/webPage',
-            arguments: {'url': 'https://github.com/developerjet'});
+            arguments: {'title': 'Flutter中文网', 'url': 'https://flutter.cn'});
 
       default:
-        Get.toNamed('/webPage', arguments: {'url': 'https://flutter.cn'});
+        Get.toNamed('/webPage', arguments: {
+          'title': 'Github',
+          'url': 'https://github.com/developerjet'
+        });
     }
   }
 

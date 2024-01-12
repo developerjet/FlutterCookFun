@@ -4,13 +4,13 @@ import 'package:get/get.dart';
 
 class CustomColors {
   // 应用主题色
-  static const Color themeColor = Color(0XFF00CC99);
+  static const Color themeColor = Color(0xFF00CC99);
 
   // TabBarItem选中颜色
-  static const Color tabSelectedColor = Color(0XFF00CC99);
+  static const Color tabSelectedColor = Color(0xFF00CC99);
 
   // TabBarItem未选中颜色
-  static const Color tabUnselectedColor = Color(0XFFAAAAAA);
+  static const Color tabUnselectedColor = Color(0xFFAAAAAA);
 
   // 主要文字颜色
   static Color textMainColor() {

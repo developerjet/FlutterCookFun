@@ -1,9 +1,10 @@
-import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/utils/colors.dart';
-import 'package:get/get.dart';
-import 'package:getwidget/getwidget.dart';
+import 'package:flick_video_player/flick_video_player.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_cook/utils/colors.dart';
+import 'package:getwidget/getwidget.dart';
+import 'package:get/get.dart';
 
 class PlayerVideoPage extends StatefulWidget {
   PlayerVideoPage({Key? key}) : super(key: key);
@@ -85,39 +86,28 @@ class _PlayerVideoPageState extends State<PlayerVideoPage> {
         title: Text("视频播放"),
         backgroundColor: CustomColors.themeColor,
       ),
-      body: Column(
-        children: [
-          Container(
-            height: 240,
-            child: _player,
+      body: VisibilityDetector(
+        key: ObjectKey(_flickManager),
+        onVisibilityChanged: (visibility) {
+          if (visibility.visibleFraction == 0 && this.mounted) {
+            _flickManager.flickControlManager?.autoPause();
+          } else if (visibility.visibleFraction == 1) {
+            _flickManager.flickControlManager?.autoResume();
+          }
+        },
+        child: Container(
+          height: 240,
+          child: FlickVideoPlayer(
+            flickManager: _flickManager,
+            flickVideoWithControls: FlickVideoWithControls(
+              closedCaptionTextStyle: TextStyle(fontSize: 8),
+              controls: FlickPortraitControls(),
+            ),
+            flickVideoWithControlsFullscreen: FlickVideoWithControls(
+              controls: FlickLandscapeControls(),
+            ),
           ),
-          // Expanded(
-          //     child: Padding(
-          //         padding: EdgeInsets.all(10.0),
-          //         child: Row(
-          //           children: [
-          //             GFButton(
-          //                 type: GFButtonType.solid,
-          //                 child: Text("视频1"),
-          //                 onPressed: () {
-          //                   setState(() {
-          //                     //_changePlayVideo(0);
-          //                   });
-          //                 }),
-          //             SizedBox(
-          //               width: 30,
-          //             ),
-          //             GFButton(
-          //                 type: GFButtonType.solid,
-          //                 child: Text("视频2"),
-          //                 onPressed: () {
-          //                   setState(() {
-          //                     //_changePlayVideo(1);
-          //                   });
-          //                 })
-          //           ],
-          //         )))
-        ],
+        ),
       ),
     );
   }

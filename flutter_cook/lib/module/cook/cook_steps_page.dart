@@ -3,6 +3,7 @@ import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_cell.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_header.dart';
 import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/toast.dart';
 import 'package:get/get.dart';
@@ -25,6 +26,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
 
     super.initState();
 
+    HudLoading.show('Loading...');
     _fetchCookingSteps();
   }
 
@@ -39,6 +41,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
     final response = await DioClient.get('', queryParameters: params);
 
     stepsModel = CookStepDataModel.fromJson(response.data['data']);
+    HudLoading.dismiss();
 
     if (stepsModel.step!.length > 0) {
       setState(() {
