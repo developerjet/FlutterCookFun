@@ -76,12 +76,12 @@ class _BookDetailPageState extends State<BookDetailPage> {
                         boxFit: BoxFit.fill, //填充模式
                       ),
                       Center(
-                          heightFactor: 5,
-                          child: Text(
-                            detailModel.data?.sceneTitle ?? "",
+                        heightFactor: 5,
+                        child: Text(detailModel.data?.sceneDesc ?? "",
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white, fontSize: 21),
-                          ))
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16)),
+                      )
                     ],
                   )
                 ],

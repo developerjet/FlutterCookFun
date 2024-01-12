@@ -13,43 +13,38 @@ class BookHomeCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Container(
-        child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Wrap(
-              children: [
-                Container(
-                    padding: EdgeInsets.all(5.0),
-                    color: CustomColors.bg2Color(),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 5.0),
-                        Container(
-                            height: 120,
-                            child: GFImageOverlay(
-                              image: NetworkImage(model.sceneBackground ?? ''),
-                              boxFit: BoxFit.cover, //填充模式
-                              borderRadius: BorderRadius.circular(6), //圆角
-                            )),
-                        SizedBox(height: 5.0),
-                        Text(
-                          model.sceneTitle ?? "",
-                          style: TextStyle(
-                              fontSize: 14.0,
-                              color: CustomColors.textMainColor()),
-                        ),
-                        SizedBox(height: 5.0),
-                        Text(
-                          model.sceneDesc ?? "",
-                          maxLines: 2,
-                          style: TextStyle(
-                              fontSize: 13.0,
-                              color: CustomColors.textGrayColor()),
-                        )
-                      ],
-                    ))
-              ],
-            )),
-      ),
+          // color: Colors.red,
+          padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+          child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6.0),
+                color: CustomColors.bg2Color(), // 设置容器背景色
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.0),
+                      height: 110,
+                      child: GFImageOverlay(
+                        image: NetworkImage(model.sceneBackground ?? ''),
+                        boxFit: BoxFit.cover, //填充模式
+                      )),
+                  SizedBox(height: 5.0),
+                  Text(
+                    maxLines: 1,
+                    model.sceneTitle ?? "",
+                    style: TextStyle(
+                        fontSize: 14.0, color: CustomColors.textMainColor()),
+                  ),
+                  SizedBox(height: 5.0),
+                  Text(
+                    maxLines: 1,
+                    model.sceneDesc ?? "",
+                    style: TextStyle(
+                        fontSize: 13.0, color: CustomColors.textGrayColor()),
+                  )
+                ],
+              ))),
       onTap: onTap,
     );
   }

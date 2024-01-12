@@ -90,8 +90,8 @@ class _BookPageState extends State<BookPage> {
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2, // 设置每行显示的列数
-              crossAxisSpacing: 5.0, // 列间距
-              mainAxisSpacing: 5.0, // 行间距
+              crossAxisSpacing: 0.5, // 列间距
+              mainAxisSpacing: 0.5, // 行间距
             ),
             itemCount: dataList.length, // 项数
             itemBuilder: (context, index) {
