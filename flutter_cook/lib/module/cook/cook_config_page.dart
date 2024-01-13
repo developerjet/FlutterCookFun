@@ -1,5 +1,5 @@
 import 'dart:ffi';
-
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/utils/colors.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
@@ -18,6 +18,7 @@ class CookConfigPage extends StatefulWidget {
 }
 
 class _CookConfigPageState extends State<CookConfigPage> {
+  late int pageIndex = 1;
   late List<CookConfigListModel> _dataList = [];
 
   @override
@@ -30,26 +31,37 @@ class _CookConfigPageState extends State<CookConfigPage> {
 
   // 开始配菜
   Future<void> _fetchConfigCooking() async {
-    Map<String, dynamic>? params = Get.arguments;
-    final response = await DioClient.get('', queryParameters: params);
+    late Map<String, dynamic> params = Get.arguments;
+    params['size'] = 20;
+    params['page'] = pageIndex;
 
+    final response = await DioClient.get('', queryParameters: params);
     List jsonList = response.data['data']['data'];
 
-    late List<CookConfigListModel> tempList = [];
     HudLoading.dismiss();
 
     if (jsonList.length > 0) {
+      if (pageIndex == 1) {
+        _dataList = [];
+      }
+
+      late List<CookConfigListModel> tempList = [];
       for (var data in jsonList) {
         CookConfigListModel model = CookConfigListModel.fromJson(data);
         tempList.add(model);
       }
 
       setState(() {
-        _dataList = tempList;
+        _dataList.addAll(tempList);
       });
     } else {
       // 配菜无效
-      _showConfigFailedAlert('所选食材配置失败，可重新选择');
+      if (pageIndex > 1) {
+        ToastUtils.showShortToast("暂无更多配菜");
+        return;
+      }
+
+      _showConfigFailedAlert('所选食材配菜失败，可重新选择');
     }
   }
 
@@ -82,24 +94,48 @@ class _CookConfigPageState extends State<CookConfigPage> {
         title: Text("可做${_dataList.length}道菜"),
         backgroundColor: CustomColors.themeColor,
       ),
-      body: ListView.builder(
-        itemCount: _dataList.length,
-        itemBuilder: (context, index) {
-          return InkWell(
-              child: Column(
-            children: [
-              CookConfigCell(model: _dataList[index]),
-              Divider(
-                  height: 0.75, // 设置分割线的高度
-                  color: CustomColors.lineBoardColor()),
-            ],
-          ),
-          onTap: () {
-            // 跳转做菜步骤
-            Get.toNamed('/cookSteps', arguments: {'dishes_id': _dataList[index].dishesId});
-          },
-          );
+      body: EasyRefresh(
+        // 下拉刷新回调
+        onRefresh: () async {
+          await Future.delayed(Duration(seconds: 2));
+          setState(() {
+            pageIndex = 1;
+            _fetchConfigCooking();
+          });
         },
+        // 上拉加载回调
+        onLoad: () async {
+          await Future.delayed(Duration(seconds: 2));
+          setState(() {
+            pageIndex++;
+            _fetchConfigCooking();
+          });
+        },
+        // 控制器
+        controller: EasyRefreshController(),
+        // 子部件
+        child: ListView.builder(
+          itemCount: _dataList.length,
+          itemBuilder: (context, index) {
+            return InkWell(
+              child: Column(
+                children: [
+                  CookConfigCell(model: _dataList[index]),
+                  Divider(
+                      height: 0.75, // 设置分割线的高度
+                      color: CustomColors.lineBoardColor()),
+                ],
+              ),
+              onTap: () {
+                // 跳转做菜步骤
+                Get.toNamed('/cookSteps', arguments: {
+                  'dishes_id': _dataList[index].dishesId,
+                  'pushPage': 'cookConfig'
+                });
+              },
+            );
+          },
+        ),
       ),
     );
   }

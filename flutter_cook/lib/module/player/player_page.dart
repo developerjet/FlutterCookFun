@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -14,24 +16,23 @@ class PlayerVideoPage extends StatefulWidget {
 }
 
 class _PlayerVideoPageState extends State<PlayerVideoPage> {
-  late FlickManager _flickManager;
   late FlickVideoPlayer _player;
-
-  late List<String> videoList = [];
+  late FlickManager _flickManager;
+  late String _videoUrl;
 
   @override
   void initState() {
     super.initState();
 
-    Map arguments = Get.arguments;
-    for (var videoUrl in arguments.values) {
-      videoList.add(videoUrl);
-    }
+    _videoUrl = Get.arguments['url'];
+    _initializePlayer();
+  }
 
+  _initializePlayer() {
     //  加载播放资源
     _flickManager = FlickManager(
       videoPlayerController: VideoPlayerController.networkUrl(
-        Uri.parse(videoList.first),
+        Uri.parse(_videoUrl),
         closedCaptionFile: _loadCaptions(),
       ),
     );
@@ -95,18 +96,13 @@ class _PlayerVideoPageState extends State<PlayerVideoPage> {
             _flickManager.flickControlManager?.autoResume();
           }
         },
-        child: Container(
-          height: 240,
-          child: FlickVideoPlayer(
-            flickManager: _flickManager,
-            flickVideoWithControls: FlickVideoWithControls(
-              closedCaptionTextStyle: TextStyle(fontSize: 8),
-              controls: FlickPortraitControls(),
+        child: Column(
+          children: [
+            Container(
+              height: 240,
+              child: _player,
             ),
-            flickVideoWithControlsFullscreen: FlickVideoWithControls(
-              controls: FlickLandscapeControls(),
-            ),
-          ),
+          ],
         ),
       ),
     );

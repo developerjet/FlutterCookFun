@@ -4,6 +4,7 @@ import 'package:flutter_cook/module/book/book_detial_page.dart';
 import 'package:flutter_cook/module/cook/cook_config_page.dart';
 import 'package:flutter_cook/module/cook/cook_steps_page.dart';
 import 'package:flutter_cook/module/home/home_class_page.dart';
+import 'package:flutter_cook/module/mine/favorites_page.dart';
 import 'package:flutter_cook/module/player/player_page.dart';
 import 'package:flutter_cook/module/setting/setting_page.dart';
 import 'package:get/get.dart';
@@ -48,7 +49,7 @@ class AppPage {
         name: "/player",
         page: () => PlayerVideoPage(),
         transition: Transition.cupertino),
-    
+
     // 菜谱详情列表
     GetPage(
         name: "/bookDetail",
@@ -59,6 +60,14 @@ class AppPage {
     GetPage(
       name: "/setting",
       page: () => const SettingPage(),
+      transition: Transition.cupertino,
+    ),
+
+    // 收藏
+    GetPage(
+      name: "/favorite",
+      binding: AllControllerBinding(),
+      page: () => const FavoritePage(),
       transition: Transition.cupertino,
     ),
 

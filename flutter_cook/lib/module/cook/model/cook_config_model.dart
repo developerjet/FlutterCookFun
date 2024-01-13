@@ -32,19 +32,19 @@ class CookConfigListModel {
       this.tagsInfo});
 
   CookConfigListModel.fromJson(Map<String, dynamic> json) {
-    dishesId = json['dishes_id'];
-    title = json['title'];
-    description = json['description'];
-    video = json['video'];
-    video1 = json['video1'];
-    image = json['image'];
-    hardLevel = json['hard_level'];
-    play = json['play'];
-    cookingTime = json['cooking_time'];
-    collectCount = json['collect_count'];
-    taste = json['taste'];
-    createDate = json['create_date'];
-    content = json['content'];
+    dishesId = json['dishes_id'] ?? "";
+    title = json['title'] ?? "";
+    description = json['description'] ?? "";
+    video = json['video'] ?? "";
+    video1 = json['video1'] ?? "";
+    image = json['image'] ?? "";
+    hardLevel = json['hard_level'] ?? "";
+    play = json['play'] ?? "";
+    cookingTime = json['cooking_time'] ?? "";
+    collectCount = json['collect_count'] ?? "";
+    taste = json['taste'] ?? "";
+    createDate = json['create_date'] ?? 0;
+    content = json['content'] ?? "";
     if (json['tags_info'] != null) {
       tagsInfo = <CookTagsInfo>[];
       json['tags_info'].forEach((v) {
@@ -55,22 +55,35 @@ class CookConfigListModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['dishes_id'] = this.dishesId;
-    data['title'] = this.title;
-    data['description'] = this.description;
-    data['video'] = this.video;
-    data['video1'] = this.video1;
-    data['image'] = this.image;
-    data['hard_level'] = this.hardLevel;
-    data['play'] = this.play;
-    data['cooking_time'] = this.cookingTime;
-    data['collect_count'] = this.collectCount;
-    data['taste'] = this.taste;
-    data['create_date'] = this.createDate;
-    data['content'] = this.content;
+    data['dishes_id'] = this.dishesId ?? "";
+    data['title'] = this.title ?? "";
+    data['description'] = this.description ?? "";
+    data['video'] = this.video ?? "";
+    data['video1'] = this.video1 ?? "";
+    data['image'] = this.image ?? "";
+    data['hard_level'] = this.hardLevel ?? "";
+    data['play'] = this.play ?? "";
+    data['cooking_time'] = this.cookingTime ?? "";
+    data['collect_count'] = this.collectCount ?? "";
+    data['taste'] = this.taste ?? "";
+    data['create_date'] = this.createDate ?? "";
+    data['content'] = this.content ?? "";
     if (this.tagsInfo != null) {
       data['tags_info'] = this.tagsInfo!.map((v) => v.toJson()).toList();
     }
+    return data;
+  }
+
+  //保存数据库JSON
+  Map<String, dynamic> toDataBaseJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['dishes_id'] = this.dishesId ?? "";
+    data['title'] = this.title ?? "";
+    data['image'] = this.image ?? "";
+    data['hard_level'] = this.hardLevel ?? "";
+    data['cooking_time'] = this.cookingTime ?? "";
+    data['taste'] = this.taste ?? "";
+    data['description'] = this.description ?? "";
     return data;
   }
 }

@@ -10,7 +10,7 @@ Flutter 3.16.5 实现的美食烹饪APP，后续功能继续完善中....
 | -- | -- |
 |![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_02.png)|![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_06.jpg)|
 
-| 菜谱 | 设置 |
+| 菜谱 | 我的 |
 | -- | -- |
 |![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_04.png)|![image](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_05.png)|
 
@@ -22,8 +22,9 @@ Flutter 3.16.5 实现的美食烹饪APP，后续功能继续完善中....
 
 ### 主要功能
 - 首页食材分类、分类列表
-- 选择食材配菜、烹饪、做菜步骤、视频播放
+- 选择食材、配菜、做菜步骤、视频播放
 - 菜谱列表、菜谱详情
+- 配菜收藏
 - 白天夜间模式切换
 - 多语言设置
 
@@ -34,4 +35,5 @@ Flutter 3.16.5 实现的美食烹饪APP，后续功能继续完善中....
 - Getx配置多语言
 - getwidget基本控使用
 - 列表上下拉加载数据处理
+- Sqlite数据持久化处理
 

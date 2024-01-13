@@ -16,6 +16,7 @@ class _MinePageState extends State<MinePage> {
 
   final List<String> items = [
     "设置",
+    "我的收藏",
     "Flutter中文网",
     "作者Github",
   ];
@@ -109,6 +110,9 @@ class _MinePageState extends State<MinePage> {
         Get.toNamed('/setting');
 
       case 1:
+        Get.toNamed('/favorite');
+
+      case 2:
         Get.toNamed('/webPage',
             arguments: {'title': 'Flutter中文网', 'url': 'https://flutter.cn'});
 
@@ -126,6 +130,9 @@ class _MinePageState extends State<MinePage> {
         return Icon(Icons.settings);
 
       case 1:
+        return Icon(Icons.dashboard_customize_sharp);
+
+      case 2:
         return Icon(Icons.web);
 
       default:

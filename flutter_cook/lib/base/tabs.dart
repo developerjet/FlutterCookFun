@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../module/home/home_page.dart';
+import '../module/home/home_data_page.dart';
 import '../module/cook/cook_home_page.dart';
 import '../module/book/book_home_page.dart';
 import '../module/mine/mine_page.dart';

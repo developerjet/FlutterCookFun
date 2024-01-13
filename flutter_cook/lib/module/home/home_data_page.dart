@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   late List<HomeFoodListData> dataList = [];
 
   // 实例化控制器
-  FoodClassController classController = Get.find<FoodClassController>();
+  FoodDataController classController = Get.find<FoodDataController>();
 
   // banner数据
   final List<String> bannerImages = [

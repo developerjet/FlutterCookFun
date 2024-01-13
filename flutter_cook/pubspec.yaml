@@ -59,6 +59,11 @@ dependencies:
   #列表上下拉刷新
   easy_refresh: ^3.3.4
 
+  #数据持久化
+  path_provider: ^2.0.2
+  sqflite:
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

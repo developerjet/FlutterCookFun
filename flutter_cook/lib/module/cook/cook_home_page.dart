@@ -115,8 +115,6 @@ class _CookPageState extends State<CookPage> {
     Map<String, dynamic>? arguments = {
       'methodName': 'SearchMix',
       'version': '4.3.2',
-      'page': '1',
-      'size': '50',
       'material_ids': material_ids,
     };
 

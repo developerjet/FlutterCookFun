@@ -17,23 +17,22 @@ class HomeDataCell extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center, // 控制垂直方向上的居中
 
         children: [
-          SizedBox(width: 5),
+          SizedBox(width: 8.0),
           GFImageOverlay(
             image: NetworkImage(model.image ?? ''),
-            width: 80,
+            width: 90,
             height: 60,
             boxFit: BoxFit.fill, //填充模式
             borderRadius: BorderRadius.circular(8), //圆角
           ),
-          SizedBox(width: 15),
+          SizedBox(width: 15.0),
           // 右边文本
-          Container(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              model.text ?? "--",
-              style: TextStyle(fontSize: 18.0),
-            ),
-          ),
+          Expanded(
+              child: Text(
+            model.text ?? "--",
+            style: TextStyle(fontSize: 18.0),
+          )),
+          SizedBox(width: 15.0),
         ],
       ),
     );

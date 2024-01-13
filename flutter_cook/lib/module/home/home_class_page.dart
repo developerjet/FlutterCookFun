@@ -10,7 +10,7 @@ import '../cook/model/cook_config_model.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 
-class FoodClassPage extends GetView<FoodClassController> {
+class FoodClassPage extends GetView<FoodDataController> {
   const FoodClassPage({super.key});
 
   @override
@@ -61,8 +61,6 @@ class FoodClassPage extends GetView<FoodClassController> {
     Map<String, dynamic>? arguments = {
       'methodName': 'CategorySearch',
       'version': '4.3.2',
-      'page': '1',
-      'size': '50',
       'cat_id': data.id,
       'type': data.type,
     };
