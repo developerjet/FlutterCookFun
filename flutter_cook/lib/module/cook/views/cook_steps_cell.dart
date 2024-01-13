@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
 import 'package:getwidget/getwidget.dart';
 
@@ -30,7 +30,7 @@ class CookStepsCell extends StatelessWidget {
                   Text(
                     model.dishesStepDesc ?? "--",
                     style: TextStyle(
-                        fontSize: 14.0, color: CustomColors.textMainColor()),
+                        fontSize: 14.0, color: ThemeManager.textMainColor()),
                   ),
                 ],
               )

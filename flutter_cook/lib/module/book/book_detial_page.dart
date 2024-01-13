@@ -4,7 +4,7 @@ import 'package:flutter_cook/module/book/model/book_detail_model.dart';
 import 'package:flutter_cook/module/book/views/book_detial_cell.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 
@@ -63,7 +63,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(Get.arguments['title']),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
       ),
       body: EasyRefresh(
         // 下拉刷新回调
@@ -124,7 +124,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                         BookDetialCell(model: dataList[index]),
                         Divider(
                           height: 0.5, // 分割线的高度
-                          color: CustomColors.lineBoardColor(),
+                          color: ThemeManager.lineBoardColor(),
                         ),
                       ],
                     ),
@@ -150,7 +150,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
 
   _showPlaySheetBottom(BookDishesListModel data) {
     Get.bottomSheet(Container(
-      color: CustomColors.bottomSheetColor(),
+      color: ThemeManager.bottomSheetColor(),
       height: 200,
       child: Column(
         children: [
@@ -158,13 +158,13 @@ class _BookDetailPageState extends State<BookDetailPage> {
             padding: EdgeInsets.all(15),
             child: Text("选择视频",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
           ),
           ListTile(
             leading: Icon(Icons.video_call_sharp,
-                color: CustomColors.textMainColor()),
+                color: ThemeManager.textMainColor()),
             title: Text("视频1",
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
               Get.back();
               _playCookVideo(data, 0);
@@ -172,9 +172,9 @@ class _BookDetailPageState extends State<BookDetailPage> {
           ),
           ListTile(
             leading: Icon(Icons.video_call_sharp,
-                color: CustomColors.textMainColor()),
+                color: ThemeManager.textMainColor()),
             title: Text("视频2",
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
               Get.back();
               _playCookVideo(data, 1);

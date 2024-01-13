@@ -5,7 +5,7 @@ import 'package:flutter_cook/module/home/views/home_banner.dart';
 import 'package:flutter_cook/module/home/views/home_data_cell.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
@@ -67,7 +67,17 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('tab_home_title'.tr),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
+        actions: [
+          IconButton(
+            icon: Image.asset('assets/images/search_white.png',
+                width: 25, height: 25),
+            onPressed: () {
+              //搜索页面
+              Get.toNamed('/search');
+            },
+          )
+        ],
       ),
       body: CustomScrollView(
         slivers: [
@@ -83,17 +93,18 @@ class _HomePageState extends State<HomePage> {
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
                 return InkWell(
-                    child: Column(
-                  children: [
-                    HomeDataCell(model: dataList[index]),
-                    Divider(
-                      height: 0.5, // 分割线的高度
-                      color: CustomColors.lineBoardColor(),
-                    ),
-                  ],
-                ),onTap: () {
-                  _skipClassPage(dataList[index]);
-                },
+                  child: Column(
+                    children: [
+                      HomeDataCell(model: dataList[index]),
+                      Divider(
+                        height: 0.5, // 分割线的高度
+                        color: ThemeManager.lineBoardColor(),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    _skipClassPage(dataList[index]);
+                  },
                 );
               },
               childCount: dataList.length,

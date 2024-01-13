@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/toast.dart';
@@ -35,8 +35,16 @@ class _CookConfigPageState extends State<CookConfigPage> {
     params['size'] = 20;
     params['page'] = pageIndex;
 
+    List jsonList = [];
+    String methodName = Get.arguments['methodName'];
+
     final response = await DioClient.get('', queryParameters: params);
-    List jsonList = response.data['data']['data'];
+
+    if (methodName == "SearchHome") {
+      jsonList = response.data['data']['dishes']['data'];
+    } else {
+      jsonList = response.data['data']['data'];
+    }
 
     HudLoading.dismiss();
 
@@ -79,7 +87,7 @@ class _CookConfigPageState extends State<CookConfigPage> {
             child: Center(
                 child: Text(
               '确定',
-              style: TextStyle(color: CustomColors.themeColor),
+              style: TextStyle(color: ThemeManager.themeColor),
             )),
           ),
         ],
@@ -92,7 +100,7 @@ class _CookConfigPageState extends State<CookConfigPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("可做${_dataList.length}道菜"),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
       ),
       body: EasyRefresh(
         // 下拉刷新回调
@@ -123,7 +131,7 @@ class _CookConfigPageState extends State<CookConfigPage> {
                   CookConfigCell(model: _dataList[index]),
                   Divider(
                       height: 0.75, // 设置分割线的高度
-                      color: CustomColors.lineBoardColor()),
+                      color: ThemeManager.lineBoardColor()),
                 ],
               ),
               onTap: () {

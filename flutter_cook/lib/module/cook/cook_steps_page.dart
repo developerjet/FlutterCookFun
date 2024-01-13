@@ -4,7 +4,7 @@ import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_cell.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_header.dart';
 import 'package:flutter_cook/module/home/controller/foodClassController.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/toast.dart';
@@ -43,6 +43,12 @@ class _CookStepsPageState extends State<CookStepsPage> {
     _fetchCookingSteps();
   }
 
+  @override
+  void dispose() {
+    HudLoading.dismiss();
+    super.dispose();
+  }
+
   // 获取做菜步骤
   Future<void> _fetchCookingSteps() async {
     Map<String, dynamic>? params = {
@@ -52,8 +58,14 @@ class _CookStepsPageState extends State<CookStepsPage> {
     };
 
     final response = await DioClient.get('', queryParameters: params);
+    dynamic jsonData = response.data['data'];
+    if (jsonData!.isEmpty == true) {
+      HudLoading.dismiss();
+      HudLoading.showError("暂无数据~");
+      return;
+    }
 
-    stepsModel = CookStepDataModel.fromJson(response.data['data']);
+    stepsModel = CookStepDataModel.fromJson(jsonData);
 
     HudLoading.dismiss();
     _queryConfigFavorite();
@@ -124,7 +136,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('cook_steps_title'.tr),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
         actions: [
           IconButton(
             icon: Obx(() => Icon(_isFavorite.value == true
@@ -146,12 +158,14 @@ class _CookStepsPageState extends State<CookStepsPage> {
           SliverToBoxAdapter(
             child: Container(
                 height: 420,
-                child: CookStepsHeader(
-                  model: stepsModel,
-                  onTap: () {
-                    _showPlaySheetBottom();
-                  },
-                )),
+                child: Visibility(
+                    visible: dataList.length > 0,
+                    child: CookStepsHeader(
+                      model: stepsModel,
+                      onTap: () {
+                        _showPlaySheetBottom();
+                      },
+                    ))),
           ),
           // 列表数据
           SliverList(
@@ -174,7 +188,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
 
   _showPlaySheetBottom() {
     Get.bottomSheet(Container(
-      color: CustomColors.bottomSheetColor(),
+      color: ThemeManager.bottomSheetColor(),
       height: 200,
       child: Column(
         children: [
@@ -182,13 +196,13 @@ class _CookStepsPageState extends State<CookStepsPage> {
             padding: EdgeInsets.all(15),
             child: Text("选择视频",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
           ),
           ListTile(
             leading: Icon(Icons.video_call_sharp,
-                color: CustomColors.textMainColor()),
+                color: ThemeManager.textMainColor()),
             title: Text("视频1",
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
               Get.back();
               _beginPlayVideo(0);
@@ -196,9 +210,9 @@ class _CookStepsPageState extends State<CookStepsPage> {
           ),
           ListTile(
             leading: Icon(Icons.video_call_sharp,
-                color: CustomColors.textMainColor()),
+                color: ThemeManager.textMainColor()),
             title: Text("视频2",
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
               Get.back();
               _beginPlayVideo(1);

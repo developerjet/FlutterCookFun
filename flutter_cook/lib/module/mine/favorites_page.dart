@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/model/cook_config_model.dart';
 import 'package:flutter_cook/module/home/controller/foodClassController.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter_cook/utils/sqlite/db_manager.dart';
@@ -37,7 +37,7 @@ class _FavoritePageState extends State<FavoritePage> {
         _dataList = [];
       }
 
-      _dataList.addAll(_configList!);
+      _dataList.addAll(_configList!.reversed.toList());
     });
   }
 
@@ -55,7 +55,7 @@ class _FavoritePageState extends State<FavoritePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('favorite_title'.tr),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
       ),
       body: SafeArea(
           child: ListView.builder(
@@ -67,14 +67,15 @@ class _FavoritePageState extends State<FavoritePage> {
                 CookConfigCell(model: _dataList[index]),
                 Divider(
                     height: 0.75, // 设置分割线的高度
-                    color: CustomColors.lineBoardColor()),
+                    color: ThemeManager.lineBoardColor()),
               ],
             ),
             onTap: () {
               // 跳转做菜步骤
-              Get.toNamed('/cookSteps',
-                  arguments: {'dishes_id': _dataList[index].dishesId, 
-                  'pushPage': 'myFavorites'});
+              Get.toNamed('/cookSteps', arguments: {
+                'dishes_id': _dataList[index].dishesId,
+                'pushPage': 'myFavorites'
+              });
             },
           );
         },

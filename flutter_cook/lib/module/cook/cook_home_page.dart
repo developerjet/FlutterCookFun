@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/views/cook_home_cell.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
 import 'package:flutter_cook/utils/toast.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 
@@ -59,12 +60,19 @@ class _CookPageState extends State<CookPage> {
   }
 
   _handlerSelectFood(CookListDataModel model) {
-    if (_selectedList.length >= _maxFoodCount) {
-      ToastUtils.showShortToast("每次最多可选食材$_maxFoodCount种");
-      return;
+    if (model.isSelected == false) {
+      if (_selectedList.length >= _maxFoodCount) {
+        ToastUtils.showShortToast("每次最多可选食材$_maxFoodCount种");
+        return;
+      }
+      _selectedList.add(model);
+    } else {
+      _selectedList.remove(model);
     }
 
-    _selectedList.add(model);
+    setState(() {
+      model.isSelected = !model.isSelected!;
+    });
 
     // 数组转字符串，用符号隔开
     String result = _selectedList.map((val) => val.text.toString()).join(', ');
@@ -88,19 +96,27 @@ class _CookPageState extends State<CookPage> {
             },
             child: Text(
               '取消',
-              style: TextStyle(color: CustomColors.textGrayColor()),
+              style: TextStyle(color: ThemeManager.textGrayColor()),
             ),
           ),
           TextButton(
             onPressed: () {
+              //清除已选择
+              setState(() {
+                for (var data in dataList) {
+                  for (var food in data.data!) {
+                    food.isSelected = false;
+                  }
+                }
+              });
+
               _selectedList.clear();
               _cookingName.value = "";
-
               Get.back();
             },
             child: Text(
               '确定',
-              style: TextStyle(color: CustomColors.themeColor),
+              style: TextStyle(color: ThemeManager.themeColor),
             ),
           ),
         ],
@@ -128,7 +144,7 @@ class _CookPageState extends State<CookPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text('tab_cook_title'.tr),
-          backgroundColor: CustomColors.themeColor,
+          backgroundColor: ThemeManager.themeColor,
           actions: [
             SizedBox(width: 15),
             Obx(() => Visibility(
@@ -147,7 +163,7 @@ class _CookPageState extends State<CookPage> {
             Container(
               width: width,
               height: 120,
-              color: CustomColors.bg3Color(),
+              color: ThemeManager.bg3Color(),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center, // 控制水平方向上的居中
                 children: [
@@ -158,12 +174,12 @@ class _CookPageState extends State<CookPage> {
                   Obx(() => Text("当前已选食材：" + _cookingName.string,
                       style: TextStyle(
                           fontSize: 13.0,
-                          color: CustomColors.textGrayColor()))),
+                          color: ThemeManager.textGrayColor()))),
                   SizedBox(height: 10),
                   GFButton(
                       child: Text("开始烹饪"),
                       enableFeedback: true,
-                      color: CustomColors.themeColor,
+                      color: ThemeManager.themeColor,
                       shape: GFButtonShape.pills,
                       type: GFButtonType.outline2x,
                       onPressed: () {

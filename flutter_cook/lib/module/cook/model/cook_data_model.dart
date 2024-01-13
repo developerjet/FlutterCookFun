@@ -5,7 +5,10 @@ class CookHomeListModel {
   List<CookListDataModel>? _data;
 
   CookHomeListModel(
-      {String? id, String? text, String? image, List<CookListDataModel>? data}) {
+      {String? id,
+      String? text,
+      String? image,
+      List<CookListDataModel>? data}) {
     if (id != null) {
       this._id = id;
     }
@@ -58,7 +61,11 @@ class CookListDataModel {
   String? _text;
   String? _image;
 
-  CookListDataModel({String? id, String? text, String? image}) {
+  /// 是否选中
+  bool? isSelected = false;
+
+  CookListDataModel(
+      {String? id, String? text, String? image, bool? isSelected}) {
     if (id != null) {
       this._id = id;
     }
@@ -68,6 +75,8 @@ class CookListDataModel {
     if (image != null) {
       this._image = image;
     }
+
+    this.isSelected = isSelected;
   }
 
   String? get id => _id;

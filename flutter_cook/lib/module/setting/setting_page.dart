@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:get/get.dart';
 
 class SettingPage extends StatefulWidget {
@@ -24,7 +24,7 @@ class _SettingPageState extends State<SettingPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('settting_title'.tr),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
       ),
       body: SafeArea(
           child: ListView.builder(
@@ -46,7 +46,7 @@ class _SettingPageState extends State<SettingPage> {
               ),
               Divider(
                 height: 0.5,
-                color: CustomColors.lineBoardColor(),
+                color: ThemeManager.lineBoardColor(),
               ), // 分割线
             ],
           );
@@ -58,7 +58,7 @@ class _SettingPageState extends State<SettingPage> {
 
   _settingTheme() {
     Get.bottomSheet(Container(
-      color: CustomColors.bottomSheetColor(),
+      color: ThemeManager.bottomSheetColor(),
       height: 200,
       child: Column(
         children: [
@@ -66,25 +66,29 @@ class _SettingPageState extends State<SettingPage> {
             padding: EdgeInsets.all(15),
             child: Text('change_theme'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
           ),
           ListTile(
             leading: Icon(Icons.wb_sunny_outlined,
-                color: CustomColors.textMainColor()),
+                color: ThemeManager.textMainColor()),
             title: Text('light_theme'.tr,
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
               Get.changeTheme(ThemeData.light());
               Get.back();
+
+              ThemeManager.changedTheme();
             },
           ),
           ListTile(
-            leading: Icon(Icons.dark_mode, color: CustomColors.textMainColor()),
+            leading: Icon(Icons.dark_mode, color: ThemeManager.textMainColor()),
             title: Text('dark_theme'.tr,
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
               Get.changeTheme(ThemeData.dark());
               Get.back();
+
+              ThemeManager.changedTheme();
             },
           ),
         ],
@@ -94,7 +98,7 @@ class _SettingPageState extends State<SettingPage> {
 
   _settingLanguage() {
     Get.bottomSheet(Container(
-      color: CustomColors.bottomSheetColor(),
+      color: ThemeManager.bottomSheetColor(),
       height: 200,
       child: Column(
         children: [
@@ -102,32 +106,32 @@ class _SettingPageState extends State<SettingPage> {
             padding: EdgeInsets.all(15),
             child: Text('setting_language'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
           ),
           ListTile(
             title: Text('language_zh'.tr,
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
-              //切换中文
-              Get.updateLocale(Locale('zh', 'CN'));
-              Get.back();
-
               setState(() {
                 items = ['change_theme'.tr, 'setting_language'.tr];
               });
+
+              //切换中文
+              Get.updateLocale(Locale('zh', 'CN'));
+              Get.back();
             },
           ),
           ListTile(
             title: Text('language_en'.tr,
-                style: TextStyle(color: CustomColors.textMainColor())),
+                style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
-              //切换英文
-              Get.updateLocale(Locale('en', 'CN'));
-              Get.back();
-
               setState(() {
                 items = ['change_theme'.tr, 'setting_language'.tr];
               });
+
+              //切换英文
+              Get.updateLocale(Locale('en', 'CN'));
+              Get.back();
             },
           ), // 添加分割线
         ],

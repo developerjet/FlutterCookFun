@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CustomColors {
+class ThemeManager {
   // 应用主题色
   static const Color themeColor = Color(0xFF00CC99);
 
@@ -86,5 +86,13 @@ class CustomColors {
       );
     });
     return MaterialColor(color.value, swatch);
+  }
+
+  static void changedTheme() {
+    //使用Get 强制更新app状态
+    Future.delayed(const Duration(milliseconds: 300), () {
+      print("执行这里");
+      Get.forceAppUpdate();
+    });
   }
 }

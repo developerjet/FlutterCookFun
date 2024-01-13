@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/toast.dart';
 import 'package:getwidget/getwidget.dart';
 
@@ -35,14 +35,14 @@ class CookStepsHeader extends StatelessWidget {
           Text(
             model.dashesName ?? "",
             style:
-                TextStyle(fontSize: 17.0, color: CustomColors.textMainColor()),
+                TextStyle(fontSize: 17.0, color: ThemeManager.textMainColor()),
           ),
           SizedBox(height: 6.0),
           Text(
             model.materialDesc ?? "",
             maxLines: 3,
             style:
-                TextStyle(fontSize: 14.0, color: CustomColors.textMainColor()),
+                TextStyle(fontSize: 14.0, color: ThemeManager.textMainColor()),
           ),
           SizedBox(height: 6.0),
           Expanded(
@@ -51,19 +51,19 @@ class CookStepsHeader extends StatelessWidget {
               Text(
                 "烹饪时间：${model.cookeTime ?? ""}",
                 style: TextStyle(
-                    fontSize: 14.0, color: CustomColors.textMainColor()),
+                    fontSize: 14.0, color: ThemeManager.textMainColor()),
               ),
               SizedBox(width: 20),
               Text(
                 "难度：${model.hardLevel ?? ""}",
                 style: TextStyle(
-                    fontSize: 14.0, color: CustomColors.textMainColor()),
+                    fontSize: 14.0, color: ThemeManager.textMainColor()),
               ),
               SizedBox(width: 20),
               Text(
                 "口味：${model.taste ?? ""}",
                 style: TextStyle(
-                    fontSize: 14.0, color: CustomColors.textMainColor()),
+                    fontSize: 14.0, color: ThemeManager.textMainColor()),
               ),
             ],
           )),
@@ -71,7 +71,7 @@ class CookStepsHeader extends StatelessWidget {
           Text(
             "大厨推荐做法",
             style:
-                TextStyle(fontSize: 20.0, color: CustomColors.redMainColor()),
+                TextStyle(fontSize: 20.0, color: ThemeManager.redMainColor()),
           ),
         ]));
   }

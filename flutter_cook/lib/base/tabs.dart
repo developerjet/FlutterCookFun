@@ -5,7 +5,7 @@ import '../module/home/home_data_page.dart';
 import '../module/cook/cook_home_page.dart';
 import '../module/book/book_home_page.dart';
 import '../module/mine/mine_page.dart';
-import '../utils/colors.dart';
+import '../utils/theme.dart';
 
 class Tabs extends StatefulWidget {
   final int index;
@@ -38,8 +38,8 @@ class _TabsState extends State<Tabs> {
     return Scaffold(
       // 底部导航栏
       bottomNavigationBar: BottomNavigationBar(
-          unselectedItemColor: CustomColors.tabUnselectedColor,
-          fixedColor: CustomColors.tabSelectedColor, //选中的颜色
+          unselectedItemColor: ThemeManager.tabUnselectedColor,
+          fixedColor: ThemeManager.tabSelectedColor, //选中的颜色
           iconSize: 30, //底部菜单大小
           unselectedFontSize: 11,
           selectedFontSize: 11,

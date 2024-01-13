@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -31,7 +31,7 @@ class _WebViewPageState extends State<WebViewPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(Get.arguments['title']),
-          backgroundColor: CustomColors.themeColor,
+          backgroundColor: ThemeManager.themeColor,
         ),
         body: Column(
           children: [

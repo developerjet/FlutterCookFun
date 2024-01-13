@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 
@@ -85,7 +85,7 @@ class _PlayerVideoPageState extends State<PlayerVideoPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("视频播放"),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
       ),
       body: VisibilityDetector(
         key: ObjectKey(_flickManager),

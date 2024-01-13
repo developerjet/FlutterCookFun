@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -64,7 +64,7 @@ class _BookPageState extends State<BookPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('tab_book_title'.tr),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
       ),
       body: SafeArea(
         child: EasyRefresh(

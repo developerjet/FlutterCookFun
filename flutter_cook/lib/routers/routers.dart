@@ -13,7 +13,7 @@ import '../base/tabs.dart';
 import '../module/search/search_page.dart';
 import '../module/setting/setting_page.dart';
 
-class AppPage {
+class AppRouter {
   // 路由配置
   static final routers = [
     // TabBar

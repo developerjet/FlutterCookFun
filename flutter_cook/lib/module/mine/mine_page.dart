@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/toast.dart';
 
 class MinePage extends StatefulWidget {
@@ -41,7 +41,7 @@ class _MinePageState extends State<MinePage> {
     return Scaffold(
         appBar: AppBar(
           title: Text('tab_mine_title'.tr),
-          backgroundColor: CustomColors.themeColor,
+          backgroundColor: ThemeManager.themeColor,
         ),
         body: SafeArea(
             child: CustomScrollView(
@@ -50,7 +50,7 @@ class _MinePageState extends State<MinePage> {
             SliverToBoxAdapter(
               child: Container(
                 height: 200,
-                color: CustomColors.bg3Color(),
+                color: ThemeManager.bg3Color(),
                 child: Column(children: [
                   SizedBox(height: 30),
                   Image.asset('assets/images/app_logo.png',
@@ -60,14 +60,14 @@ class _MinePageState extends State<MinePage> {
                     "厨艺乐",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: CustomColors.textMainColor(), fontSize: 15),
+                        color: ThemeManager.textMainColor(), fontSize: 15),
                   ),
                   SizedBox(height: 4.0),
                   Text(
                     "v${_version}",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: CustomColors.textGrayColor(), fontSize: 13),
+                        color: ThemeManager.textGrayColor(), fontSize: 13),
                   )
                 ]),
               ),
@@ -82,7 +82,7 @@ class _MinePageState extends State<MinePage> {
                         title: Text(items[index],
                             style: TextStyle(
                                 fontSize: 14.0,
-                                color: CustomColors.textMainColor())),
+                                color: ThemeManager.textMainColor())),
                         leading: _customLoading(index),
                         trailing: Image.asset('assets/images/arrow_right.png',
                             width: 20, height: 18),
@@ -92,7 +92,7 @@ class _MinePageState extends State<MinePage> {
                       ),
                       Divider(
                         height: 0.5, // 分割线的高度
-                        color: CustomColors.lineBoardColor(),
+                        color: ThemeManager.lineBoardColor(),
                       ),
                     ],
                   );

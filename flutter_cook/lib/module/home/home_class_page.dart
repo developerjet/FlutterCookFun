@@ -2,7 +2,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/home/controller/foodClassController.dart';
 import 'package:flutter_cook/module/home/model/home_model.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/toast.dart';
 import '../cook/views/cook_config_cell.dart';
@@ -18,7 +18,7 @@ class FoodClassPage extends GetView<FoodDataController> {
     return Scaffold(
       appBar: AppBar(
         title: Text(controller.foodData.text ?? "--"),
-        backgroundColor: CustomColors.themeColor,
+        backgroundColor: ThemeManager.themeColor,
       ),
       body: ListView.builder(
         itemCount: controller.foodData.data!.length,
@@ -48,7 +48,7 @@ class FoodClassPage extends GetView<FoodDataController> {
               ),
               Divider(
                 height: 0.5, // 分割线的高度
-                color: CustomColors.lineBoardColor(),
+                color: ThemeManager.lineBoardColor(),
               ),
             ],
           );

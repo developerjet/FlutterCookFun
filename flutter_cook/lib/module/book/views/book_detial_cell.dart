@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/book/model/book_detail_model.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:getwidget/getwidget.dart';
 
 class BookDetialCell extends StatelessWidget {
@@ -33,19 +33,19 @@ class BookDetialCell extends StatelessWidget {
                     maxLines: 1,
                     textAlign: TextAlign.start,
                     style: TextStyle(
-                        fontSize: 15, color: CustomColors.textMainColor())),
+                        fontSize: 15, color: ThemeManager.textMainColor())),
                 SizedBox(height: 6.0),
                 Text(model.dishesDesc ?? "",
                     maxLines: 3,
                     style: TextStyle(
-                        fontSize: 13, color: CustomColors.textGrayColor())),
+                        fontSize: 13, color: ThemeManager.textGrayColor())),
               ],
             ))),
             SizedBox(width: 8.0),
             Image(
               image: AssetImage('assets/images/play_count.png'),
               width: 20,
-              height: 18,
+              height: 20,
             ),
           ],
         ));

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/book/model/book_home_model.dart';
-import 'package:flutter_cook/utils/colors.dart';
+import 'package:flutter_cook/utils/theme.dart';
 import 'package:getwidget/getwidget.dart';
 
 class BookHomeCell extends StatelessWidget {
@@ -18,7 +18,7 @@ class BookHomeCell extends StatelessWidget {
           child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6.0),
-                color: CustomColors.bg2Color(), // 设置容器背景色
+                color: ThemeManager.bg2Color(), // 设置容器背景色
               ),
               child: Column(
                 children: [
@@ -34,14 +34,14 @@ class BookHomeCell extends StatelessWidget {
                     maxLines: 1,
                     model.sceneTitle ?? "",
                     style: TextStyle(
-                        fontSize: 14.0, color: CustomColors.textMainColor()),
+                        fontSize: 14.0, color: ThemeManager.textMainColor()),
                   ),
                   SizedBox(height: 5.0),
                   Text(
                     maxLines: 1,
                     model.sceneDesc ?? "",
                     style: TextStyle(
-                        fontSize: 13.0, color: CustomColors.textGrayColor()),
+                        fontSize: 13.0, color: ThemeManager.textGrayColor()),
                   )
                 ],
               ))),
