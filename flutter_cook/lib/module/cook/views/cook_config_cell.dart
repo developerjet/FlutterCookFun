@@ -26,7 +26,7 @@ class CookConfigCell extends StatelessWidget {
               ),
               SizedBox(width: 10.0),
               // 中间文字
-              Expanded(
+              Expanded( //羊肉
                 child: Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/home/controller/foodClassController.dart';
-import 'package:flutter_cook/module/home/model/home_model.dart';
+import 'package:flutter_cook/module/home/model/home_list_model.dart';
 import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/toast.dart';
@@ -27,6 +27,7 @@ class FoodClassPage extends GetView<FoodDataController> {
             children: <Widget>[
               ListTile(
                 title: Text(controller.foodData.data![index].text ?? ""),
+                titleAlignment: ListTileTitleAlignment.center,
                 leading: Container(
                     padding: EdgeInsets.all(8.0),
                     width: 80,

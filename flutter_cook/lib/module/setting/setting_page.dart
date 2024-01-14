@@ -10,6 +10,9 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  /// 主题模式
+  late int lastTheme = 0;
+
   late List items = ['change_theme'.tr, 'setting_language'.tr];
 
   @override
@@ -17,6 +20,11 @@ class _SettingPageState extends State<SettingPage> {
     super.initState();
 
     items = ['change_theme'.tr, 'setting_language'.tr];
+    _fetchSettingData();
+  }
+
+  Future<void> _fetchSettingData() async {
+    lastTheme = await ThemeManager.fetchLastTheme() ?? 0;
   }
 
   @override
@@ -73,22 +81,26 @@ class _SettingPageState extends State<SettingPage> {
                 color: ThemeManager.textMainColor()),
             title: Text('light_theme'.tr,
                 style: TextStyle(color: ThemeManager.textMainColor())),
+            trailing: Visibility(
+                visible: lastTheme == 0,
+                child:
+                    Icon(Icons.check_rounded, color: ThemeManager.themeColor)),
             onTap: () {
-              Get.changeTheme(ThemeData.light());
+              ThemeManager.saveTheme(0);
               Get.back();
-
-              ThemeManager.changedTheme();
             },
           ),
           ListTile(
             leading: Icon(Icons.dark_mode, color: ThemeManager.textMainColor()),
             title: Text('dark_theme'.tr,
                 style: TextStyle(color: ThemeManager.textMainColor())),
+            trailing: Visibility(
+                visible: lastTheme == 1,
+                child:
+                    Icon(Icons.check_rounded, color: ThemeManager.themeColor)),
             onTap: () {
-              Get.changeTheme(ThemeData.dark());
+              ThemeManager.saveTheme(1);
               Get.back();
-
-              ThemeManager.changedTheme();
             },
           ),
         ],

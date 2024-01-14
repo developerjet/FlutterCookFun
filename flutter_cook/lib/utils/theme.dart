@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeManager {
   // 应用主题色
@@ -88,11 +89,28 @@ class ThemeManager {
     return MaterialColor(color.value, swatch);
   }
 
-  static void changedTheme() {
+  static void saveTheme(int themeMode) async {
+    if (themeMode == 0) {
+      Get.changeTheme(ThemeData.light());
+    }else {
+      Get.changeTheme(ThemeData.dark());
+    }
+
     //使用Get 强制更新app状态
     Future.delayed(const Duration(milliseconds: 300), () {
-      print("执行这里");
+      print("======forceAppUpdate======");
       Get.forceAppUpdate();
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //保存主题模式
+    prefs.setInt("ThemeMode", themeMode);
+  }
+
+  static Future<int?> fetchLastTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //获取主题模式
+    int lastTheme = prefs.getInt("ThemeMode") ?? 0;
+    return lastTheme;
   }
 }

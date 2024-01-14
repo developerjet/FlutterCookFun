@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/home/controller/foodClassController.dart';
-import 'package:flutter_cook/module/home/model/home_model.dart';
+import 'package:flutter_cook/module/home/model/home_banner_model.dart';
+import 'package:flutter_cook/module/home/model/home_list_model.dart';
 import 'package:flutter_cook/module/home/views/home_banner.dart';
 import 'package:flutter_cook/module/home/views/home_data_cell.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
@@ -23,26 +24,26 @@ class _HomePageState extends State<HomePage> {
   FoodDataController classController = Get.find<FoodDataController>();
 
   // banner数据
-  final List<String> bannerImages = [
-    'https://pic.616pic.com/bg_w1180/00/08/72/kcTHuBFZ8R.jpg',
-    'https://img.zcool.cn/community/013505591d44a6a801216a3efba7c6.jpg@2o.jpg',
-    'https://img.zcool.cn/community/01447259640944a8012193a36d5ccf.jpg@1280w_1l_2o_100sh.jpg',
-    'https://img.zcool.cn/community/0129e85e817f33a80121651856f72a.jpg@1280w_1l_2o_100sh.jpg',
-    'https://img2.baidu.com/it/u=1544755449,2173069913&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=300',
-    'https://img.zcool.cn/community/01fd5e5cfb662da801213ec286b82c.jpg@2o.jpg',
-    'https://img.zcool.cn/community/012728597852faa8012193a3559f9a.jpg@2o.jpg'
-  ];
+  late List<String> bannerImages = [];
+  late List<ModuleData>? moduleDataList = [];
 
   @override
   void initState() {
     super.initState();
 
-    _fetchHomeData();
+    _handlerThemeMode();
+
+    HudLoading.show('Loading...');
+    _fetchBannerData();
+    _fetchHomeListData();
   }
 
-  Future<void> _fetchHomeData() async {
-    HudLoading.show('Loading...');
+  Future<void> _handlerThemeMode() async {
+    int lastTheme = await ThemeManager.fetchLastTheme() ?? 0;
+    ThemeManager.saveTheme(lastTheme);
+  }
 
+  Future<void> _fetchHomeListData() async {
     Map<String, dynamic>? params = {
       'methodName': 'CategoryIndex',
       'version': '4.3.2'
@@ -54,10 +55,37 @@ class _HomePageState extends State<HomePage> {
     HudLoading.dismiss();
 
     if (model.data.length > 0) {
-      //print("HomeList===$dataList");
-
       setState(() {
         dataList = model.data;
+      });
+    }
+  }
+
+  Future<void> _fetchBannerData() async {
+    Map<String, dynamic>? params = {
+      'devModel': 'iPhone',
+      'sysVersion': '16.7.2',
+      'appVersion': '5.61',
+      'version': '5.61',
+      'methodName': 'HomePage',
+      'token': '0',
+      'user_id': '0',
+      'page': '4'
+    };
+
+    final response = await DioClient.get('', queryParameters: params);
+
+    HomeBannerModel model = HomeBannerModel.fromJson(response.data);
+    HudLoading.dismiss();
+
+    if (model.data!.moduleList!.length > 0) {
+      moduleDataList = model.data!.moduleList![0].moduleData;
+
+      Iterable<String> images =
+          moduleDataList!.map((val) => val.bannerPicture.toString());
+
+      setState(() {
+        bannerImages.addAll(images);
       });
     }
   }
@@ -86,7 +114,17 @@ class _HomePageState extends State<HomePage> {
             child: Container(
                 height: 190,
                 color: Colors.white,
-                child: HomeBannerView(images: bannerImages)),
+                child: HomeBannerView(
+                  images: bannerImages,
+                  onTap: (index) {
+                    ModuleData banner = moduleDataList![index];
+                    // 跳转webView
+                    Get.toNamed('webPage', arguments: {
+                      'url': banner.bannerLink,
+                      'title': banner.bannerTitle
+                    });
+                  },
+                )),
           ),
           // 列表数据
           SliverList(

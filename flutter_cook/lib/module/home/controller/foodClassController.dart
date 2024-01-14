@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:flutter_cook/module/home/model/home_model.dart';
+import 'package:flutter_cook/module/home/model/home_list_model.dart';
 
 typedef FavoriteRefreshCallback = void Function();
 class FoodDataController extends GetxController {

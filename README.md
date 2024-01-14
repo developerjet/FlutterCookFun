@@ -36,6 +36,8 @@ Flutter 3.16.5 实现的美食烹饪APP，后续功能继续完善中....
 - Getx白天夜间换肤处理
 - Getx配置多语言
 - getwidget常用控件使用
+- Sqlite、shared_preferences数据持久化处理
 - 列表上下拉加载数据处理
-- Sqlite数据持久化处理
+
+
 

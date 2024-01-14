@@ -17,9 +17,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 获取系统语言
-    // Locale systemLocale = ui.window.locale;
-
     return GetMaterialApp(
       defaultGlobalState: true,
       title: "Cook Fun",

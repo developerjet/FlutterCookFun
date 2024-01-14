@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class HomeBannerView extends StatelessWidget {
   final List<String> images;
+  final void Function(int) onTap;
 
-  HomeBannerView({required this.images});
+  HomeBannerView({required this.images, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +19,16 @@ class HomeBannerView extends StatelessWidget {
         enlargeCenterPage: false,
       ),
       itemBuilder: (context, index, realIdx) {
-        return Container(
-          child: Image.network(images[index], fit: BoxFit.cover, width: width),
-        );
+        return InkWell(
+            child: Container(
+              child: Visibility(
+                  visible: images.length > 0,
+                  child: Image.network(images.length > 0 ? images[index] : '',
+                      fit: BoxFit.cover, width: width)),
+            ),
+            onTap:() {
+              onTap(index);
+            },);
       },
     );
   }

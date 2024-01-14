@@ -118,6 +118,7 @@ class _SearchPageState extends State<SearchPage> {
                       child: GFButton(
                         child: Text("取消"),
                         type: GFButtonType.transparent,
+                        shape: GFButtonShape.standard,
                         color: Colors.transparent,
                         textStyle: TextStyle(
                             fontSize: 17.0, color: ThemeManager.themeColor),
