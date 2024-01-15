@@ -60,14 +60,20 @@ class _MinePageState extends State<MinePage> {
                     "厨艺乐",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: ThemeManager.textMainColor(), fontSize: 15),
+                        color: ThemeManager.textMainColor(),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Eox"),
                   ),
                   SizedBox(height: 4.0),
                   Text(
                     "v${_version}",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: ThemeManager.textGrayColor(), fontSize: 13),
+                        color: ThemeManager.textGrayColor(),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: "Eox"),
                   )
                 ]),
               ),
@@ -82,6 +88,8 @@ class _MinePageState extends State<MinePage> {
                         title: Text(items[index],
                             style: TextStyle(
                                 fontSize: 14.0,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Exo",
                                 color: ThemeManager.textMainColor())),
                         leading: _customLoading(index),
                         trailing: Image.asset('assets/images/arrow_right.png',

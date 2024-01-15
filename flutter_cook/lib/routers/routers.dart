@@ -3,6 +3,7 @@ import 'package:flutter_cook/binding/binding.dart';
 import 'package:flutter_cook/module/book/book_detial_page.dart';
 import 'package:flutter_cook/module/cook/cook_config_page.dart';
 import 'package:flutter_cook/module/cook/cook_steps_page.dart';
+import 'package:flutter_cook/base/imageViewer.dart';
 import 'package:flutter_cook/module/home/home_class_page.dart';
 import 'package:flutter_cook/module/mine/favorites_page.dart';
 import 'package:flutter_cook/module/player/player_page.dart';
@@ -81,6 +82,12 @@ class AppRouter {
     GetPage(
         name: "/webPage",
         page: () => WebViewPage(),
+        transition: Transition.cupertino),
+
+    // 图片浏览
+    GetPage(
+        name: "/imageViewer",
+        page: () => ImageViewer(),
         transition: Transition.cupertino),
   ];
 }

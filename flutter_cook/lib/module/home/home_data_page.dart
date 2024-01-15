@@ -30,17 +30,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
-    _handlerThemeMode();
-
+    
     HudLoading.show('Loading...');
     _fetchBannerData();
     _fetchHomeListData();
-  }
-
-  Future<void> _handlerThemeMode() async {
-    int lastTheme = await ThemeManager.fetchLastTheme() ?? 0;
-    ThemeManager.saveTheme(lastTheme);
   }
 
   Future<void> _fetchHomeListData() async {
@@ -112,10 +105,10 @@ class _HomePageState extends State<HomePage> {
           // 顶部Banner
           SliverToBoxAdapter(
             child: Container(
-                height: 190,
+                height: 180,
                 color: Colors.white,
-                child: HomeBannerView(
-                  images: bannerImages,
+                child: CusotmCarouselSlider(
+                  imageList: bannerImages,
                   onTap: (index) {
                     ModuleData banner = moduleDataList![index];
                     // 跳转webView

@@ -23,7 +23,7 @@ class BookHomeCell extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0),
                       height: 110,
                       child: GFImageOverlay(
                         image: NetworkImage(model.sceneBackground ?? ''),
@@ -34,14 +34,20 @@ class BookHomeCell extends StatelessWidget {
                     maxLines: 1,
                     model.sceneTitle ?? "",
                     style: TextStyle(
-                        fontSize: 14.0, color: ThemeManager.textMainColor()),
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: "Exo",
+                        color: ThemeManager.textMainColor()),
                   ),
                   SizedBox(height: 5.0),
                   Text(
                     maxLines: 1,
                     model.sceneDesc ?? "",
                     style: TextStyle(
-                        fontSize: 13.0, color: ThemeManager.textGrayColor()),
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: "Exo",
+                        color: ThemeManager.textGrayColor()),
                   )
                 ],
               ))),

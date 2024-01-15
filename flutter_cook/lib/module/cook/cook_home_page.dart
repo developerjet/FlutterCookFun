@@ -209,7 +209,9 @@ class _CookPageState extends State<CookPage> {
                             child: Text(
                               dataList[groupIndex].text ?? "--",
                               style: TextStyle(
-                                  fontSize: 18.0, fontWeight: FontWeight.bold),
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "Exo"),
                             )),
                       ),
                       GridView.builder(

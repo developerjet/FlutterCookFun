@@ -31,6 +31,12 @@ class _TabsState extends State<Tabs> {
     super.initState();
 
     _currentIndex = widget.index;
+    _handlerThemeMode();
+  }
+
+  Future<void> _handlerThemeMode() async {
+    int lastTheme = await ThemeManager.fetchLastTheme() ?? 0;
+    ThemeManager.saveTheme(lastTheme);
   }
 
   @override

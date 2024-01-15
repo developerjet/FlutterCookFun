@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           primarySwatch: ThemeManager.createMaterialColor(Color(0XFF00CC99)),
+          fontFamily: "Roboto",
           appBarTheme: const AppBarTheme(
             backgroundColor: ThemeManager.themeColor,
             centerTitle: true,
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           primarySwatch: ThemeManager.createMaterialColor(Color(0XFF00CC99)),
+          fontFamily: "Exo",
           appBarTheme: const AppBarTheme(
             backgroundColor: ThemeManager.themeColor,
             centerTitle: true,

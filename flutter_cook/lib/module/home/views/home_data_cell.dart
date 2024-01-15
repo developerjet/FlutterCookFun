@@ -30,7 +30,8 @@ class HomeDataCell extends StatelessWidget {
           Expanded(
               child: Text(
             model.text ?? "--",
-            style: TextStyle(fontSize: 18.0),
+            style: TextStyle(
+                fontSize: 18.0, fontWeight: FontWeight.w900, fontFamily: 'Exo'),
           )),
           SizedBox(width: 15.0),
         ],

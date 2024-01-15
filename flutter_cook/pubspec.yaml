@@ -64,6 +64,9 @@ dependencies:
   path_provider: ^2.0.2
   shared_preferences: ^2.2.2
 
+  #图片浏览
+  photo_view: ^0.14.0
+
 
 dev_dependencies:
   flutter_test:
@@ -76,8 +79,20 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-#本地图片资源使用
+  
+  #配置图片资源
   assets:
     - assets/images/
     - assets/bumble_bee_captions.srt
+
+  #配置字体资源
+  fonts:
+   - family: Exo
+     fonts:
+      - asset: assets/fonts/Exo-Bold.ttf
+      - asset: assets/fonts/Exo-Italic.ttf
+      - asset: assets/fonts/Exo-Light.ttf
+      - asset: assets/fonts/Exo-Medium.ttf
+      - asset: assets/fonts/Exo-Regular.ttf
+      - asset: assets/fonts/Exo-Thin.ttf
+      

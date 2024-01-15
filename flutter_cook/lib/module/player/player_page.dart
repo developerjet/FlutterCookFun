@@ -98,10 +98,10 @@ class _PlayerVideoPageState extends State<PlayerVideoPage> {
         },
         child: Column(
           children: [
-            Container(
-              height: 240,
+            AspectRatio(
+              aspectRatio: 16 / 9,
               child: _player,
-            ),
+            )
           ],
         ),
       ),

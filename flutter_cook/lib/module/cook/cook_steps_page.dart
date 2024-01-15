@@ -3,6 +3,7 @@ import 'package:flutter_cook/module/cook/model/cook_config_model.dart';
 import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_cell.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_header.dart';
+import 'package:flutter_cook/base/imageViewer.dart';
 import 'package:flutter_cook/module/home/controller/foodClassController.dart';
 import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
@@ -24,6 +25,7 @@ class CookStepsPage extends StatefulWidget {
 class _CookStepsPageState extends State<CookStepsPage> {
   late CookStepDataModel stepsModel;
   late List<StepLitsModel> dataList = [];
+  late List<String> imageUrls = [];
 
   /// 实例化控制器
   FoodDataController dataController = Get.put(FoodDataController());
@@ -71,6 +73,10 @@ class _CookStepsPageState extends State<CookStepsPage> {
     _queryConfigFavorite();
 
     if (stepsModel.step!.length > 0) {
+      for (var model in stepsModel.step!) {
+        imageUrls.add(model.dishesStepImage ?? "");
+      }
+
       setState(() {
         dataList = stepsModel.step!;
       });
@@ -171,7 +177,13 @@ class _CookStepsPageState extends State<CookStepsPage> {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                return CookStepsCell(model: dataList[index]);
+                return InkWell(
+                  child: CookStepsCell(model: dataList[index]),
+                  onTap: () {
+                    Get.toNamed("/imageViewer",
+                        arguments: {'imageUrls': imageUrls});
+                  },
+                );
               },
               childCount: dataList.length,
             ),

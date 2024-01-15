@@ -40,7 +40,10 @@ class CookHomeCell extends StatelessWidget {
                   Text(
                     model.text ?? "--",
                     style: TextStyle(
-                        fontSize: 14.0, color: ThemeManager.textMainColor()),
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Exo",
+                        color: ThemeManager.textMainColor()),
                   ),
                 ],
               )
