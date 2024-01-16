@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/binding/controller/bindController.dart';
+import 'package:flutter_cook/utils/language/manager.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter_cook/utils/theme.dart';
@@ -14,26 +16,34 @@ class MinePage extends StatefulWidget {
 class _MinePageState extends State<MinePage> {
   String _version = '1.0.0';
 
-  final List<String> items = [
-    "设置",
-    "我的收藏",
-    "Flutter中文网",
-    "作者Github",
-  ];
+  final GetxDataController dataController = Get.find<GetxDataController>();
+
+  RxList<String> items = [
+    'setting_title'.tr,
+    'favorite_title'.tr,
+    'flutter_web'.tr,
+    'my_github'.tr,
+  ].obs;
 
   @override
   void initState() {
     super.initState();
 
-    _fetchAppVersion();
+    _handlerDataChanged();
   }
 
-  Future<void> _fetchAppVersion() async {
-    // PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  _handlerDataChanged() {
+    // 刷新数据
+    dataController.refreshSettingCallback = () {
+      print("refreshSettingCallback");
 
-    // setState(() {
-    //   _version = packageInfo.version;
-    // });
+      items.value = [
+        'setting_title'.tr,
+        'favorite_title'.tr,
+        'flutter_web'.tr,
+        'my_github'.tr,
+      ];
+    };
   }
 
   @override
@@ -57,7 +67,7 @@ class _MinePageState extends State<MinePage> {
                       width: 80, height: 80),
                   SizedBox(height: 15),
                   Text(
-                    "厨艺乐",
+                    'app_name_title'.tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: ThemeManager.textMainColor(),
@@ -85,12 +95,12 @@ class _MinePageState extends State<MinePage> {
                   return Column(
                     children: [
                       ListTile(
-                        title: Text(items[index],
+                        title: Obx(() => Text(items[index],
                             style: TextStyle(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.w500,
                                 fontFamily: "Exo",
-                                color: ThemeManager.textMainColor())),
+                                color: ThemeManager.textMainColor()))),
                         leading: _customLoading(index),
                         trailing: Image.asset('assets/images/arrow_right.png',
                             width: 20, height: 18),
@@ -121,8 +131,10 @@ class _MinePageState extends State<MinePage> {
         Get.toNamed('/favorite');
 
       case 2:
-        Get.toNamed('/webPage',
-            arguments: {'title': 'Flutter中文网', 'url': 'https://flutter.cn'});
+        Get.toNamed('/webPage', arguments: {
+          'title': 'flutter_web'.tr,
+          'url': 'https://flutter.cn'
+        });
 
       default:
         Get.toNamed('/webPage', arguments: {

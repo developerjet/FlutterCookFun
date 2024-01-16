@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 
 import './routers/routers.dart';
 import './binding/binding.dart';
-import './utils/language.dart';
+import 'utils/language/language.dart';
 
 void main() {
   runApp(const MyApp());

@@ -1,6 +1,6 @@
 import 'dart:ffi';
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/module/home/controller/foodClassController.dart';
+import 'package:flutter_cook/binding/controller/bindController.dart';
 import 'package:flutter_cook/module/home/model/home_list_model.dart';
 import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
@@ -10,7 +10,7 @@ import '../cook/model/cook_config_model.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 
-class FoodClassPage extends GetView<FoodDataController> {
+class FoodClassPage extends GetView<GetxDataController> {
   const FoodClassPage({super.key});
 
   @override

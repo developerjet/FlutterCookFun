@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/model/cook_config_model.dart';
-import 'package:flutter_cook/module/home/controller/foodClassController.dart';
+import 'package:flutter_cook/binding/controller/bindController.dart';
 import 'package:flutter_cook/utils/theme.dart';
 import 'package:get/get.dart';
 
@@ -19,7 +19,7 @@ class _FavoritePageState extends State<FavoritePage> {
   late List<CookConfigListModel>? _configList;
 
   /// 获取控制器
-  FoodDataController dataController = Get.find();
+  GetxDataController dataController = Get.find();
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _FavoritePageState extends State<FavoritePage> {
 
   _bindDataRefresh() {
     /// 刷新数据
-    dataController.favoriteCallback = () {
+    dataController.refreshFavoriteCallback = () {
       print("刷新数据收藏列表数据");
 
       _queryAllData();

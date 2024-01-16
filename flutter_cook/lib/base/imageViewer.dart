@@ -25,7 +25,7 @@ class _ImageViewerState extends State<ImageViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("图片浏览"),
+        title: Text('image_browse_title'.tr),
         backgroundColor: ThemeManager.themeColor,
       ),
       body: PhotoViewGallery.builder(

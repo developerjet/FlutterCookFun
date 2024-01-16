@@ -3,13 +3,17 @@ import 'package:get/get.dart';
 
 import 'package:flutter_cook/module/home/model/home_list_model.dart';
 
-typedef FavoriteRefreshCallback = void Function();
-class FoodDataController extends GetxController {
-  // 首页食材分类数据
+typedef dataRefreshCallback = void Function();
+
+class GetxDataController extends GetxController {
+  /// 首页食材分类数据
   late HomeFoodListData foodData;
 
   /// 收藏数据刷新
-  late FavoriteRefreshCallback favoriteCallback;
+  late dataRefreshCallback refreshFavoriteCallback;
+
+  /// 设置数据刷新
+  late dataRefreshCallback refreshSettingCallback;
 
   @override
   void onInit() {
@@ -35,10 +39,16 @@ class FoodDataController extends GetxController {
 
     update();
   }
-  
+
   void refreshFavorite() {
-    favoriteCallback();
-    
+    refreshFavoriteCallback();
+
+    update();
+  }
+
+  void refreshSettings() {
+    refreshSettingCallback();
+
     update();
   }
 }

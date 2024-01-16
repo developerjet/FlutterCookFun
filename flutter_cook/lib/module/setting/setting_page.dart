@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/binding/controller/bindController.dart';
+import 'package:flutter_cook/utils/language/manager.dart';
 import 'package:flutter_cook/utils/theme.dart';
 import 'package:get/get.dart';
 
@@ -13,13 +15,15 @@ class _SettingPageState extends State<SettingPage> {
   /// 主题模式
   late int lastTheme = 0;
 
-  late List items = ['change_theme'.tr, 'setting_language'.tr];
+  late RxList<String> items = ['change_theme'.tr, 'setting_language'.tr].obs;
+
+  // 实例化控制器
+  GetxDataController dataController = Get.put(GetxDataController());
 
   @override
   void initState() {
     super.initState();
 
-    items = ['change_theme'.tr, 'setting_language'.tr];
     _fetchSettingData();
   }
 
@@ -31,7 +35,7 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('settting_title'.tr),
+        title: Text('setting_title'.tr),
         backgroundColor: ThemeManager.themeColor,
       ),
       body: SafeArea(
@@ -41,7 +45,7 @@ class _SettingPageState extends State<SettingPage> {
           return Column(
             children: [
               ListTile(
-                title: Text(items[index]),
+                title: Obx(() => Text(items[index])),
                 trailing: Image.asset('assets/images/arrow_right.png',
                     width: 20, height: 18),
                 onTap: () {
@@ -124,26 +128,30 @@ class _SettingPageState extends State<SettingPage> {
             title: Text('language_zh'.tr,
                 style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
+              //切换中文
+              LanguageManager.saveLanguage(0);
+              Get.back();
+
               setState(() {
-                items = ['change_theme'.tr, 'setting_language'.tr];
+                items.value = ['change_theme'.tr, 'setting_language'.tr];
               });
 
-              //切换中文
-              Get.updateLocale(Locale('zh', 'CN'));
-              Get.back();
+              dataController.refreshSettings();
             },
           ),
           ListTile(
             title: Text('language_en'.tr,
                 style: TextStyle(color: ThemeManager.textMainColor())),
             onTap: () {
+              //切换英文
+              LanguageManager.saveLanguage(1);
+              Get.back();
+
               setState(() {
-                items = ['change_theme'.tr, 'setting_language'.tr];
+                items.value = ['change_theme'.tr, 'setting_language'.tr];
               });
 
-              //切换英文
-              Get.updateLocale(Locale('en', 'CN'));
-              Get.back();
+              dataController.refreshSettings();
             },
           ), // 添加分割线
         ],

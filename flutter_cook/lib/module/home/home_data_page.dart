@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/module/home/controller/foodClassController.dart';
+import 'package:flutter_cook/binding/controller/bindController.dart';
 import 'package:flutter_cook/module/home/model/home_banner_model.dart';
 import 'package:flutter_cook/module/home/model/home_list_model.dart';
 import 'package:flutter_cook/module/home/views/home_banner.dart';
@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   late List<HomeFoodListData> dataList = [];
 
   // 实例化控制器
-  FoodDataController classController = Get.find<FoodDataController>();
+  GetxDataController classController = Get.find<GetxDataController>();
 
   // banner数据
   late List<String> bannerImages = [];

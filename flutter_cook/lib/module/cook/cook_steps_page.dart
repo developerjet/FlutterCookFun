@@ -4,7 +4,7 @@ import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_cell.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_header.dart';
 import 'package:flutter_cook/base/imageViewer.dart';
-import 'package:flutter_cook/module/home/controller/foodClassController.dart';
+import 'package:flutter_cook/binding/controller/bindController.dart';
 import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
@@ -28,7 +28,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
   late List<String> imageUrls = [];
 
   /// 实例化控制器
-  FoodDataController dataController = Get.put(FoodDataController());
+  GetxDataController dataController = Get.put(GetxDataController());
 
   /// 是否收藏
   RxBool _isFavorite = false.obs;

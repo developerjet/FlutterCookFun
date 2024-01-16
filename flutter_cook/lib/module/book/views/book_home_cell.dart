@@ -13,7 +13,6 @@ class BookHomeCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Container(
-          // color: Colors.red,
           padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
           child: Container(
               decoration: BoxDecoration(
@@ -23,26 +22,28 @@ class BookHomeCell extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                      padding: EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(10.0),
                       height: 110,
                       child: GFImageOverlay(
                         image: NetworkImage(model.sceneBackground ?? ''),
                         boxFit: BoxFit.cover, //填充模式
                       )),
-                  SizedBox(height: 5.0),
+                  SizedBox(height: 6.0),
                   Text(
                     maxLines: 1,
                     model.sceneTitle ?? "",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.w700,
                         fontFamily: "Exo",
                         color: ThemeManager.textMainColor()),
                   ),
-                  SizedBox(height: 5.0),
+                  SizedBox(height: 6.0),
                   Text(
                     maxLines: 1,
                     model.sceneDesc ?? "",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.w400,

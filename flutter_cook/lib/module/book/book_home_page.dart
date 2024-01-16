@@ -3,7 +3,7 @@ import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_cook/utils/hudLoading.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:flutter_cook/utils/language.dart';
+import 'package:flutter_cook/utils/language/language.dart';
 import '../book/views/book_home_cell.dart';
 import 'package:get/get.dart';
 import 'model/book_home_model.dart';
@@ -90,8 +90,8 @@ class _BookPageState extends State<BookPage> {
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2, // 设置每行显示的列数
-              crossAxisSpacing: 0.5, // 列间距
-              mainAxisSpacing: 0.5, // 行间距
+              crossAxisSpacing: 0.1, // 列间距
+              mainAxisSpacing: 0.1, // 行间距
             ),
             itemCount: dataList.length, // 项数
             itemBuilder: (context, index) {

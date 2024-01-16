@@ -99,12 +99,17 @@ class _SearchPageState extends State<SearchPage> {
                   children: [
                     Expanded(
                       child: Container(
-                          height: 50,
+                          height: 40,
                           child: TextField(
                             focusNode: _focusNode,
                             decoration: InputDecoration(
                               hintText: '请输入食材名',
-                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 12.0, horizontal: 12.0), // 设置垂直内边距
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(25.0), // 设置圆角
+                              ),
                             ),
                             onChanged: (value) {
                               // 处理搜索框文本变化事件

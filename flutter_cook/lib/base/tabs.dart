@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/binding/controller/bindController.dart';
+import 'package:flutter_cook/utils/language/manager.dart';
 import 'package:get/get.dart';
 
 import '../module/home/home_data_page.dart';
@@ -18,6 +20,9 @@ class Tabs extends StatefulWidget {
 class _TabsState extends State<Tabs> {
   late int _currentIndex;
 
+  // 实例化控制器
+  GetxDataController dataController = Get.put(GetxDataController());
+
   final List<Widget> _pages = [
     HomePage(),
     CookPage(),
@@ -31,12 +36,17 @@ class _TabsState extends State<Tabs> {
     super.initState();
 
     _currentIndex = widget.index;
-    _handlerThemeMode();
+    _handlerAppData();
   }
 
-  Future<void> _handlerThemeMode() async {
+  Future<void> _handlerAppData() async {
     int lastTheme = await ThemeManager.fetchLastTheme() ?? 0;
     ThemeManager.saveTheme(lastTheme);
+
+    int lastLanguage = await LanguageManager.fetchLastLanguage() ?? 0;
+    LanguageManager.saveLanguage(lastLanguage);
+
+    dataController.refreshSettings();
   }
 
   @override

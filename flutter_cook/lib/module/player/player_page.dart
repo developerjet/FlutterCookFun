@@ -84,7 +84,7 @@ class _PlayerVideoPageState extends State<PlayerVideoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("视频播放"),
+        title: Text('play_video'.tr),
         backgroundColor: ThemeManager.themeColor,
       ),
       body: VisibilityDetector(
