@@ -9,7 +9,7 @@ class LanguageManager {
     if (languageType == 0) {
       Get.updateLocale(Locale('zh', 'CN'));
     } else {
-      Get.updateLocale(Locale('en', 'EN'));
+      Get.updateLocale(Locale('en', 'US'));
     }
 
     //使用Getx强制更新app状态

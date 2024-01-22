@@ -32,27 +32,27 @@ class CookConfigCell extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        model.title ?? "--",
+                        model.title ?? "",
                         style: TextStyle(
                             fontSize: 17.0,
                             color: ThemeManager.textMainColor()),
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "难度：${model.hardLevel ?? "--"}",
+                        "难度：${model.hardLevel ?? ""}",
                         style: TextStyle(
                             fontSize: 14.0, color: ThemeManager.redMainColor()),
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "口味：${model.taste ?? "--"}",
+                        "口味：${model.taste ?? ""}",
                         style: TextStyle(
                             fontSize: 14.0,
                             color: ThemeManager.textMainColor()),
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "烹饪时间：${model.cookingTime ?? "--"}",
+                        "烹饪时间：${model.cookingTime ?? ""}",
                         style: TextStyle(
                             fontSize: 14.0,
                             color: ThemeManager.textMainColor()),

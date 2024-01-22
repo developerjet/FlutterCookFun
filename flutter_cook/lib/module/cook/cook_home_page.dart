@@ -207,7 +207,7 @@ class _CookPageState extends State<CookPage> {
                             width: width,
                             padding: EdgeInsets.all(2.0),
                             child: Text(
-                              dataList[groupIndex].text ?? "--",
+                              dataList[groupIndex].text ?? "",
                               style: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.bold,
@@ -226,7 +226,7 @@ class _CookPageState extends State<CookPage> {
                         itemCount:
                             dataList[groupIndex].data!.length, // 对应分组里的数据
                         itemBuilder: (context, index) {
-                          return InkWell(
+                          return GestureDetector(
                             child: CookHomeCell(
                                 model: dataList[groupIndex].data![index]),
                             onTap: () {

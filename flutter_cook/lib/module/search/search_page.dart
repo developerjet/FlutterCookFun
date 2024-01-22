@@ -18,7 +18,12 @@ class _SearchPageState extends State<SearchPage> {
   late List<SearchDataListModel> dataList = [];
 
   //历史搜素
-  List<String> _historyList = [];
+  late List<String> _historyList = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<void> _fetchSearchData(String keyword) async {
     if (keyword.length == 0) {
@@ -41,8 +46,6 @@ class _SearchPageState extends State<SearchPage> {
 
     final response = await DioClient.get('', queryParameters: params);
     SearchDataModel model = SearchDataModel.fromJson(response.data['data']);
-
-    print("Search data${response}");
 
     if (model.data!.length > 0) {
       setState(() {
@@ -101,11 +104,12 @@ class _SearchPageState extends State<SearchPage> {
                       child: Container(
                           height: 40,
                           child: TextField(
+                            autofocus: true, // 获取焦点，弹出键盘
                             focusNode: _focusNode,
                             decoration: InputDecoration(
                               hintText: '请输入食材名',
                               contentPadding: EdgeInsets.symmetric(
-                                  vertical: 12.0, horizontal: 12.0), // 设置垂直内边距
+                                  vertical: 12.0, horizontal: 15.0), // 设置垂直内边距
                               border: OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.circular(25.0), // 设置圆角
@@ -120,13 +124,11 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(width: 8.0),
                     Container(
                       width: 60,
-                      child: GFButton(
-                        child: Text("取消"),
-                        type: GFButtonType.transparent,
-                        shape: GFButtonShape.standard,
-                        color: Colors.transparent,
-                        textStyle: TextStyle(
-                            fontSize: 17.0, color: ThemeManager.themeColor),
+                      child: TextButton(
+                        child: Text("取消",
+                            style: TextStyle(
+                                fontSize: 17.0,
+                                color: ThemeManager.themeColor)),
                         onPressed: () {
                           Get.back();
                         },

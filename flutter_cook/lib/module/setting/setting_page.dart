@@ -12,8 +12,11 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  /// 主题模式
-  late int lastTheme = 0;
+  /// 所选主题
+  late int selectedTheme = 0;
+
+  /// 所选语言
+  late int selectedLanguage = 0;
 
   late RxList<String> items = ['change_theme'.tr, 'setting_language'.tr].obs;
 
@@ -28,7 +31,8 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _fetchSettingData() async {
-    lastTheme = await ThemeManager.fetchLastTheme() ?? 0;
+    selectedTheme = await ThemeManager.fetchLastTheme() ?? 0;
+    selectedLanguage = await LanguageManager.fetchLastLanguage() ?? 0;
   }
 
   @override
@@ -86,10 +90,14 @@ class _SettingPageState extends State<SettingPage> {
             title: Text('light_theme'.tr,
                 style: TextStyle(color: ThemeManager.textMainColor())),
             trailing: Visibility(
-                visible: lastTheme == 0,
+                visible: selectedTheme == 0,
                 child:
                     Icon(Icons.check_rounded, color: ThemeManager.themeColor)),
             onTap: () {
+              setState(() {
+                selectedTheme = 0;
+              });
+
               ThemeManager.saveTheme(0);
               Get.back();
             },
@@ -99,10 +107,14 @@ class _SettingPageState extends State<SettingPage> {
             title: Text('dark_theme'.tr,
                 style: TextStyle(color: ThemeManager.textMainColor())),
             trailing: Visibility(
-                visible: lastTheme == 1,
+                visible: selectedTheme == 1,
                 child:
                     Icon(Icons.check_rounded, color: ThemeManager.themeColor)),
             onTap: () {
+              setState(() {
+                selectedTheme = 1;
+              });
+
               ThemeManager.saveTheme(1);
               Get.back();
             },
@@ -127,12 +139,17 @@ class _SettingPageState extends State<SettingPage> {
           ListTile(
             title: Text('language_zh'.tr,
                 style: TextStyle(color: ThemeManager.textMainColor())),
+            trailing: Visibility(
+                visible: selectedLanguage == 0,
+                child:
+                    Icon(Icons.check_rounded, color: ThemeManager.themeColor)),
             onTap: () {
               //切换中文
               LanguageManager.saveLanguage(0);
               Get.back();
 
               setState(() {
+                selectedLanguage = 0;
                 items.value = ['change_theme'.tr, 'setting_language'.tr];
               });
 
@@ -142,12 +159,17 @@ class _SettingPageState extends State<SettingPage> {
           ListTile(
             title: Text('language_en'.tr,
                 style: TextStyle(color: ThemeManager.textMainColor())),
+            trailing: Visibility(
+                visible: selectedLanguage == 1,
+                child:
+                    Icon(Icons.check_rounded, color: ThemeManager.themeColor)),
             onTap: () {
               //切换英文
               LanguageManager.saveLanguage(1);
               Get.back();
 
               setState(() {
+                selectedLanguage = 1;
                 items.value = ['change_theme'.tr, 'setting_language'.tr];
               });
 
