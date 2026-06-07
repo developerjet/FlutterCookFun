@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/binding/controller/bindController.dart';
 import 'package:flutter_cook/utils/language/manager.dart';
 import 'package:get/get.dart';
 
@@ -20,14 +19,11 @@ class Tabs extends StatefulWidget {
 class _TabsState extends State<Tabs> {
   late int _currentIndex;
 
-  // 实例化控制器
-  GetxDataController dataController = Get.put(GetxDataController());
-
   final List<Widget> _pages = [
-    HomePage(),
-    CookPage(),
-    BookPage(),
-    MinePage(),
+    const HomePage(),
+    const CookPage(),
+    const BookPage(),
+    const MinePage(),
   ];
 
   @override
@@ -46,7 +42,8 @@ class _TabsState extends State<Tabs> {
     int lastLanguage = await LanguageManager.fetchLastLanguage() ?? 0;
     LanguageManager.saveLanguage(lastLanguage);
 
-    dataController.refreshSettings();
+    // 初始化主题和语言设置
+    // 由 ThemeManager 与 LanguageManager 管理全局状态
   }
 
   @override
@@ -54,8 +51,8 @@ class _TabsState extends State<Tabs> {
     return Scaffold(
       // 底部导航栏
       bottomNavigationBar: BottomNavigationBar(
-          unselectedItemColor: ThemeManager.tabUnselectedColor,
-          fixedColor: ThemeManager.tabSelectedColor, //选中的颜色
+          unselectedItemColor: Theme.of(context).textTheme.bodySmall?.color?.withAlpha((0.8 * 255).round()),
+          selectedItemColor: Theme.of(context).colorScheme.primary,
           iconSize: 30, //底部菜单大小
           unselectedFontSize: 11,
           selectedFontSize: 11,

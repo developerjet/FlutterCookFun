@@ -1,26 +1,35 @@
-import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'home_list_model.g.dart';
+
+/// 首页数据模型
+@JsonSerializable()
 class HomeDataModel {
-  List<HomeFoodListData> data = [];
+  final List<HomeFoodListData> data;
 
-  HomeDataModel.fromJson(Map<String, dynamic> json) {
-    if (json['data'] != null) {
-      data = <HomeFoodListData>[];
-      json['data'].forEach((v) {
-        data.add(HomeFoodListData.fromJson(v));
-      });
-    }
-  }
+  HomeDataModel({this.data = const []});
+
+  factory HomeDataModel.fromJson(Map<String, dynamic> json) =>
+      _$HomeDataModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$HomeDataModelToJson(this);
 }
 
+/// 首页食材分类数据
+@JsonSerializable()
 class HomeFoodListData {
-  String? image;
-  String? id;
-  String? text;
-  int? type;
-  int? orderNo;
-  int? tagIsselfdefine;
-  List<FoodSubData>? data;
+  final String? image;
+  final String? id;
+  final String? text;
+  final int? type;
+
+  @JsonKey(name: 'order_no')
+  final int? orderNo;
+
+  @JsonKey(name: 'tag_isselfdefine')
+  final int? tagIsselfdefine;
+
+  final List<FoodSubData>? data;
 
   HomeFoodListData({
     this.image,
@@ -32,69 +41,39 @@ class HomeFoodListData {
     this.data,
   });
 
-  HomeFoodListData.fromJson(Map<String, dynamic> json) {
-    image = json['image'];
-    id = json['id'];
-    text = json['text'];
-    type = json['type'];
-    orderNo = json['order_no'];
-    tagIsselfdefine = json['tag_isselfdefine'];
-    if (json['data'] != null) {
-      data = <FoodSubData>[];
-      json['data'].forEach((v) {
-        data!.add(new FoodSubData.fromJson(v));
-      });
-    }
-  }
+  factory HomeFoodListData.fromJson(Map<String, dynamic> json) =>
+      _$HomeFoodListDataFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['image'] = this.image;
-    data['id'] = this.id;
-    data['text'] = this.text;
-    data['type'] = this.type;
-    data['order_no'] = this.orderNo;
-    data['tag_isselfdefine'] = this.tagIsselfdefine;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$HomeFoodListDataToJson(this);
 }
 
+/// 食材子分类数据
+@JsonSerializable()
 class FoodSubData {
-  String? id;
-  String? text;
-  int? tagIsselfdefine;
-  int? type;
-  int? orderNo;
-  String? image;
+  final String? id;
+  final String? text;
 
-  FoodSubData(
-      {this.id,
-      this.text,
-      this.tagIsselfdefine,
-      this.type,
-      this.orderNo,
-      this.image});
+  @JsonKey(name: 'tag_isselfdefine')
+  final int? tagIsselfdefine;
 
-  FoodSubData.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    text = json['text'];
-    tagIsselfdefine = json['tag_isselfdefine'];
-    type = json['type'];
-    orderNo = json['order_no'];
-    image = json['image'];
-  }
+  final int? type;
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['text'] = this.text;
-    data['tag_isselfdefine'] = this.tagIsselfdefine;
-    data['type'] = this.type;
-    data['order_no'] = this.orderNo;
-    data['image'] = this.image;
-    return data;
-  }
+  @JsonKey(name: 'order_no')
+  final int? orderNo;
+
+  final String? image;
+
+  FoodSubData({
+    this.id,
+    this.text,
+    this.tagIsselfdefine,
+    this.type,
+    this.orderNo,
+    this.image,
+  });
+
+  factory FoodSubData.fromJson(Map<String, dynamic> json) =>
+      _$FoodSubDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FoodSubDataToJson(this);
 }

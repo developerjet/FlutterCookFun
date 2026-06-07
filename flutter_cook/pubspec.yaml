@@ -32,10 +32,10 @@ dependencies:
   get: ^4.6.6
 
   #UI布局
-  getwidget: ^4.0.0
+  getwidget: ^7.0.0
 
   #轮播图
-  carousel_slider: ^4.2.1
+  carousel_slider: ^5.1.0
 
   #toast
   fluttertoast: ^8.2.4
@@ -47,25 +47,30 @@ dependencies:
   webview_flutter: ^4.4.4
 
   #JSON转Model
-  json_annotation: ^4.8.1
+  json_annotation: ^4.11.0
 
   #视频播放
   flick_video_player: ^0.7.0
   visibility_detector: ^0.4.0+2
 
   #HUDLoading
-  flutter_easyloading:
+  flutter_easyloading: ^3.0.5
 
   #列表上下拉刷新
   easy_refresh: ^3.3.4
 
   #数据库
-  sqflite:
-  path_provider: ^2.0.2
+  sqflite: ^2.3.2
+  path_provider: ^2.1.5
   shared_preferences: ^2.2.2
-
-  #图片浏览
   photo_view: ^0.14.0
+  video_player: ^2.6.0
+  path: ^1.8.4
+
+dependency_overrides:
+  win32: ^5.15.0
+  getwidget: ^7.0.0
+  carousel_slider: ^5.1.0
 
 
 dev_dependencies:
@@ -73,8 +78,8 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^2.0.0
-  json_serializable: ^6.7.1
-  build_runner: ^2.4.7
+  json_serializable: ^6.13.1
+  build_runner: ^2.13.1
 
 
 flutter:

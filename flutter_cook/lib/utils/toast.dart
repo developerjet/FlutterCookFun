@@ -51,6 +51,6 @@ class ToastUtils {
   }
 
   static void showSnackbar(String title, String message) {
-    Get.snackbar(title, message, duration: Duration(seconds: 2));
+    Get.snackbar(title, message, duration: const Duration(seconds: 2));
   }
 }

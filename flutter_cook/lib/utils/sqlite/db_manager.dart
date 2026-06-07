@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -123,9 +122,24 @@ class DBManager {
   /// 修改
   Future<int> update(CookConfigListModel cook, String dishesId) async {
     Database database = await db;
-    cook.dishesId = dishesId;
-    int count = await database.update("CookConfig", cook.toJson(),
-        where: "dishes_id=?", whereArgs: [cook.dishesId]);
+    final updatedCook = CookConfigListModel(
+      dishesId: dishesId,
+      image: cook.image,
+      title: cook.title,
+      hardLevel: cook.hardLevel,
+      taste: cook.taste,
+      cookingTime: cook.cookingTime,
+      description: cook.description,
+      video: cook.video,
+      video1: cook.video1,
+      play: cook.play,
+      collectCount: cook.collectCount,
+      createDate: cook.createDate,
+      content: cook.content,
+      tagsInfo: cook.tagsInfo,
+    );
+    int count = await database.update("CookConfig", updatedCook.toJson(),
+        where: "dishes_id=?", whereArgs: [dishesId]);
     return count;
   }
 

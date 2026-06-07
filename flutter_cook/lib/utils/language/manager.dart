@@ -7,9 +7,9 @@ class LanguageManager {
   /// 保存语言设置
   static void saveLanguage(int languageType) async {
     if (languageType == 0) {
-      Get.updateLocale(Locale('zh', 'CN'));
+      Get.updateLocale(const Locale('zh', 'CN'));
     } else {
-      Get.updateLocale(Locale('en', 'US'));
+      Get.updateLocale(const Locale('en', 'US'));
     }
 
     //使用Getx强制更新app状态
@@ -18,7 +18,7 @@ class LanguageManager {
     });
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //保存主题模式
+    //保存语言类型
     prefs.setInt("Language", languageType);
   }
 

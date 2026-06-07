@@ -1,119 +1,88 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'search_data_model.g.dart';
+
+@JsonSerializable()
 class SearchDataModel {
-  Top? top;
-  Second? second;
-  List<SearchDataListModel>? data;
+  final SearchTop? top;
+  final SearchSecond? second;
+  final List<SearchDataListModel>? data;
 
-  SearchDataModel({this.top, this.second, this.data});
+  const SearchDataModel({
+    this.top,
+    this.second,
+    this.data,
+  });
 
-  SearchDataModel.fromJson(Map<String, dynamic> json) {
-    top = json['top'] != null ? new Top.fromJson(json['top']) : null;
-    second =
-        json['second'] != null ? new Second.fromJson(json['second']) : null;
-    if (json['data'] != null) {
-      data = <SearchDataListModel>[];
-      json['data'].forEach((v) {
-        data!.add(new SearchDataListModel.fromJson(v));
-      });
-    }
-  }
+  factory SearchDataModel.fromJson(Map<String, dynamic> json) =>
+      _$SearchDataModelFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.top != null) {
-      data['top'] = this.top!.toJson();
-    }
-    if (this.second != null) {
-      data['second'] = this.second!.toJson();
-    }
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$SearchDataModelToJson(this);
 }
 
-class Top {
-  int? count;
-  List<TopData>? data;
+@JsonSerializable()
+class SearchTop {
+  final int? count;
+  final List<SearchTopData>? data;
 
-  Top({this.count, this.data});
+  const SearchTop({
+    this.count,
+    this.data,
+  });
 
-  Top.fromJson(Map<String, dynamic> json) {
-    count = json['count'];
-    if (json['data'] != null) {
-      data = <TopData>[];
-      json['data'].forEach((v) {
-        data!.add(new TopData.fromJson(v));
-      });
-    }
-  }
+  factory SearchTop.fromJson(Map<String, dynamic> json) =>
+      _$SearchTopFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['count'] = this.count;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$SearchTopToJson(this);
 }
 
-class TopData {
-  String? id;
-  String? title;
-  String? image;
+@JsonSerializable()
+class SearchTopData {
+  final String? id;
+  final String? title;
+  final String? image;
 
-  TopData({this.id, this.title, this.image});
+  const SearchTopData({
+    this.id,
+    this.title,
+    this.image,
+  });
 
-  TopData.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    title = json['title'];
-    image = json['image'];
-  }
+  factory SearchTopData.fromJson(Map<String, dynamic> json) =>
+      _$SearchTopDataFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['title'] = this.title;
-    data['image'] = this.image;
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$SearchTopDataToJson(this);
 }
 
-class Second {
-  String? total;
-  String? courseName;
+@JsonSerializable()
+class SearchSecond {
+  final String? total;
+  @JsonKey(name: 'course_name')
+  final String? courseName;
 
-  Second({this.total, this.courseName});
+  const SearchSecond({
+    this.total,
+    this.courseName,
+  });
 
-  Second.fromJson(Map<String, dynamic> json) {
-    total = json['total'];
-    courseName = json['course_name'];
-  }
+  factory SearchSecond.fromJson(Map<String, dynamic> json) =>
+      _$SearchSecondFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['total'] = this.total;
-    data['course_name'] = this.courseName;
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$SearchSecondToJson(this);
 }
 
+@JsonSerializable()
 class SearchDataListModel {
-  String? id;
-  String? text;
+  final String? id;
+  final String? text;
 
-  SearchDataListModel({this.id, this.text});
+  const SearchDataListModel({
+    this.id,
+    this.text,
+  });
 
-  SearchDataListModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    text = json['text'];
-  }
+  factory SearchDataListModel.fromJson(Map<String, dynamic> json) =>
+      _$SearchDataListModelFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['text'] = this.text;
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$SearchDataListModelToJson(this);
 }

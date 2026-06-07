@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/utils/theme.dart';
+import 'package:get/get.dart';
 import 'package:flutter_cook/module/cook/model/cook_config_model.dart';
 import 'package:getwidget/getwidget.dart';
 
 class CookConfigCell extends StatelessWidget {
   final CookConfigListModel model;
 
-  CookConfigCell({required this.model});
+  const CookConfigCell({super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Row(
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // 图片
@@ -24,60 +23,59 @@ class CookConfigCell extends StatelessWidget {
                 boxFit: BoxFit.cover, //填充模式
                 borderRadius: BorderRadius.circular(6), //圆角
               ),
-              SizedBox(width: 10.0),
+              const SizedBox(width: 10.0),
               // 中间文字
-              Expanded( //羊肉
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                       Text(
                         model.title ?? "",
                         style: TextStyle(
                             fontSize: 17.0,
-                            color: ThemeManager.textMainColor()),
+                            color: Theme.of(context).textTheme.bodyLarge?.color),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        "难度：${model.hardLevel ?? ""}",
-                        style: TextStyle(
-                            fontSize: 14.0, color: ThemeManager.redMainColor()),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "口味：${model.taste ?? ""}",
+                        "${'difficulty_label'.tr}${model.hardLevel ?? ""}",
                         style: TextStyle(
                             fontSize: 14.0,
-                            color: ThemeManager.textMainColor()),
+                            color: Theme.of(context).colorScheme.error),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        "烹饪时间：${model.cookingTime ?? ""}",
+                        "${'taste_label'.tr}${model.taste ?? ""}",
                         style: TextStyle(
                             fontSize: 14.0,
-                            color: ThemeManager.textMainColor()),
+                            color: Theme.of(context).textTheme.bodyLarge?.color),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
+                      Text(
+                        "${'cooking_time_label'.tr}${model.cookingTime ?? ""}",
+                        style: TextStyle(
+                            fontSize: 14.0,
+                            color: Theme.of(context).textTheme.bodyLarge?.color),
+                      ),
+                      const SizedBox(height: 4),
                       Text(
                         model.description ?? "--",
                         maxLines: 1,
                         style: TextStyle(
                             fontSize: 14.0,
-                            color: ThemeManager.textMainColor()),
+                            color: Theme.of(context).textTheme.bodyLarge?.color),
                       ),
                     ],
                   ),
                 ),
-              ),
               // 右边箭头
-              SizedBox(width: 10.0),
-              Image(
+              const SizedBox(width: 10.0),
+              const Image(
                 image: AssetImage('assets/images/arrow_right.png'),
                 width: 20,
                 height: 18,
               )
             ],
-          )),
+          ),
     );
   }
 }

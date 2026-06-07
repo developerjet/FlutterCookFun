@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 class AppMiddleWare extends GetMiddleware {
   @override
   RouteSettings? redirect(String? route) {
-    print("-------$route-------");
+    debugPrint("-------$route-------");
     // return null;  //不做任何操作
 
     //没有权限跳转到登录页面

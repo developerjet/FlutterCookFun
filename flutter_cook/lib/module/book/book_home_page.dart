@@ -1,62 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/utils/theme.dart';
-import 'package:flutter_cook/utils/hudLoading.dart';
-import 'package:flutter_cook/utils/networking/networking.dart';
+import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/module/book/controller/book_controller.dart';
+import 'package:flutter_cook/module/book/views/book_home_cell.dart';
+import 'package:flutter_cook/utils/constants.dart';
+import 'package:flutter_cook/utils/toast.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:flutter_cook/utils/language/language.dart';
-import '../book/views/book_home_cell.dart';
 import 'package:get/get.dart';
-import 'model/book_home_model.dart';
 
 class BookPage extends StatefulWidget {
   const BookPage({Key? key}) : super(key: key);
 
   @override
-  _BookPageState createState() => _BookPageState();
+  State<BookPage> createState() => _BookPageState();
 }
 
 class _BookPageState extends State<BookPage> {
-  //请求页码
-  late int pageIndex = 1;
-
-  late List<BookListModel> dataList = [];
+  late final BookController controller;
+  final EasyRefreshController _refreshController = EasyRefreshController();
 
   @override
   void initState() {
     super.initState();
-
-    HudLoading.show('Loading...');
-    _fetchBookDataList();
+    controller = Get.isRegistered<BookController>()
+        ? Get.find<BookController>()
+        : Get.put(BookController());
   }
 
-  Future<void> _fetchBookDataList() async {
-    Map<String, dynamic>? params = {
-      'methodName': 'SceneList',
-      'version': '4.3.2',
-      'page': pageIndex,
-      'size': '20'
-    };
-
-    final response = await DioClient.get('', queryParameters: params);
-
-    List jsonList = response.data['data']['data'];
-    HudLoading.dismiss();
-
-    if (jsonList.length > 0) {
-      if (pageIndex == 1) {
-        dataList = [];
-      }
-
-      List<BookListModel> tempList = [];
-      for (var data in jsonList) {
-        BookListModel model = BookListModel.fromJson(data);
-        tempList.add(model);
-      }
-
-      setState(() {
-        dataList.addAll(tempList);
-      });
-    }
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
   }
 
   @override
@@ -64,48 +37,52 @@ class _BookPageState extends State<BookPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('tab_book_title'.tr),
-        backgroundColor: ThemeManager.themeColor,
       ),
       body: SafeArea(
-        child: EasyRefresh(
-          // 下拉刷新回调
-          onRefresh: () async {
-            await Future.delayed(Duration(seconds: 2));
-            setState(() {
-              pageIndex = 1;
-              _fetchBookDataList();
-            });
-          },
-          // 上拉加载回调
-          onLoad: () async {
-            await Future.delayed(Duration(seconds: 2));
-            setState(() {
-              pageIndex++;
-              _fetchBookDataList();
-            });
-          },
-          // 控制器
-          controller: EasyRefreshController(),
-          // 子部件
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // 设置每行显示的列数
-              crossAxisSpacing: 0.1, // 列间距
-              mainAxisSpacing: 0.1, // 行间距
-            ),
-            itemCount: dataList.length, // 项数
-            itemBuilder: (context, index) {
-              return BookHomeCell(
-                  model: dataList[index],
-                  onTap: () {
-                    //跳转详情
-                    Map<dynamic, dynamic> arguments = {
-                      'scene_id': dataList[index].sceneId,
-                      'title': dataList[index].sceneTitle
-                    };
-                    Get.toNamed('bookDetail', arguments: arguments);
-                  });
+        child: Obx(
+          () => EasyRefresh(
+            onRefresh: () async {
+              await controller.loadBookList(refresh: true);
             },
+            onLoad: () async {
+              final nextPage = controller.pageIndex.value + 1;
+              final success = await controller.loadBookList(page: nextPage);
+              if (!success) {
+                ToastUtils.showShortToast('load_failed_try_again'.tr);
+              }
+            },
+            controller: _refreshController,
+            child: controller.bookList.isEmpty
+                ? controller.isLoading.value
+                    ? EmptyState.loading(title: 'loading'.tr)
+                    : EmptyState.empty(
+                        title: 'no_books'.tr,
+                        description: 'book_data_empty_desc'.tr,
+                        onRefresh: () =>
+                            controller.loadBookList(refresh: true),
+                      )
+                : GridView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8.0,
+                      mainAxisSpacing: 8.0,
+                    ),
+                    itemCount: controller.bookList.length,
+                    itemBuilder: (context, index) {
+                      final item = controller.bookList[index];
+                      return BookHomeCell(
+                        model: item,
+                        onTap: () {
+                          Get.toNamed(RouteNames.bookDetail, arguments: {
+                            'scene_id': item.sceneId,
+                            'title': item.sceneTitle,
+                          });
+                        },
+                      );
+                    },
+                  ),
           ),
         ),
       ),

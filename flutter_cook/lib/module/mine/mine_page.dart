@@ -1,57 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/binding/controller/bindController.dart';
-import 'package:flutter_cook/utils/language/manager.dart';
 import 'package:get/get.dart';
-
-import 'package:flutter_cook/utils/theme.dart';
-import 'package:flutter_cook/utils/toast.dart';
 
 class MinePage extends StatefulWidget {
   const MinePage({Key? key}) : super(key: key);
 
   @override
-  _MinePageState createState() => _MinePageState();
+  MinePageState createState() => MinePageState();
 }
 
-class _MinePageState extends State<MinePage> {
-  String _version = '1.0.0';
-
-  final GetxDataController dataController = Get.find<GetxDataController>();
-
-  RxList<String> items = [
-    'setting_title'.tr,
-    'favorite_title'.tr,
-    'flutter_web'.tr,
-    'my_github'.tr,
-  ].obs;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _handlerDataChanged();
-  }
-
-  _handlerDataChanged() {
-    // 刷新数据
-    dataController.refreshSettingCallback = () {
-      print("refreshSettingCallback");
-
-      items.value = [
-        'setting_title'.tr,
-        'favorite_title'.tr,
-        'flutter_web'.tr,
-        'my_github'.tr,
-      ];
-    };
-  }
+class MinePageState extends State<MinePage> {
+  final String _version = '1.0.0';
+  final List<String> itemKeys = [
+    'setting_title',
+    'favorite_title',
+    'flutter_web',
+    'my_github',
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text('tab_mine_title'.tr),
-          backgroundColor: ThemeManager.themeColor,
         ),
         body: SafeArea(
             child: CustomScrollView(
@@ -60,27 +30,27 @@ class _MinePageState extends State<MinePage> {
             SliverToBoxAdapter(
               child: Container(
                 height: 200,
-                color: ThemeManager.bg3Color(),
+                color: Theme.of(context).cardColor,
                 child: Column(children: [
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   Image.asset('assets/images/app_logo.png',
                       width: 80, height: 80),
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   Text(
                     'app_name_title'.tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: ThemeManager.textMainColor(),
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                         fontFamily: "Eox"),
                   ),
-                  SizedBox(height: 4.0),
+                  const SizedBox(height: 4.0),
                   Text(
-                    "v${_version}",
+                    "v$_version",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: ThemeManager.textGrayColor(),
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                         fontFamily: "Eox"),
@@ -95,12 +65,12 @@ class _MinePageState extends State<MinePage> {
                   return Column(
                     children: [
                       ListTile(
-                        title: Obx(() => Text(items[index],
+                        title: Text(itemKeys[index].tr,
                             style: TextStyle(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.w500,
                                 fontFamily: "Exo",
-                                color: ThemeManager.textMainColor()))),
+                                color: Theme.of(context).textTheme.bodyLarge?.color)),
                         leading: _customLoading(index),
                         trailing: Image.asset('assets/images/arrow_right.png',
                             width: 20, height: 18),
@@ -110,12 +80,12 @@ class _MinePageState extends State<MinePage> {
                       ),
                       Divider(
                         height: 0.5, // 分割线的高度
-                        color: ThemeManager.lineBoardColor(),
+                        color: Theme.of(context).dividerColor,
                       ),
                     ],
                   );
                 },
-                childCount: items.length,
+                childCount: itemKeys.length,
               ),
             ),
           ],
@@ -126,37 +96,38 @@ class _MinePageState extends State<MinePage> {
     switch (index) {
       case 0:
         Get.toNamed('/setting');
-
+        break;
       case 1:
         Get.toNamed('/favorite');
-
+        break;
       case 2:
         Get.toNamed('/webPage', arguments: {
           'title': 'flutter_web'.tr,
           'url': 'https://flutter.cn'
         });
-
+        break;
       default:
         Get.toNamed('/webPage', arguments: {
-          'title': 'Github',
+          'title': 'my_github'.tr,
           'url': 'https://github.com/developerjet'
         });
+        break;
     }
   }
 
   static Icon _customLoading(int index) {
     switch (index) {
       case 0:
-        return Icon(Icons.settings);
+        return const Icon(Icons.settings);
 
       case 1:
-        return Icon(Icons.dashboard_customize_sharp);
+        return const Icon(Icons.dashboard_customize_sharp);
 
       case 2:
-        return Icon(Icons.web);
+        return const Icon(Icons.web);
 
       default:
-        return Icon(Icons.data_usage_rounded);
+        return const Icon(Icons.data_usage_rounded);
     }
   }
 }

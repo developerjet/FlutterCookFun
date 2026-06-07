@@ -1,86 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/binding/controller/bindController.dart';
+import 'package:flutter_cook/base/empty_state_view.dart';
 import 'package:flutter_cook/module/home/model/home_banner_model.dart';
 import 'package:flutter_cook/module/home/model/home_list_model.dart';
+import 'package:flutter_cook/module/home/controller/home_controller.dart';
 import 'package:flutter_cook/module/home/views/home_banner.dart';
 import 'package:flutter_cook/module/home/views/home_data_cell.dart';
-import 'package:flutter_cook/utils/hudLoading.dart';
-import 'package:flutter_cook/utils/networking/networking.dart';
-import 'package:flutter_cook/utils/theme.dart';
 import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  // 数据
-  late List<HomeFoodListData> dataList = [];
-
-  // 实例化控制器
-  GetxDataController classController = Get.find<GetxDataController>();
-
-  // banner数据
-  late List<String> bannerImages = [];
-  late List<ModuleData>? moduleDataList = [];
+class HomePageState extends State<HomePage> {
+  final HomeController controller = Get.put(HomeController());
 
   @override
   void initState() {
     super.initState();
-    
-    HudLoading.show('Loading...');
-    _fetchBannerData();
-    _fetchHomeListData();
-  }
-
-  Future<void> _fetchHomeListData() async {
-    Map<String, dynamic>? params = {
-      'methodName': 'CategoryIndex',
-      'version': '4.3.2'
-    };
-
-    final response = await DioClient.get('', queryParameters: params);
-
-    HomeDataModel model = HomeDataModel.fromJson(response.data['data']);
-    HudLoading.dismiss();
-
-    if (model.data.length > 0) {
-      setState(() {
-        dataList = model.data;
-      });
-    }
-  }
-
-  Future<void> _fetchBannerData() async {
-    Map<String, dynamic>? params = {
-      'devModel': 'iPhone',
-      'sysVersion': '16.7.2',
-      'appVersion': '5.61',
-      'version': '5.61',
-      'methodName': 'HomePage',
-      'token': '0',
-      'user_id': '0',
-      'page': '4'
-    };
-
-    final response = await DioClient.get('', queryParameters: params);
-
-    HomeBannerModel model = HomeBannerModel.fromJson(response.data);
-    HudLoading.dismiss();
-
-    if (model.data!.moduleList!.length > 0) {
-      moduleDataList = model.data!.moduleList![0].moduleData;
-
-      Iterable<String> images =
-          moduleDataList!.map((val) => val.bannerPicture.toString());
-
-      setState(() {
-        bannerImages.addAll(images);
-      });
-    }
   }
 
   @override
@@ -88,7 +27,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('tab_home_title'.tr),
-        backgroundColor: ThemeManager.themeColor,
         actions: [
           IconButton(
             icon: Image.asset('assets/images/search_white.png',
@@ -100,57 +38,92 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          // 顶部Banner
-          SliverToBoxAdapter(
-            child: Container(
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return EmptyState.loading(title: 'loading'.tr);
+        }
+
+        if (controller.errorMessage.value != null) {
+          return EmptyState.error(
+            title: 'load_failed'.tr,
+            description: controller.errorMessage.value,
+            onRetry: () => controller.retryLoadData(),
+          );
+        }
+
+        final bannerData = controller.bannerData.value;
+        final rawBannerList = bannerData?.data?.moduleList?.isNotEmpty == true
+            ? bannerData!.data!.moduleList![0].moduleData ?? []
+            : <ModuleData>[];
+        final bannerList = rawBannerList.where((val) {
+          final picture = val.bannerPicture?.trim();
+          return picture != null && picture.isNotEmpty && picture != 'null';
+        }).toList();
+        final bannerImages = bannerList
+            .map((val) => val.bannerPicture!.toString())
+            .toList();
+        final dataList = controller.listData.value?.data ?? [];
+
+        if (dataList.isEmpty) {
+          return EmptyState.empty(
+            title: 'no_recipes'.tr,
+            description: 'no_recipe_data'.tr,
+            onRefresh: () => controller.refreshData(),
+          );
+        }
+
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Container(
                 height: 180,
                 color: Colors.white,
-                child: CusotmCarouselSlider(
-                  imageList: bannerImages,
-                  onTap: (index) {
-                    ModuleData banner = moduleDataList![index];
-                    // 跳转webView
-                    Get.toNamed('webPage', arguments: {
-                      'url': banner.bannerLink,
-                      'title': banner.bannerTitle
-                    });
-                  },
-                )),
-          ),
-          // 列表数据
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return InkWell(
-                  child: Column(
-                    children: [
-                      HomeDataCell(model: dataList[index]),
-                      Divider(
-                        height: 0.5, // 分割线的高度
-                        color: ThemeManager.lineBoardColor(),
+                child: bannerImages.isNotEmpty
+                    ? CusotmCarouselSlider(
+                        imageList: bannerImages,
+                        onTap: (index) {
+                          final banner = bannerList[index];
+                          Get.toNamed('webPage', arguments: {
+                            'url': banner.bannerLink,
+                            'title': banner.bannerTitle,
+                          });
+                        },
+                      )
+                    : Image.asset(
+                        'assets/images/banner_placeholder.png',
+                        fit: BoxFit.cover,
                       ),
-                    ],
-                  ),
-                  onTap: () {
-                    _skipClassPage(dataList[index]);
-                  },
-                );
-              },
-              childCount: dataList.length,
+              ),
             ),
-          ),
-        ],
-      ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  return InkWell(
+                    child: Column(
+                      children: [
+                        HomeDataCell(model: dataList[index]),
+                        Divider(
+                          height: 0.5,
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      _skipClassPage(dataList[index]);
+                    },
+                  );
+                },
+                childCount: dataList.length,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
   _skipClassPage(HomeFoodListData data) {
-    classController.foodData = data;
-
-    // 路由跳转
-    Get.toNamed('/foodClass');
+    Get.toNamed('/foodClass', arguments: data);
   }
 
   @override

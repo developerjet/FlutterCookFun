@@ -1,18 +1,18 @@
 import 'package:flutter_cook/base/web.dart';
-import 'package:flutter_cook/binding/binding.dart';
 import 'package:flutter_cook/module/book/book_detial_page.dart';
+import 'package:flutter_cook/module/book/binding/book_binding.dart';
 import 'package:flutter_cook/module/cook/cook_config_page.dart';
 import 'package:flutter_cook/module/cook/cook_steps_page.dart';
-import 'package:flutter_cook/base/imageViewer.dart';
+import 'package:flutter_cook/base/image_viewer.dart';
 import 'package:flutter_cook/module/home/home_class_page.dart';
 import 'package:flutter_cook/module/mine/favorites_page.dart';
 import 'package:flutter_cook/module/player/player_page.dart';
 import 'package:flutter_cook/module/setting/setting_page.dart';
+import 'package:flutter_cook/utils/constants.dart';
 import 'package:get/get.dart';
 
 import '../base/tabs.dart';
 import '../module/search/search_page.dart';
-import '../module/setting/setting_page.dart';
 
 class AppRouter {
   // 路由配置
@@ -23,38 +23,32 @@ class AppRouter {
     // 首页食材分类
     GetPage(
         name: "/foodClass",
-        binding: AllControllerBinding(),
         page: () => const FoodClassPage(),
         transition: Transition.cupertino), // iOS风格的过渡动画
 
     // 做菜步骤
     GetPage(
-        name: "/cookSteps",
+        name: RouteNames.cookSteps,
         page: () => const CookStepsPage(),
         transition: Transition.cupertino),
 
     // 去配菜界面
     GetPage(
-        name: "/cookConfig",
+        name: RouteNames.cookConfig,
         page: () => const CookConfigPage(),
-        transition: Transition.cupertino),
-
-    // 做菜步骤界面
-    GetPage(
-        name: "/cookSteps",
-        page: () => const CookStepsPage(),
         transition: Transition.cupertino),
 
     // 视频播放界面
     GetPage(
-        name: "/player",
-        page: () => PlayerVideoPage(),
+        name: RouteNames.playerVideo,
+        page: () => const PlayerVideoPage(),
         transition: Transition.cupertino),
 
     // 菜谱详情列表
     GetPage(
-        name: "/bookDetail",
-        page: () => BookDetailPage(),
+        name: RouteNames.bookDetail,
+        binding: BookBinding(),
+        page: () => const BookDetailPage(),
         transition: Transition.cupertino),
 
     // 去设置界面
@@ -67,7 +61,6 @@ class AppRouter {
     // 收藏
     GetPage(
       name: "/favorite",
-      binding: AllControllerBinding(),
       page: () => const FavoritePage(),
       transition: Transition.cupertino,
     ),
@@ -81,13 +74,13 @@ class AppRouter {
     // Web界面
     GetPage(
         name: "/webPage",
-        page: () => WebViewPage(),
+        page: () => const WebViewPage(),
         transition: Transition.cupertino),
 
     // 图片浏览
     GetPage(
         name: "/imageViewer",
-        page: () => ImageViewer(),
+        page: () => const ImageViewer(),
         transition: Transition.cupertino),
   ];
 }

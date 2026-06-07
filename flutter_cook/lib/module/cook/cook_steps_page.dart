@@ -1,139 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/module/cook/cook_route_args.dart';
+import 'package:flutter_cook/module/cook/controller/cook_steps_controller.dart';
 import 'package:flutter_cook/module/cook/model/cook_config_model.dart';
-import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_cell.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_header.dart';
-import 'package:flutter_cook/base/imageViewer.dart';
-import 'package:flutter_cook/binding/controller/bindController.dart';
-import 'package:flutter_cook/utils/theme.dart';
-import 'package:flutter_cook/utils/hudLoading.dart';
-import 'package:flutter_cook/utils/networking/networking.dart';
-import 'package:flutter_cook/utils/toast.dart';
+import 'package:flutter_cook/module/mine/controller/favorites_controller.dart';
+import 'package:flutter_cook/utils/constants.dart';
 import 'package:get/get.dart';
-
-import 'package:flutter_cook/utils/sqlite/db_manager.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
-import '../cook/views/cook_config_cell.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class CookStepsPage extends StatefulWidget {
   const CookStepsPage({Key? key}) : super(key: key);
 
   @override
-  _CookStepsPageState createState() => _CookStepsPageState();
+  State<CookStepsPage> createState() => _CookStepsPageState();
 }
 
 class _CookStepsPageState extends State<CookStepsPage> {
-  late CookStepDataModel stepsModel;
-  late List<StepLitsModel> dataList = [];
-  late List<String> imageUrls = [];
-
-  /// 实例化控制器
-  GetxDataController dataController = Get.put(GetxDataController());
+  late final CookStepsArguments arguments;
+  final CookStepsController cookController = Get.isRegistered<CookStepsController>()
+      ? Get.find<CookStepsController>()
+      : Get.put(CookStepsController());
+  final FavoritesController favoritesController =
+      Get.isRegistered<FavoritesController>()
+          ? Get.find<FavoritesController>()
+          : Get.put(FavoritesController());
 
   /// 是否收藏
-  RxBool _isFavorite = false.obs;
+  final RxBool _isFavorite = false.obs;
 
   @override
   void initState() {
-    // 初始化
-    stepsModel = CookStepDataModel.fromJson({});
-
     super.initState();
-
-    HudLoading.show('Loading...');
-
+    arguments = CookStepsArguments.fromMap(
+      Get.arguments as Map<String, dynamic>?,
+    );
     _fetchCookingSteps();
   }
 
   @override
   void dispose() {
-    HudLoading.dismiss();
     super.dispose();
   }
 
   // 获取做菜步骤
-  Future<void> _fetchCookingSteps() async {
-    Map<String, dynamic>? params = {
-      'methodName': 'DishesView',
-      'version': '4.3.2',
-      'dishes_id': Get.arguments['dishes_id'],
-    };
-
-    final response = await DioClient.get('', queryParameters: params);
-    dynamic jsonData = response.data['data'];
-    if (jsonData!.isEmpty == true) {
-      HudLoading.dismiss();
-      HudLoading.showError("暂无数据~");
+  Future<void> _fetchCookingSteps({bool refresh = false}) async {
+    if (!arguments.isValid) {
       return;
     }
 
-    stepsModel = CookStepDataModel.fromJson(jsonData);
+    final success = await cookController.loadCookSteps(
+      arguments.dishesId,
+      refresh: refresh,
+    );
 
-    HudLoading.dismiss();
-    _queryConfigFavorite();
-
-    if (stepsModel.step!.length > 0) {
-      for (var model in stepsModel.step!) {
-        imageUrls.add(model.dishesStepImage ?? "");
-      }
-
-      setState(() {
-        dataList = stepsModel.step!;
-      });
+    if (!success) {
+      return;
     }
+
+    await _queryConfigFavorite();
   }
 
   // 查询是否已收藏
-  _queryConfigFavorite() async {
-    String dishesId = Get.arguments['dishes_id'];
-
-    List<CookConfigListModel>? results = await DBManager().find(dishesId);
-
-    if (results != null && results.length > 0) {
-      _isFavorite.value = true;
-    } else {
+  Future<void> _queryConfigFavorite() async {
+    if (!arguments.isValid) {
       _isFavorite.value = false;
+      return;
     }
+
+    final isFav = await favoritesController.isFavorited(arguments.dishesId);
+    _isFavorite.value = isFav;
   }
 
   // 收藏
-  _beginFavoriteCook(CookStepDataModel model) async {
-    var cookConfig = CookConfigListModel();
-    cookConfig.dishesId = model.dashesId;
-    cookConfig.image = model.image;
-    cookConfig.title = model.dashesName;
-    cookConfig.hardLevel = model.hardLevel;
-    cookConfig.taste = model.taste;
-    cookConfig.cookingTime = model.cookingTime;
-    cookConfig.description = model.materialDesc;
+  Future<void> _beginFavoriteCook() async {
+    final loaded = cookController.cookStepsData.value;
+    if (loaded == null) {
+      return;
+    }
 
-    int result = await DBManager().saveData(cookConfig);
-
-    if (result > 0) {
-      HudLoading.showSuccess("收藏成功");
+    final cookConfig = CookConfigListModel(
+      dishesId: loaded.dashesId,
+      image: loaded.image,
+      title: loaded.dashesName,
+      hardLevel: loaded.hardLevel,
+      taste: loaded.taste,
+      cookingTime: loaded.cookingTime,
+      description: loaded.materialDesc,
+    );
+    final success = await favoritesController.addToFavorites(cookConfig);
+    if (success) {
       _isFavorite.value = true;
-
-      if (Get.arguments['pushPage'] == "myFavorites") {
-        dataController.refreshFavorite();
+      if (arguments.pushPage == 'myFavorites') {
+        favoritesController.refreshFavorites();
       }
-    } else {
-      HudLoading.showError("操作失败");
     }
   }
 
   // 取消收藏
-  _clearFavoriteCook(CookStepDataModel model) async {
-    int result = await DBManager().delete(model.dashesId!);
+  Future<void> _clearFavoriteCook() async {
+    final loaded = cookController.cookStepsData.value;
+    if (loaded == null) {
+      return;
+    }
 
-    if (result > 0) {
-      HudLoading.showSuccess("已取消收藏");
+    final id = loaded.dashesId ?? '';
+    final success = await favoritesController.removeFromFavorites(id);
+    if (success) {
       _isFavorite.value = false;
-
-      if (Get.arguments['pushPage'] == "myFavorites") {
-        dataController.refreshFavorite();
+      if (arguments.pushPage == 'myFavorites') {
+        favoritesController.refreshFavorites();
       }
-    } else {
-      HudLoading.showError("操作失败");
     }
   }
 
@@ -142,79 +121,216 @@ class _CookStepsPageState extends State<CookStepsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('cook_steps_title'.tr),
-        backgroundColor: ThemeManager.themeColor,
         actions: [
-          IconButton(
-            icon: Obx(() => Icon(_isFavorite.value == true
-                ? Icons.favorite_outlined
-                : Icons.favorite_border)),
-            onPressed: () {
-              if (_isFavorite.value) {
-                _clearFavoriteCook(stepsModel);
-              } else {
-                _beginFavoriteCook(stepsModel);
-              }
-            },
-          )
+          Obx(() {
+            final loaded = cookController.cookStepsData.value;
+            return IconButton(
+              icon: Icon(_isFavorite.value == true
+                  ? Icons.favorite_outlined
+                  : Icons.favorite_border),
+              onPressed: loaded == null
+                  ? null
+                  : () {
+                      if (_isFavorite.value) {
+                        _clearFavoriteCook();
+                      } else {
+                        _beginFavoriteCook();
+                      }
+                    },
+            );
+          })
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          // 顶部Banner
-          SliverToBoxAdapter(
-            child: Container(
-                height: 420,
-                child: Visibility(
-                    visible: dataList.length > 0,
-                    child: CookStepsHeader(
-                      model: stepsModel,
-                      onTap: () {
-                        _showPlaySheetBottom();
-                      },
-                    ))),
-          ),
-          // 列表数据
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return InkWell(
-                  child: CookStepsCell(model: dataList[index]),
-                  onTap: () {
-                    Get.toNamed("/imageViewer",
-                        arguments: {'imageUrls': imageUrls});
-                  },
-                );
-              },
-              childCount: dataList.length,
+      body: Obx(() {
+        if (!arguments.isValid) {
+          return EmptyState.error(
+            title: 'parameter_error'.tr,
+            description: 'missing_dish_id'.tr,
+            onRetry: () => _fetchCookingSteps(refresh: true),
+          );
+        }
+
+        final isLoading = cookController.isLoading.value;
+        final errorMessage = cookController.errorMessage.value;
+        final loaded = cookController.cookStepsData.value;
+        final currentList = loaded?.step ?? [];
+        final imageUrls = loaded?.step
+                ?.map((model) => model.dishesStepImage ?? '')
+                .where((url) => url.isNotEmpty)
+                .toList() ??
+            [];
+
+        if (isLoading && loaded == null) {
+          return EmptyState.loading(
+            title: 'loading'.tr,
+            description: 'loading_recipe_steps'.tr,
+          );
+        }
+
+        if (currentList.isEmpty) {
+          if (errorMessage != null) {
+            return EmptyState.error(
+              title: 'load_failed'.tr,
+              description: errorMessage,
+              onRetry: () => _fetchCookingSteps(),
+            );
+          }
+          return EmptyState.empty(
+            title: 'no_steps_data'.tr,
+            description: 'unable_get_recipe_steps'.tr,
+            onRefresh: () => _fetchCookingSteps(),
+          );
+        }
+
+        return CustomScrollView(
+          slivers: [
+            // 顶部Banner
+            SliverToBoxAdapter(
+              child: SizedBox(
+                  height: 420,
+                  child: CookStepsHeader(
+                    model: loaded!,
+                    onTap: () {
+                      _showPlaySheetBottom();
+                    },
+                  )),
             ),
-          ),
-        ],
-      ),
+            // 列表数据
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  return InkWell(
+                    child: CookStepsCell(model: currentList[index]),
+                    onTap: () {
+                      _showImageViewer(imageUrls);
+                    },
+                  );
+                },
+                childCount: currentList.length,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
-  _beginPlayVideo(int index) {
-    final List videoList = [stepsModel.materialVideo, stepsModel.processVideo];
-    Get.toNamed("player", arguments: {'url': videoList[index]});
+  void _showImageViewer(List<String> imageUrls, {int initialIndex = 0}) {
+    if (imageUrls.isEmpty) {
+      return;
+    }
+
+    final PageController pageController = PageController(initialPage: initialIndex);
+    int currentIndex = initialIndex;
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Image Viewer',
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Material(
+              color: Colors.black,
+              child: SafeArea(
+                top: true,
+                bottom: false,
+                child: Stack(
+                  children: [
+                    PhotoViewGallery.builder(
+                      itemCount: imageUrls.length,
+                      builder: (context, index) {
+                        return PhotoViewGalleryPageOptions(
+                          imageProvider: NetworkImage(imageUrls[index]),
+                          minScale: PhotoViewComputedScale.contained,
+                          maxScale: PhotoViewComputedScale.covered * 2,
+                        );
+                      },
+                      pageController: pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          currentIndex = index;
+                        });
+                      },
+                      scrollPhysics: const BouncingScrollPhysics(),
+                      backgroundDecoration: const BoxDecoration(
+                        color: Colors.black,
+                      ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 12.0),
+                        color: Colors.black.withAlpha((0.3 * 255).round()),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  '${currentIndex + 1}/${imageUrls.length}',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 48),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _beginPlayVideo(int index) {
+    final loaded = cookController.cookStepsData.value;
+    if (loaded == null) {
+      return;
+    }
+    final videoList = [loaded.materialVideo, loaded.processVideo];
+    Get.toNamed(RouteNames.playerVideo, arguments: {'url': videoList[index]});
   }
 
   _showPlaySheetBottom() {
     Get.bottomSheet(Container(
-      color: ThemeManager.bottomSheetColor(),
+      color: Theme.of(context).bottomSheetTheme.backgroundColor,
       height: 200,
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(15),
-            child: Text("选择视频",
+            padding: const EdgeInsets.all(15),
+            child: Text('choose_video'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: ThemeManager.textMainColor())),
+                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
           ),
           ListTile(
             leading: Icon(Icons.video_call_sharp,
-                color: ThemeManager.textMainColor()),
-            title: Text("视频1",
-                style: TextStyle(color: ThemeManager.textMainColor())),
+                color: Theme.of(context).iconTheme.color),
+            title: Text('video_one'.tr,
+                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
             onTap: () {
               Get.back();
               _beginPlayVideo(0);
@@ -222,9 +338,9 @@ class _CookStepsPageState extends State<CookStepsPage> {
           ),
           ListTile(
             leading: Icon(Icons.video_call_sharp,
-                color: ThemeManager.textMainColor()),
-            title: Text("视频2",
-                style: TextStyle(color: ThemeManager.textMainColor())),
+                color: Theme.of(context).textTheme.bodyLarge?.color),
+            title: Text('video_two'.tr,
+                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
             onTap: () {
               Get.back();
               _beginPlayVideo(1);

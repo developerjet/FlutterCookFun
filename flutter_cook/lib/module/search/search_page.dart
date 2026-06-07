@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/base/empty_state_view.dart';
 import 'package:flutter_cook/module/search/model/search_data_model.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
-import 'package:flutter_cook/utils/theme.dart';
+import 'package:flutter_cook/utils/constants.dart';
 import 'package:get/get.dart';
-import 'package:getwidget/getwidget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
 
   @override
-  _SearchPageState createState() => _SearchPageState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
   final _focusNode = FocusNode();
   late List<SearchDataListModel> dataList = [];
-
-  //历史搜素
-  late List<String> _historyList = [];
 
   @override
   void initState() {
@@ -26,7 +22,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _fetchSearchData(String keyword) async {
-    if (keyword.length == 0) {
+    if (keyword.isEmpty) {
       setState(() {
         dataList = [];
       });
@@ -47,39 +43,11 @@ class _SearchPageState extends State<SearchPage> {
     final response = await DioClient.get('', queryParameters: params);
     SearchDataModel model = SearchDataModel.fromJson(response.data['data']);
 
-    if (model.data!.length > 0) {
+    if (model.data!.isNotEmpty) {
       setState(() {
         dataList = model.data!;
       });
     }
-  }
-
-  _loadSearchHistory() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _historyList = prefs.getStringList('search_history') ?? [];
-    });
-  }
-
-  _saveSearchHistory() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('search_history', _historyList);
-  }
-
-  _addToHistory(String keyword) {
-    setState(() {
-      if (!_historyList.contains(keyword)) {
-        _historyList.insert(0, keyword);
-        _saveSearchHistory();
-      }
-    });
-  }
-
-  _clearHistory() {
-    setState(() {
-      _historyList.clear();
-      _saveSearchHistory();
-    });
   }
 
   @override
@@ -97,19 +65,19 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             Container(
                 height: 88,
-                padding: EdgeInsets.all(15.0),
+                padding: const EdgeInsets.all(15.0),
                 child: Row(
                   children: [
                     Expanded(
-                      child: Container(
+                      child: SizedBox(
                           height: 40,
                           child: TextField(
                             autofocus: true, // 获取焦点，弹出键盘
                             focusNode: _focusNode,
                             decoration: InputDecoration(
-                              hintText: '请输入食材名',
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 12.0, horizontal: 15.0), // 设置垂直内边距
+                              hintText: 'search_hint'.tr,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 15.0), // 设置垂直内边距
                               border: OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.circular(25.0), // 设置圆角
@@ -121,14 +89,19 @@ class _SearchPageState extends State<SearchPage> {
                             },
                           )),
                     ),
-                    SizedBox(width: 8.0),
-                    Container(
-                      width: 60,
+                    const SizedBox(width: 8.0),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 72),
                       child: TextButton(
-                        child: Text("取消",
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(72, 40),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text('cancel'.tr,
                             style: TextStyle(
                                 fontSize: 17.0,
-                                color: ThemeManager.themeColor)),
+                                color: Theme.of(context).colorScheme.primary)),
                         onPressed: () {
                           Get.back();
                         },
@@ -137,30 +110,37 @@ class _SearchPageState extends State<SearchPage> {
                   ],
                 )),
             Expanded(
-                child: ListView.builder(
-              itemCount: dataList.length,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: <Widget>[
-                    ListTile(
-                      title: Text(dataList[index].text ?? ""),
-                      trailing: Image(
-                        image: AssetImage('assets/images/arrow_right.png'),
-                        width: 20,
-                        height: 18,
-                      ),
-                      onTap: () {
-                        _skipFoodConfig(dataList[index]);
+              child: dataList.isEmpty
+                  ? EmptyState.empty(
+                      title: 'no_search_results'.tr,
+                      description: 'enter_keyword_to_search'.tr,
+                      onRefresh: () {},
+                    )
+                  : ListView.builder(
+                      itemCount: dataList.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: <Widget>[
+                            ListTile(
+                              title: Text(dataList[index].text ?? ""),
+                              trailing: const Image(
+                                image: AssetImage('assets/images/arrow_right.png'),
+                                width: 20,
+                                height: 18,
+                              ),
+                              onTap: () {
+                                _skipFoodConfig(dataList[index]);
+                              },
+                            ),
+                            Divider(
+                              height: 0.5,
+                              color: Theme.of(context).dividerColor,
+                            ),
+                          ],
+                        );
                       },
                     ),
-                    Divider(
-                      height: 0.5,
-                      color: ThemeManager.lineBoardColor(),
-                    ),
-                  ],
-                );
-              },
-            ))
+            )
           ],
         ),
       ),
@@ -177,7 +157,7 @@ class _SearchPageState extends State<SearchPage> {
     };
 
     // 路由跳转传值
-    Get.toNamed('/cookConfig', arguments: arguments);
+    Get.toNamed(RouteNames.cookConfig, arguments: arguments);
 
     // 收起键盘
     FocusScope.of(context).unfocus();

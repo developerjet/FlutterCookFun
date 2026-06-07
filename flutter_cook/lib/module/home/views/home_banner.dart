@@ -1,8 +1,5 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter_cook/utils/theme.dart';
-import 'package:get/get.dart';
 
 class CusotmCarouselSlider extends StatefulWidget {
   final List imageList;
@@ -14,7 +11,7 @@ class CusotmCarouselSlider extends StatefulWidget {
   final void Function(int)? onTap;
 
   const CusotmCarouselSlider(
-      {required this.imageList,
+      {super.key, required this.imageList,
       this.autoPlay = true,
       this.aspectRatio = 16 / 9,
       this.intervalDuration = 5000,
@@ -22,16 +19,17 @@ class CusotmCarouselSlider extends StatefulWidget {
       this.onTap});
 
   @override
-  _CusotmCarouselSliderState createState() => _CusotmCarouselSliderState();
+  CusotmCarouselSliderState createState() => CusotmCarouselSliderState();
 }
 
-class _CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
-  final CarouselController _carouselController = CarouselController();
+class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
+  late CarouselSliderController _carouselController;
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    _carouselController = CarouselSliderController();
   }
 
 
@@ -57,18 +55,21 @@ class _CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
               enableInfiniteScroll: widget.infiniteScroll,
             ),
             itemBuilder: (context, index, realIdx) {
+              final imagePath = widget.imageList[index]?.toString() ?? '';
+              final imageWidget = imagePath.startsWith('http')
+                  ? Image.network(imagePath, fit: BoxFit.cover)
+                  : Image.asset(imagePath.isNotEmpty
+                      ? imagePath
+                      : 'assets/images/banner_placeholder.png',
+                      fit: BoxFit.cover);
+
               return InkWell(
                 child: Container(
-                  child: Visibility(
-                      visible: widget.imageList.length > 0,
-                      child: Image.network(
-                          widget.imageList.length > 0
-                              ? widget.imageList[index]
-                              : '',
-                          fit: BoxFit.cover)),
+                  color: Colors.black,
+                  child: imageWidget,
                 ),
                 onTap: () {
-                  widget.onTap!(index);
+                  widget.onTap?.call(index);
                 },
               );
             },
@@ -85,10 +86,10 @@ class _CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
                 return Container(
                   width: 8,
                   height: 8,
-                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     color: _currentIndex == index
-                        ? ThemeManager.themeColor
+                        ? Theme.of(context).colorScheme.primary
                         : Colors.white,
                     borderRadius: BorderRadius.circular(4),
                   ),

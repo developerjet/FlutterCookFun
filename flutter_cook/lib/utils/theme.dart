@@ -4,59 +4,186 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeManager {
-  // 应用主题色
-  static const Color themeColor = Color(0xFF00CC99);
-
-  // TabBarItem选中颜色
+  static const Color primaryColor = Color(0xFF00CC99);
+  static const Color themeColor = primaryColor;
   static const Color tabSelectedColor = Color(0xFF00CC99);
-
-  // TabBarItem未选中颜色
   static const Color tabUnselectedColor = Color(0xFFAAAAAA);
 
-  // 主要文字颜色
-  static Color textMainColor() {
-    return Get.isDarkMode ? Color(0xFFFFFFFF) : Color(0xFF152934);
+  static final Rx<ThemeMode> currentThemeMode = ThemeMode.light.obs;
+
+  static ThemeMode get themeMode => currentThemeMode.value;
+
+  static bool get isDarkMode => currentThemeMode.value == ThemeMode.dark;
+
+  static Color get surfaceColor =>
+      isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF);
+
+  static Color get backgroundColor =>
+      isDarkMode ? const Color(0xFF121212) : const Color(0xFFF5F6F7);
+
+  static Color get cardColor =>
+      isDarkMode ? const Color(0xFF202020) : const Color(0xFFFFFFFF);
+
+  static Color get textPrimaryColor =>
+      isDarkMode ? const Color(0xFFFFFFFF) : Colors.black;
+
+  static Color get textSecondaryColor =>
+      isDarkMode ? const Color(0xFFB5B5B5) : const Color(0xFF6F777A);
+
+  static Color get dividerColor =>
+      isDarkMode ? const Color(0xFF383838) : const Color(0xFFE5E5E5);
+
+  static Color get bottomSheetBackground => surfaceColor;
+
+  static Color get maskBgColor => const Color(0x60000000);
+
+  static ThemeData get lightTheme {
+    return ThemeData(
+      brightness: Brightness.light,
+      primaryColor: primaryColor,
+      primarySwatch: createMaterialColor(primaryColor),
+      scaffoldBackgroundColor: backgroundColor,
+      canvasColor: surfaceColor,
+      cardColor: cardColor,
+      dividerColor: dividerColor,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      fontFamily: 'Exo',
+      appBarTheme: const AppBarTheme(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 0,
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: surfaceColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        ),
+      ),
+      dividerTheme: DividerThemeData(color: dividerColor, thickness: 0.5),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primaryColor,
+          side: const BorderSide(color: primaryColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primaryColor,
+        ),
+      ),
+      iconTheme: IconThemeData(color: textPrimaryColor),
+      textTheme: TextTheme(
+        bodyLarge: TextStyle(color: textPrimaryColor),
+        bodyMedium: TextStyle(color: textSecondaryColor),
+        titleLarge: TextStyle(color: textPrimaryColor),
+        titleMedium: TextStyle(color: textSecondaryColor),
+        labelLarge: const TextStyle(fontWeight: FontWeight.w500),
+      ),
+      colorScheme: ColorScheme.light(
+        primary: primaryColor,
+        secondary: primaryColor,
+        surface: surfaceColor,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: textPrimaryColor,
+      ),
+    );
   }
 
-  // 红色
-  static Color redMainColor() {
-    return Get.isDarkMode ? Color(0xFFDC143C) : Color(0xFFDC143C);
+  static ThemeData get darkTheme {
+    return ThemeData(
+      brightness: Brightness.dark,
+      primaryColor: primaryColor,
+      primarySwatch: createMaterialColor(primaryColor),
+      scaffoldBackgroundColor: backgroundColor,
+      canvasColor: surfaceColor,
+      cardColor: cardColor,
+      dividerColor: dividerColor,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      fontFamily: 'Exo',
+      appBarTheme: const AppBarTheme(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 0,
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: surfaceColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        ),
+      ),
+      dividerTheme: DividerThemeData(color: dividerColor, thickness: 0.5),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primaryColor,
+          side: const BorderSide(color: primaryColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primaryColor,
+        ),
+      ),
+      iconTheme: IconThemeData(color: textPrimaryColor),
+      textTheme: TextTheme(
+        bodyLarge: TextStyle(color: textPrimaryColor),
+        bodyMedium: TextStyle(color: textSecondaryColor),
+        titleLarge: TextStyle(color: textPrimaryColor),
+        titleMedium: TextStyle(color: textSecondaryColor),
+        labelLarge: const TextStyle(fontWeight: FontWeight.w500),
+      ),
+      colorScheme: ColorScheme.dark(
+        primary: primaryColor,
+        secondary: primaryColor,
+        surface: surfaceColor,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: textPrimaryColor,
+      ),
+    );
   }
 
-  // 辅助文字颜色
-  static Color textGrayColor() {
-    return Get.isDarkMode ? Color(0xFF6F777A) : Color(0xFF6F777A);
+  static Future<void> initialize() async {
+    final int themeIndex = await fetchLastTheme() ?? 0;
+    currentThemeMode.value = themeIndex == 0 ? ThemeMode.light : ThemeMode.dark;
   }
 
-  /// 描边颜色
-  static Color lineBoardColor() {
-    return Get.isDarkMode ? Color(0xFF2B2B2B) : Color(0xFFE5E5E5);
-  }
-
-  /// 一级背景颜色
-  static Color bg1Color() {
-    return Get.isDarkMode ? Color(0xFF1E1E1E) : Color(0xFFFFFFFF);
-  }
-
-  /// 二级背景颜色
-  static Color bg2Color() {
-    return Get.isDarkMode ? Color(0xFF2C2C2C) : Color(0xFFF5F6F7);
-  }
-
-  /// 三级背景颜色
-  static Color bg3Color() {
-    return Get.isDarkMode ? Color(0xFF000000) : Color(0xFFF6F6F6);
-  }
-
-  // bottomSheet背景颜色
-  static Color bottomSheetColor() {
-    return Get.isDarkMode ? Color(0xFF000000) : Color(0xFFF5F5F5);
-  }
-
-  // 蒙层颜色
-  static Color maskBgColor() {
-    return Get.isDarkMode ? Color(0xFF04050860) : Color(0xFF04050860);
-  }
+  static Color textMainColor() => textPrimaryColor;
+  static Color textGrayColor() => textSecondaryColor;
+  static Color redMainColor() => const Color(0xFFFF4F4F);
+  static Color lineBoardColor() => dividerColor;
+  static Color bg1Color() => surfaceColor;
+  static Color bg2Color() => backgroundColor;
+  static Color bg3Color() => cardColor;
+  static Color bottomSheetColor() => bottomSheetBackground;
 
   // 随机颜色
   static Color generateRandomColor() {
@@ -70,14 +197,14 @@ class ThemeManager {
   }
 
   static MaterialColor createMaterialColor(Color color) {
-    List strengths = <double>[.05];
-    Map<int, Color> swatch = {};
-    final int r = color.red, g = color.green, b = color.blue;
+    final List strengths = <double>[.05];
+    final Map<int, Color> swatch = {};
+    final int r = color.r.round(), g = color.g.round(), b = color.b.round();
 
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
     }
-    strengths.forEach((strength) {
+    for (var strength in strengths) {
       final double ds = 0.5 - strength;
       swatch[(strength * 1000).round()] = Color.fromRGBO(
         r + ((ds < 0 ? r : (255 - r)) * ds).round(),
@@ -85,32 +212,21 @@ class ThemeManager {
         b + ((ds < 0 ? b : (255 - b)) * ds).round(),
         1,
       );
-    });
-    return MaterialColor(color.value, swatch);
+    }
+    return MaterialColor(color.toARGB32(), swatch);
   }
 
-  static void saveTheme(int themeMode) async {
-    if (themeMode == 0) {
-      Get.changeTheme(ThemeData.light());
-    }else {
-      Get.changeTheme(ThemeData.dark());
-    }
+  static Future<void> saveTheme(int themeMode) async {
+    currentThemeMode.value = themeMode == 0 ? ThemeMode.light : ThemeMode.dark;
+    Get.changeThemeMode(currentThemeMode.value);
 
-    //使用Get 强制更新app状态
-    Future.delayed(const Duration(milliseconds: 300), () {
-      print("======forceAppUpdate======");
-      Get.forceAppUpdate();
-    });
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    //保存主题模式
-    prefs.setInt("ThemeMode", themeMode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('ThemeMode', themeMode);
   }
 
   static Future<int?> fetchLastTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    //获取主题模式
-    int lastTheme = prefs.getInt("ThemeMode") ?? 0;
+    final prefs = await SharedPreferences.getInstance();
+    final int lastTheme = prefs.getInt('ThemeMode') ?? 0;
     return lastTheme;
   }
 }

@@ -1,111 +1,81 @@
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'cook_config_model.g.dart';
+
+@JsonSerializable()
 class CookConfigListModel {
-  String? dishesId;
-  String? title;
-  String? description;
-  String? video;
-  String? video1;
-  String? image;
-  String? hardLevel;
-  String? play;
-  String? cookingTime;
-  String? collectCount;
-  String? taste;
-  int? createDate;
-  String? content;
-  List<CookTagsInfo>? tagsInfo;
+  @JsonKey(name: 'dishes_id')
+  final String? dishesId;
+  final String? title;
+  final String? description;
+  final String? video;
+  final String? video1;
+  final String? image;
+  @JsonKey(name: 'hard_level')
+  final String? hardLevel;
+  final String? play;
+  @JsonKey(name: 'cooking_time')
+  final String? cookingTime;
+  @JsonKey(name: 'collect_count')
+  final String? collectCount;
+  final String? taste;
+  @JsonKey(name: 'create_date')
+  final int? createDate;
+  final String? content;
+  @JsonKey(name: 'tags_info')
+  final List<CookTagsInfo>? tagsInfo;
 
-  CookConfigListModel(
-      {this.dishesId,
-      this.title,
-      this.description,
-      this.video,
-      this.video1,
-      this.image,
-      this.hardLevel,
-      this.play,
-      this.cookingTime,
-      this.collectCount,
-      this.taste,
-      this.createDate,
-      this.content,
-      this.tagsInfo});
+  const CookConfigListModel({
+    this.dishesId,
+    this.title,
+    this.description,
+    this.video,
+    this.video1,
+    this.image,
+    this.hardLevel,
+    this.play,
+    this.cookingTime,
+    this.collectCount,
+    this.taste,
+    this.createDate,
+    this.content,
+    this.tagsInfo,
+  });
 
-  CookConfigListModel.fromJson(Map<String, dynamic> json) {
-    dishesId = json['dishes_id'] ?? "";
-    title = json['title'] ?? "";
-    description = json['description'] ?? "";
-    video = json['video'] ?? "";
-    video1 = json['video1'] ?? "";
-    image = json['image'] ?? "";
-    hardLevel = json['hard_level'] ?? "";
-    play = json['play'] ?? "";
-    cookingTime = json['cooking_time'] ?? "";
-    collectCount = json['collect_count'] ?? "";
-    taste = json['taste'] ?? "";
-    createDate = json['create_date'] ?? 0;
-    content = json['content'] ?? "";
-    if (json['tags_info'] != null) {
-      tagsInfo = <CookTagsInfo>[];
-      json['tags_info'].forEach((v) {
-        tagsInfo!.add(new CookTagsInfo.fromJson(v));
-      });
-    }
-  }
+  factory CookConfigListModel.fromJson(Map<String, dynamic> json) =>
+      _$CookConfigListModelFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['dishes_id'] = this.dishesId ?? "";
-    data['title'] = this.title ?? "";
-    data['description'] = this.description ?? "";
-    data['video'] = this.video ?? "";
-    data['video1'] = this.video1 ?? "";
-    data['image'] = this.image ?? "";
-    data['hard_level'] = this.hardLevel ?? "";
-    data['play'] = this.play ?? "";
-    data['cooking_time'] = this.cookingTime ?? "";
-    data['collect_count'] = this.collectCount ?? "";
-    data['taste'] = this.taste ?? "";
-    data['create_date'] = this.createDate ?? "";
-    data['content'] = this.content ?? "";
-    if (this.tagsInfo != null) {
-      data['tags_info'] = this.tagsInfo!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$CookConfigListModelToJson(this);
 
   //保存数据库JSON
   Map<String, dynamic> toDataBaseJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['dishes_id'] = this.dishesId ?? "";
-    data['title'] = this.title ?? "";
-    data['image'] = this.image ?? "";
-    data['hard_level'] = this.hardLevel ?? "";
-    data['cooking_time'] = this.cookingTime ?? "";
-    data['taste'] = this.taste ?? "";
-    data['description'] = this.description ?? "";
-    return data;
+    return {
+      'dishes_id': dishesId ?? "",
+      'title': title ?? "",
+      'image': image ?? "",
+      'hard_level': hardLevel ?? "",
+      'cooking_time': cookingTime ?? "",
+      'taste': taste ?? "",
+      'description': description ?? "",
+    };
   }
 }
 
+@JsonSerializable()
 class CookTagsInfo {
-  int? id;
-  String? text;
-  int? type;
+  final int? id;
+  final String? text;
+  final int? type;
 
-  CookTagsInfo({this.id, this.text, this.type});
+  const CookTagsInfo({
+    this.id,
+    this.text,
+    this.type,
+  });
 
-  CookTagsInfo.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    text = json['text'];
-    type = json['type'];
-  }
+  factory CookTagsInfo.fromJson(Map<String, dynamic> json) =>
+      _$CookTagsInfoFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['text'] = this.text;
-    data['type'] = this.type;
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$CookTagsInfoToJson(this);
 }

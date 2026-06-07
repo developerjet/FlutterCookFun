@@ -1,21 +1,17 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_cook/utils/theme.dart';
-import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 
 class PlayerVideoPage extends StatefulWidget {
-  PlayerVideoPage({Key? key}) : super(key: key);
+  const PlayerVideoPage({Key? key}) : super(key: key);
 
   @override
-  _PlayerVideoPageState createState() => _PlayerVideoPageState();
+  PlayerVideoPageState createState() => PlayerVideoPageState();
 }
 
-class _PlayerVideoPageState extends State<PlayerVideoPage> {
+class PlayerVideoPageState extends State<PlayerVideoPage> {
   late FlickVideoPlayer _player;
   late FlickManager _flickManager;
   late String _videoUrl;
@@ -39,11 +35,11 @@ class _PlayerVideoPageState extends State<PlayerVideoPage> {
 
     _player = FlickVideoPlayer(
       flickManager: _flickManager,
-      flickVideoWithControls: FlickVideoWithControls(
+      flickVideoWithControls: const FlickVideoWithControls(
         closedCaptionTextStyle: TextStyle(fontSize: 8),
         controls: FlickPortraitControls(),
       ),
-      flickVideoWithControlsFullscreen: FlickVideoWithControls(
+      flickVideoWithControlsFullscreen: const FlickVideoWithControls(
         controls: FlickLandscapeControls(),
       ),
     );
@@ -85,12 +81,12 @@ class _PlayerVideoPageState extends State<PlayerVideoPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('play_video'.tr),
-        backgroundColor: ThemeManager.themeColor,
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: VisibilityDetector(
         key: ObjectKey(_flickManager),
         onVisibilityChanged: (visibility) {
-          if (visibility.visibleFraction == 0 && this.mounted) {
+          if (visibility.visibleFraction == 0 && mounted) {
             _flickManager.flickControlManager?.autoPause();
           } else if (visibility.visibleFraction == 1) {
             _flickManager.flickControlManager?.autoResume();
