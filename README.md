@@ -123,23 +123,6 @@ flutter build ios --release
 
 > iOS 构建前需执行 `cd ios && pod install`
 
-## 后端接口
-
-基于 `api.izhangchu.com` 开放 API，已逆向分析的接口包括：
-
-| 接口 | 数据量 | 用途 |
-|------|--------|------|
-| HomePage | 10 模块 | 首页 Banner + 推荐 |
-| CategoryIndex | 24 分类 | 食材分类 |
-| MaterialSubtype | 17 组 | 食材列表 |
-| SceneList | 1460 场景 | 菜谱列表 |
-| SceneDishes | 每场景 140 道 | 菜谱详情 |
-| DishesView | 完整步骤 | 做菜步骤 + 视频 |
-| SearchKeyword | 实时联想 | 搜索建议 |
-| SearchHome | 多维匹配 | 搜索结果 |
-| TopicList | 244 话题 | 美食话题（预留） |
-| CommentList | 有限 | 评论（后端关停中） |
-
 ## License
 
 MIT
