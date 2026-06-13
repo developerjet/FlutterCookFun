@@ -43,7 +43,7 @@ class MinePageState extends State<MinePage> {
                         color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        fontFamily: "Eox"),
+                        fontFamily: "Exo"),
                   ),
                   const SizedBox(height: 4.0),
                   Text(
@@ -53,7 +53,7 @@ class MinePageState extends State<MinePage> {
                         color: Theme.of(context).textTheme.bodyMedium?.color,
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
-                        fontFamily: "Eox"),
+                        fontFamily: "Exo"),
                   )
                 ]),
               ),

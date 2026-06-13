@@ -1,25 +1,36 @@
 buildscript {
-    ext.kotlin_version = '1.9.10'
     repositories {
         google()
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
         mavenCentral()
-    }
-
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 allprojects {
     repositories {
         google()
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
         mavenCentral()
     }
 }
 
 rootProject.buildDir = '../build'
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+subprojects { sub ->
+    sub.buildDir = "${rootProject.buildDir}/${sub.name}"
+    if (!sub.state.executed) {
+        sub.afterEvaluate {
+            if (hasProperty('android') && android.namespace == null) {
+                android.namespace = group?.toString() ?: "com.missing.${name}"
+            }
+        }
+    } else {
+        // already evaluated — apply namespace fix immediately
+        if (sub.hasProperty('android') && sub.android.namespace == null) {
+            sub.android.namespace = sub.group?.toString() ?: "com.missing.${sub.name}"
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(':app')

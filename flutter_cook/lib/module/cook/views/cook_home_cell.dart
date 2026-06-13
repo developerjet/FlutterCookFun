@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
-import 'package:getwidget/getwidget.dart';
 
 class CookHomeCell extends StatelessWidget {
   final CookListDataModel model;
@@ -12,11 +11,11 @@ class CookHomeCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha((0.04 * 255).round()),
@@ -30,8 +29,8 @@ class CookHomeCell extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                topRight: Radius.circular(18),
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
               ),
               child: SizedBox(
                 height: 110,
@@ -64,7 +63,7 @@ class CookHomeCell extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withValues(alpha: 0.85),
                             shape: BoxShape.circle,
                           ),
                           child: Image.asset(
@@ -79,7 +78,7 @@ class CookHomeCell extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
               child: Text(
                 model.text ?? "--",
                 maxLines: 2,

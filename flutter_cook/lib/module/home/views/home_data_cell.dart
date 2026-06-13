@@ -21,7 +21,7 @@ class HomeDataCell extends StatelessWidget {
             image: NetworkImage(model.image ?? ''),
             width: 90,
             height: 60,
-            boxFit: BoxFit.fill, //填充模式
+            boxFit: BoxFit.cover, //填充模式
             borderRadius: BorderRadius.circular(8), //圆角
           ),
           const SizedBox(width: 15.0),

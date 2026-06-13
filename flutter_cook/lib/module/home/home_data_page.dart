@@ -5,6 +5,7 @@ import 'package:flutter_cook/module/home/model/home_list_model.dart';
 import 'package:flutter_cook/module/home/controller/home_controller.dart';
 import 'package:flutter_cook/module/home/views/home_banner.dart';
 import 'package:flutter_cook/module/home/views/home_data_cell.dart';
+import 'package:flutter_cook/utils/constants.dart';
 import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
@@ -77,16 +78,36 @@ class HomePageState extends State<HomePage> {
             SliverToBoxAdapter(
               child: Container(
                 height: 180,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 child: bannerImages.isNotEmpty
                     ? CusotmCarouselSlider(
                         imageList: bannerImages,
                         onTap: (index) {
                           final banner = bannerList[index];
-                          Get.toNamed('webPage', arguments: {
-                            'url': banner.bannerLink,
-                            'title': banner.bannerTitle,
-                          });
+                          final link = banner.bannerLink ?? '';
+                          if (link.isEmpty) return;
+                          if (link.startsWith('app://dish')) {
+                            final dishesId =
+                                Uri.parse(link).queryParameters['id'] ?? '';
+                            if (dishesId.isEmpty) return;
+                            Get.toNamed(RouteNames.cookSteps, arguments: {
+                              'dishes_id': dishesId,
+                              'pushPage': 'home',
+                            });
+                          } else if (link.startsWith('app://series')) {
+                            final seriesId =
+                                Uri.parse(link).queryParameters['id'] ?? '';
+                            if (seriesId.isEmpty) return;
+                            Get.toNamed(RouteNames.bookDetail, arguments: {
+                              'scene_id': seriesId,
+                              'title': banner.bannerTitle,
+                            });
+                          } else if (link.startsWith('http')) {
+                            Get.toNamed('webPage', arguments: {
+                              'url': link,
+                              'title': banner.bannerTitle,
+                            });
+                          }
                         },
                       )
                     : Image.asset(

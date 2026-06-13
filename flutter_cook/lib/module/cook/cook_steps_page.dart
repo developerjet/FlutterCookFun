@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
 import 'package:flutter_cook/module/cook/cook_route_args.dart';
@@ -7,7 +8,12 @@ import 'package:flutter_cook/module/cook/views/cook_steps_cell.dart';
 import 'package:flutter_cook/module/cook/views/cook_steps_header.dart';
 import 'package:flutter_cook/module/mine/controller/favorites_controller.dart';
 import 'package:flutter_cook/utils/constants.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_cook/utils/networking/networking.dart';
+import 'package:flutter_cook/utils/toast.dart';
+import 'package:gal/gal.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -186,14 +192,12 @@ class _CookStepsPageState extends State<CookStepsPage> {
           slivers: [
             // 顶部Banner
             SliverToBoxAdapter(
-              child: SizedBox(
-                  height: 420,
-                  child: CookStepsHeader(
-                    model: loaded!,
-                    onTap: () {
-                      _showPlaySheetBottom();
-                    },
-                  )),
+              child: CookStepsHeader(
+                model: loaded!,
+                onTap: () {
+                  _showPlaySheetBottom();
+                },
+              ),
             ),
             // 列表数据
             SliverList(
@@ -202,7 +206,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
                   return InkWell(
                     child: CookStepsCell(model: currentList[index]),
                     onTap: () {
-                      _showImageViewer(imageUrls);
+                      _showImageViewer(imageUrls, initialIndex: index);
                     },
                   );
                 },
@@ -233,69 +237,80 @@ class _CookStepsPageState extends State<CookStepsPage> {
           Animation<double> secondaryAnimation) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return Material(
-              color: Colors.black,
-              child: SafeArea(
-                top: true,
-                bottom: false,
-                child: Stack(
-                  children: [
-                    PhotoViewGallery.builder(
-                      itemCount: imageUrls.length,
-                      builder: (context, index) {
-                        return PhotoViewGalleryPageOptions(
-                          imageProvider: NetworkImage(imageUrls[index]),
-                          minScale: PhotoViewComputedScale.contained,
-                          maxScale: PhotoViewComputedScale.covered * 2,
-                        );
-                      },
-                      pageController: pageController,
-                      onPageChanged: (index) {
-                        setState(() {
-                          currentIndex = index;
-                        });
-                      },
-                      scrollPhysics: const BouncingScrollPhysics(),
-                      backgroundDecoration: const BoxDecoration(
-                        color: Colors.black,
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0, vertical: 12.0),
-                        color: Colors.black.withAlpha((0.3 * 255).round()),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  '${currentIndex + 1}/${imageUrls.length}',
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 48),
-                          ],
+            return GestureDetector(
+              onLongPress: () => _showImageActionSheet(
+                  context, imageUrls[currentIndex]),
+              child: Material(
+                color: Colors.black,
+                child: SafeArea(
+                  top: true,
+                  bottom: false,
+                  child: Stack(
+                    children: [
+                      PhotoViewGallery.builder(
+                        itemCount: imageUrls.length,
+                        builder: (context, index) {
+                          return PhotoViewGalleryPageOptions(
+                            imageProvider: NetworkImage(imageUrls[index]),
+                            minScale: PhotoViewComputedScale.contained,
+                            maxScale: PhotoViewComputedScale.covered * 2,
+                          );
+                        },
+                        pageController: pageController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            currentIndex = index;
+                          });
+                        },
+                        scrollPhysics: const BouncingScrollPhysics(),
+                        backgroundDecoration: const BoxDecoration(
+                          color: Colors.black,
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4.0, vertical: 12.0),
+                          color: Colors.black.withAlpha((0.3 * 255).round()),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    '${currentIndex + 1}/${imageUrls.length}',
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.more_horiz,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () => _showImageActionSheet(
+                                    context, imageUrls[currentIndex]),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -303,6 +318,144 @@ class _CookStepsPageState extends State<CookStepsPage> {
         );
       },
     );
+  }
+
+  /// 长按/更多按钮 — 弹出操作菜单
+  void _showImageActionSheet(BuildContext dialogContext, String imageUrl) {
+    showModalBottomSheet(
+      context: dialogContext,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.only(bottom: 34),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).bottomSheetTheme.backgroundColor ??
+                    Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                children: [
+                  _buildSheetAction(
+                    ctx,
+                    icon: Icons.download_rounded,
+                    label: 'save_image'.tr,
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _saveImageToGallery(imageUrl);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Theme.of(context).bottomSheetTheme.backgroundColor ??
+                    Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: _buildSheetAction(
+                ctx,
+                icon: null,
+                label: 'cancel'.tr,
+                isCancel: true,
+                onTap: () => Navigator.pop(ctx),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSheetAction(
+    BuildContext ctx, {
+    required String label,
+    IconData? icon,
+    VoidCallback? onTap,
+    bool isCancel = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 22,
+                  color: Theme.of(context).textTheme.bodyLarge?.color),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: isCancel ? FontWeight.w600 : FontWeight.w400,
+                color: isCancel
+                    ? Theme.of(context).textTheme.bodyLarge?.color
+                    : Theme.of(context).textTheme.bodyLarge?.color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 下载网络图片到临时目录，再保存到系统相册
+  Future<void> _saveImageToGallery(String imageUrl) async {
+    if (imageUrl.isEmpty) {
+      ToastUtils.showShortToast('image_save_failed'.tr);
+      return;
+    }
+
+    ToastUtils.showShortToast('saving'.tr);
+
+    try {
+      // 请求相册写入权限 (iOS: toAlbum=true 访问系统相册)
+      final hasAccess = await Gal.hasAccess(toAlbum: true);
+      if (!hasAccess) {
+        final granted = await Gal.requestAccess(toAlbum: true);
+        if (!granted) {
+          ToastUtils.showShortToast('image_save_failed'.tr);
+          return;
+        }
+      }
+
+      // 下载图片到临时目录
+      final dir = await getTemporaryDirectory();
+      final ext = imageUrl.split('.').last.split('?').first;
+      final validExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(ext) ? ext : 'jpg';
+      final filePath = '${dir.path}/cook_save_${DateTime.now().millisecondsSinceEpoch}.$validExt';
+      final file = File(filePath);
+
+      final response = await DioClient.dio.get<List<int>>(
+        imageUrl,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      await file.writeAsBytes(response.data!);
+
+      // 保存到系统相册
+      await Gal.putImage(filePath, album: 'CookFun');
+
+      // 清理临时文件
+      if (await file.exists()) {
+        await file.delete();
+      }
+
+      ToastUtils.showShortToast('image_saved'.tr);
+    } catch (e) {
+      ToastUtils.showShortToast('image_save_failed'.tr);
+    }
   }
 
   void _beginPlayVideo(int index) {

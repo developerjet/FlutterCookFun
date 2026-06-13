@@ -10,24 +10,33 @@ class CookStepsCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            height: 220,
-            child: GFImageOverlay(
-              image: NetworkImage(model.dishesStepImage ?? ''),
-              boxFit: BoxFit.cover, //填充模式
+          // 步骤图片 — 全宽无内边距
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              height: 220,
+              width: double.infinity,
+              child: GFImageOverlay(
+                image: NetworkImage(model.dishesStepImage ?? ''),
+                boxFit: BoxFit.cover,
+              ),
             ),
           ),
-          const SizedBox(width: 10),
-          Text(
-            model.dishesStepDesc ?? "--",
-            style: TextStyle(
-              fontSize: 14.0,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
+          const SizedBox(height: 10),
+          // 步骤描述
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              model.dishesStepDesc ?? '--',
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+              ),
             ),
           ),
         ],

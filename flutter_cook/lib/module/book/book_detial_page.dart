@@ -99,7 +99,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                   GFImageOverlay(
                                     height: 200,
                                     image: NetworkImage(controller.bookDetail.value?.data?.sceneBackground ?? ''),
-                                    boxFit: BoxFit.fill,
+                                    boxFit: BoxFit.cover,
                                   ),
                                   Center(
                                     heightFactor: 5,

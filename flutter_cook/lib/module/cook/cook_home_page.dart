@@ -201,7 +201,7 @@ class _CookPageState extends State<CookPage> {
                             crossAxisCount: 3,
                             crossAxisSpacing: 10.0,
                             mainAxisSpacing: 10.0,
-                            childAspectRatio: 0.7,
+                            childAspectRatio: 0.78,
                           ),
                           itemCount:
                               dataList[groupIndex].data!.length, // 对应分组里的数据

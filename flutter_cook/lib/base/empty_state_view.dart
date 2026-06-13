@@ -111,7 +111,7 @@ class EmptyStateView extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Theme.of(context).textTheme.bodyLarge?.color,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -125,7 +125,7 @@ class EmptyStateView extends StatelessWidget {
                   description!,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Theme.of(context).textTheme.bodyMedium?.color ?? Theme.of(context).textTheme.bodyMedium?.color,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -166,7 +166,7 @@ class EmptyStateView extends StatelessWidget {
         return Icon(
           icon ?? Icons.inbox_outlined,
           size: 60,
-          color: Theme.of(context).textTheme.bodyMedium?.color ?? Theme.of(context).disabledColor,
+          color: Theme.of(context).textTheme.bodyMedium?.color,
         );
     }
   }
