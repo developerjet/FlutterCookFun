@@ -12,29 +12,33 @@ class PlayerVideoPage extends StatefulWidget {
 }
 
 class PlayerVideoPageState extends State<PlayerVideoPage> {
-  late FlickVideoPlayer _player;
-  late FlickManager _flickManager;
-  late String _videoUrl;
+  FlickVideoPlayer? _player;
+  FlickManager? _flickManager;
+  List<String> _urls = [];
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-
-    _videoUrl = Get.arguments['url'];
-    _initializePlayer();
+    final args = Get.arguments;
+    if (args == null) return;
+    final raw = (args['urls'] as List<dynamic>?) ?? [];
+    _urls = raw.map((e) => e.toString()).where((u) => u.isNotEmpty).toList();
+    _currentIndex = (args['index'] as int?) ?? 0;
+    if (_currentIndex >= _urls.length) _currentIndex = 0;
+    if (_urls.isNotEmpty) _initPlayer();
   }
 
-  _initializePlayer() {
-    //  加载播放资源
+  void _initPlayer() {
+    _flickManager?.dispose();
     _flickManager = FlickManager(
       videoPlayerController: VideoPlayerController.networkUrl(
-        Uri.parse(_videoUrl),
+        Uri.parse(_urls[_currentIndex]),
         closedCaptionFile: _loadCaptions(),
       ),
     );
-
     _player = FlickVideoPlayer(
-      flickManager: _flickManager,
+      flickManager: _flickManager!,
       flickVideoWithControls: const FlickVideoWithControls(
         closedCaptionTextStyle: TextStyle(fontSize: 8),
         controls: FlickPortraitControls(),
@@ -43,63 +47,104 @@ class PlayerVideoPageState extends State<PlayerVideoPage> {
         controls: FlickLandscapeControls(),
       ),
     );
+    if (mounted) setState(() {});
   }
 
-  ///If you have subtitle assets
+  void _switchVideo(int index) {
+    if (index == _currentIndex) return;
+    _flickManager?.flickControlManager?.autoPause();
+    setState(() {
+      _currentIndex = index;
+    });
+    _initPlayer();
+  }
 
   Future<ClosedCaptionFile> _loadCaptions() async {
     final String fileContents = await DefaultAssetBundle.of(context)
         .loadString('assets/bumble_bee_captions.srt');
-    _flickManager.flickControlManager!.toggleSubtitle();
+    _flickManager!.flickControlManager!.toggleSubtitle();
     return SubRipCaptionFile(fileContents);
   }
 
-  ///If you have subtitle urls
-
-  // Future<ClosedCaptionFile> _loadCaptions() async {
-  //   final url = Uri.parse('SUBTITLE URL LINK');
-  //   try {
-  //     final data = await http.get(url);
-  //     final srtContent = data.body.toString();
-  //     print(srtContent);
-  //     return SubRipCaptionFile(srtContent);
-  //   } catch (e) {
-  //     print('Failed to get subtitles for ${e}');
-  //     return SubRipCaptionFile('');
-  //   }
-  //}
-
   @override
   void dispose() {
-    _flickManager.dispose();
-
+    _flickManager?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final total = _urls.length;
+    final title = total > 1
+        ? '${'play_video'.tr} ${_currentIndex + 1}/$total'
+        : 'play_video'.tr;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('play_video'.tr),
+        title: Text(title),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
-      body: VisibilityDetector(
-        key: ObjectKey(_flickManager),
-        onVisibilityChanged: (visibility) {
-          if (visibility.visibleFraction == 0 && mounted) {
-            _flickManager.flickControlManager?.autoPause();
-          } else if (visibility.visibleFraction == 1) {
-            _flickManager.flickControlManager?.autoResume();
-          }
-        },
-        child: Column(
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: _player,
-            )
-          ],
-        ),
+      body: _urls.isEmpty
+          ? Center(
+              child: Text('missing_video_url'.tr,
+                  style: Theme.of(context).textTheme.bodyLarge))
+          : Column(
+              children: [
+                VisibilityDetector(
+                  key: ObjectKey(_flickManager),
+                  onVisibilityChanged: (visibility) {
+                    if (visibility.visibleFraction == 0 && mounted) {
+                      _flickManager?.flickControlManager?.autoPause();
+                    } else if (visibility.visibleFraction == 1) {
+                      _flickManager?.flickControlManager?.autoResume();
+                    }
+                  },
+                  child: AspectRatio(aspectRatio: 16 / 9, child: _player),
+                ),
+                if (total > 1) _buildVideoList(context),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildVideoList(BuildContext context) {
+    // 使用 i18n key 映射：索引 0 → video_one, 索引 1 → video_two
+    final labels = ['video_one'.tr, 'video_two'.tr];
+
+    return Container(
+      color: Theme.of(context).cardColor,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: List.generate(_urls.length.clamp(0, 2), (index) {
+          final isActive = index == _currentIndex;
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(
+                  left: index == 0 ? 0 : 6, right: index == 0 ? 6 : 0),
+              child: ElevatedButton(
+                onPressed: () => _switchVideo(index),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isActive
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).cardColor,
+                  foregroundColor: isActive
+                      ? Colors.white
+                      : Theme.of(context).textTheme.bodyLarge?.color,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    side: isActive
+                        ? BorderSide.none
+                        : BorderSide(
+                            color: Theme.of(context).dividerColor),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+                child: Text(labels[index.clamp(0, labels.length - 1)]),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

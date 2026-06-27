@@ -20,20 +20,24 @@
 
 ### 做菜
 - 多选食材（最多 5 种），智能匹配合适菜谱
+- 分类快速切换标签栏，横向滚动 + 数量统计
+- 分类分组吸顶标题，分组数量标签
 - 做菜步骤图文展示，支持步骤图片全屏浏览
 - **图片长按/菜单保存到系统相册**
-- 视频播放（食材处理视频 + 烹饪过程视频）
+- 视频播放（食材 + 烹饪过程），播放器内一键切换
 - 收藏菜谱到本地
 
 ### 菜谱
 - 1460+ 菜谱场景卡片流，分页加载
 - 场景详情页：背景大图 + 菜品列表
-- 视频播放入口
+- 点击菜品进入做菜步骤，独立播放按钮弹出视频选择
+- 统一底部弹窗（视频选择/图片保存/主题语言切换）
 
 ### 搜索
 - **实时搜索建议**：输入防抖 300ms，缩略图 + 菜谱数量提示
 - **多维度结果**：食材匹配 + 课程推荐分组展示
 - 搜索结果一键跳转配菜
+- 请求竞态处理，过期响应自动丢弃
 
 ### 我的
 - 本地收藏管理
@@ -51,7 +55,7 @@
 | 网络 | **Dio** — 单例 DioClient，统一拦截器、重试机制 |
 | 本地存储 | **sqflite**（收藏） + **shared_preferences**（主题/语言） |
 | JSON | json_annotation + json_serializable + build_runner |
-| UI 组件 | getwidget, carousel_slider, photo_view, easy_refresh |
+| UI 组件 | getwidget, carousel_slider, photo_view, easy_refresh, flutter_sticky_header |
 | 视频 | flick_video_player + video_player |
 | WebView | webview_flutter |
 | 国际化 | GetX Translations（zh_CN 主语言，en_US 后备） |
@@ -67,7 +71,11 @@ lib/
 │   ├── tabs.dart              # 底部 Tab 导航
 │   ├── web.dart               # WebView 页面
 │   ├── image_viewer.dart       # 图片浏览器
-│   └── empty_state_view.dart   # 统一空状态/加载/错误视图
+│   ├── empty_state_view.dart   # 统一空状态/加载/错误视图
+│   └── widgets/               # 通用 UI 组件
+│       ├── app_network_image.dart  # 网络图片（loading/error）
+│       ├── app_dialog.dart         # 统一弹窗
+│       └── app_bottom_sheet.dart   # 统一底部弹窗
 ├── binding/                    # GetX 全局依赖注入
 ├── routers/                    # 路由配置（iOS 风格过渡动画）
 ├── middlewares/                # 路由中间件

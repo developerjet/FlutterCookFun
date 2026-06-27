@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
 import 'package:flutter_cook/module/search/model/search_data_model.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -20,17 +22,14 @@ class _SearchPageState extends State<SearchPage> {
   /// 实时搜索建议（食材匹配）
   List<SearchTopData> _suggestions = [];
 
-  /// 课程匹配信息
-  SearchSecond? _courseInfo;
-
   /// SearchHome 食材匹配结果
   List<SearchTopData> _materialResults = [];
 
-  /// SearchHome 课程匹配信息
-  SearchSecond? _searchCourseInfo;
-
   /// 是否正在加载
   bool _isLoading = false;
+
+  /// 错误信息
+  String? _errorMessage;
 
   /// 是否显示搜索结果（用户提交搜索后）
   bool _showResults = false;
@@ -38,14 +37,60 @@ class _SearchPageState extends State<SearchPage> {
   /// 防抖 Timer
   Timer? _debounce;
 
+  /// 请求序列号，丢弃过时响应
+  int _requestSeq = 0;
+
+  /// 搜索历史
+  List<String> _searchHistory = [];
+  static const _historyKey = 'search_history';
+  static const _maxHistory = 10;
+
   @override
   void initState() {
     super.initState();
+    _loadHistory();
+  }
+
+  Future<void> _loadHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_historyKey);
+    if (raw != null) {
+      final list = jsonDecode(raw) as List<dynamic>;
+      setState(() {
+        _searchHistory = list.map((e) => e.toString()).toList();
+      });
+    }
+  }
+
+  Future<void> _addToHistory(String keyword) async {
+    _searchHistory.remove(keyword);
+    _searchHistory.insert(0, keyword);
+    if (_searchHistory.length > _maxHistory) {
+      _searchHistory = _searchHistory.sublist(0, _maxHistory);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_historyKey, jsonEncode(_searchHistory));
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _removeFromHistory(String keyword) async {
+    _searchHistory.remove(keyword);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_historyKey, jsonEncode(_searchHistory));
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _clearHistory() async {
+    _searchHistory.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_historyKey);
+    if (mounted) setState(() {});
   }
 
   /// 实时搜索建议（防抖 300ms）
   Future<void> _fetchSuggestions(String keyword) async {
     _debounce?.cancel();
+    if (_showResults) return;
     _debounce = Timer(const Duration(milliseconds: 300), () async {
       await _doFetchSuggestions(keyword);
     });
@@ -55,12 +100,13 @@ class _SearchPageState extends State<SearchPage> {
     if (keyword.isEmpty) {
       setState(() {
         _suggestions = [];
-        _courseInfo = null;
         _showResults = false;
+        _errorMessage = null;
       });
       return;
     }
 
+    final seq = ++_requestSeq;
     final params = {
       'methodName': 'SearchKeyword',
       'version': '5.61',
@@ -71,21 +117,23 @@ class _SearchPageState extends State<SearchPage> {
 
     try {
       final response = await DioClient.get('', queryParameters: params);
-      final model = SearchDataModel.fromJson(response.data['data']);
+      if (seq != _requestSeq || !mounted) return;
+
+      final data = (response.data as Map?)?['data'];
+      if (data == null) return;
+      final model = SearchDataModel.fromJson(data as Map<String, dynamic>);
 
       if (!mounted) return;
 
+      if (_showResults) return; // 搜索结果已展示，跳过建议更新
       setState(() {
-        // 核心修复：读取 top.data 而非 data
         _suggestions = model.top?.data ?? [];
-        _courseInfo = model.second;
-        _showResults = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (seq != _requestSeq || !mounted) return;
       setState(() {
         _suggestions = [];
-        _courseInfo = null;
+        _errorMessage = 'search_load_failed'.tr;
       });
     }
   }
@@ -96,11 +144,11 @@ class _SearchPageState extends State<SearchPage> {
 
     FocusScope.of(context).unfocus();
 
+    final seq = ++_requestSeq;
     setState(() {
       _isLoading = true;
       _showResults = true;
       _materialResults = [];
-      _searchCourseInfo = null;
     });
 
     final params = {
@@ -113,35 +161,32 @@ class _SearchPageState extends State<SearchPage> {
 
     try {
       final response = await DioClient.get('', queryParameters: params);
-      final data = response.data['data'] as Map<String, dynamic>?;
+      if (seq != _requestSeq || !mounted) return;
 
-      if (!mounted) return;
+      final data = (response.data as Map?)?['data'] as Map<String, dynamic>?;
+      if (data == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
 
-      final materialRaw = data?['material'] as Map<String, dynamic>?;
-      final courseRaw = data?['course'] as Map<String, dynamic>?;
-
+      final materialRaw = data['material'] as Map<String, dynamic>?;
       final materialList = (materialRaw?['data'] as List<dynamic>?)
               ?.map((e) => SearchTopData.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [];
-      final courseInfo = courseRaw != null
-          ? SearchSecond(
-              total: courseRaw['total']?.toString(),
-              courseName: courseRaw['course_name']?.toString(),
-            )
-          : null;
 
+      if (!mounted) return;
+      _addToHistory(keyword);
       setState(() {
         _materialResults = materialList;
-        _searchCourseInfo = courseInfo;
         _isLoading = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (seq != _requestSeq || !mounted) return;
       setState(() {
         _materialResults = [];
-        _searchCourseInfo = null;
         _isLoading = false;
+        _errorMessage = 'search_failed'.tr;
       });
     }
   }
@@ -155,14 +200,12 @@ class _SearchPageState extends State<SearchPage> {
 
   /// 点击食材结果 → 跳转配菜页
   void _onMaterialTap(SearchTopData material) {
-    final arguments = {
-      'methodName': 'SearchHome',
-      'version': '5.61',
-      'keyword': material.title,
-      'token': 0,
-      'user_id': 0,
-    };
-    Get.toNamed(RouteNames.cookConfig, arguments: arguments);
+    if (material.id == null) return;
+    Get.toNamed(RouteNames.cookConfig, arguments: {
+      'methodName': 'SearchMix',
+      'version': '4.3.2',
+      'material_ids': material.id,
+    });
   }
 
   @override
@@ -218,7 +261,10 @@ class _SearchPageState extends State<SearchPage> {
                                   ?.color),
                           onPressed: () {
                             _searchController.clear();
-                            _fetchSuggestions('');
+                            setState(() {
+                              _showResults = false;
+                              _suggestions = [];
+                            });
                           },
                         )
                       : null,
@@ -275,17 +321,28 @@ class _SearchPageState extends State<SearchPage> {
       );
     }
 
+    // 网络错误
+    if (_errorMessage != null) {
+      return EmptyState.error(
+        title: 'search_failed'.tr,
+        description: _errorMessage,
+        onRetry: () => _fetchSuggestions(_searchController.text.trim()),
+      );
+    }
+
     // 已提交搜索 → 显示搜索结果
     if (_showResults) {
       return _buildSearchResults(context);
     }
 
-    // 空输入 → 引导提示
+    // 空输入 → 搜索历史
     if (_searchController.text.trim().isEmpty) {
-      return EmptyState.empty(
-        title: 'no_search_results'.tr,
-        description: 'enter_keyword_to_search'.tr,
-      );
+      return _searchHistory.isNotEmpty
+          ? _buildSearchHistory(context)
+          : EmptyState.empty(
+              title: 'no_search_results'.tr,
+              description: 'enter_keyword_to_search'.tr,
+            );
     }
 
     // 无建议
@@ -303,15 +360,9 @@ class _SearchPageState extends State<SearchPage> {
   /// 实时建议列表
   Widget _buildSuggestions(BuildContext context) {
     return ListView.builder(
-      itemCount: _suggestions.length + (_courseInfo != null ? 1 : 0),
+      itemCount: _suggestions.length,
       itemBuilder: (context, index) {
-        // 课程提示条
-        if (index == 0 && _courseInfo != null) {
-          return _buildCourseHint(context);
-        }
-
-        final suggestionIndex = _courseInfo != null ? index - 1 : index;
-        final suggestion = _suggestions[suggestionIndex];
+        final suggestion = _suggestions[index];
 
         return Column(
           children: [
@@ -364,169 +415,125 @@ class _SearchPageState extends State<SearchPage> {
       },
     );
   }
-
-  /// 课程匹配提示条
-  Widget _buildCourseHint(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-      child: Row(
-        children: [
-          Icon(Icons.menu_book,
-              size: 16, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              '${'related_courses'.trArgs([_courseInfo?.total ?? '0'])}：${_courseInfo?.courseName ?? ''}',
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).textTheme.bodyLarge?.color,
+  /// 搜索历史
+  Widget _buildSearchHistory(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Row(
+            children: [
+              Text('搜索历史',
+                  style: Theme.of(context).textTheme.titleSmall),
+              const Spacer(),
+              GestureDetector(
+                onTap: _clearHistory,
+                child: Icon(Icons.delete_outline,
+                    size: 18,
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.color),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: _searchHistory.length,
+            itemBuilder: (context, index) {
+              final keyword = _searchHistory[index];
+              return ListTile(
+                dense: true,
+                leading: Icon(Icons.history,
+                    size: 18,
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.color),
+                title: Text(keyword,
+                    style: Theme.of(context).textTheme.bodyLarge),
+                trailing: IconButton(
+                  icon: Icon(Icons.close, size: 16,
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.color),
+                  onPressed: () => _removeFromHistory(keyword),
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
+                ),
+                onTap: () {
+                  _searchController.text = keyword;
+                  _submitSearch(keyword);
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
   /// 搜索结果页
   Widget _buildSearchResults(BuildContext context) {
-    final hasMaterial = _materialResults.isNotEmpty;
-    final hasCourse = _searchCourseInfo != null;
-
-    // 无任何结果
-    if (!hasMaterial && !hasCourse) {
-      return SingleChildScrollView(
-        child: EmptyState.empty(
-          title: 'no_search_results'.tr,
-          description: 'try_other_keywords'.tr,
-        ),
+    if (_materialResults.isEmpty) {
+      return EmptyState.empty(
+        title: 'no_search_results'.tr,
+        description: 'try_other_keywords'.tr,
       );
     }
 
-    return ListView(
-      children: [
-        // 课程匹配
-        if (hasCourse) _buildSearchCourseSection(context),
-
-        // 食材匹配
-        if (hasMaterial) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              '${'ingredient_matches'.tr}（${_materialResults.length}）',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-              ),
-            ),
-          ),
-          ..._materialResults.map((material) => Column(
-                children: [
-                  ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: Image.network(
-                        material.image ?? '',
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 44,
-                          height: 44,
-                          color: Colors.grey.shade200,
-                          child: Icon(Icons.fastfood,
-                              size: 24,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.color),
-                        ),
-                      ),
-                    ),
-                    title: Text(
-                      material.title ?? '',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color:
-                            Theme.of(context).textTheme.bodyLarge?.color,
-                      ),
-                    ),
-                    subtitle: Text(
-                      'view_matching_recipes'.tr,
-                      style: TextStyle(
-                        fontSize: 12,
+    return ListView.builder(
+      itemCount: _materialResults.length,
+      itemBuilder: (context, index) {
+        final material = _materialResults[index];
+        return Column(
+          children: [
+            ListTile(
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.network(
+                  material.image ?? '',
+                  width: 44,
+                  height: 44,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 44,
+                    height: 44,
+                    color: Colors.grey.shade200,
+                    child: Icon(Icons.fastfood,
+                        size: 24,
                         color: Theme.of(context)
                             .textTheme
                             .bodyMedium
-                            ?.color,
-                      ),
-                    ),
-                    trailing: const Image(
-                      image: AssetImage('assets/images/arrow_right.png'),
-                      width: 20,
-                      height: 18,
-                    ),
-                    onTap: () => _onMaterialTap(material),
-                  ),
-                  Divider(
-                    height: 0.5,
-                    color: Theme.of(context).dividerColor,
-                  ),
-                ],
-              )),
-        ],
-      ],
-    );
-  }
-
-  /// 搜索结果 — 课程匹配区域
-  Widget _buildSearchCourseSection(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.menu_book_rounded,
-              size: 28, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _searchCourseInfo?.courseName ?? '',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'total_related_courses'.trArgs([_searchCourseInfo?.total ?? '0']),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                            ?.color),
                   ),
                 ),
-              ],
+              ),
+              title: Text(
+                material.title ?? '',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
+              trailing: const Image(
+                image: AssetImage('assets/images/arrow_right.png'),
+                width: 20,
+                height: 18,
+              ),
+              onTap: () => _onMaterialTap(material),
             ),
-          ),
-        ],
-      ),
+            Divider(
+              height: 0.5,
+              color: Theme.of(context).dividerColor,
+            ),
+          ],
+        );
+      },
     );
   }
 }

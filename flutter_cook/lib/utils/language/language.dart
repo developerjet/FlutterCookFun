@@ -110,9 +110,13 @@ class Messages extends Translations {
           'taste_label': '口味：',
           'cooking_time_label': '烹饪时间：',
           'chef_recommendation': '大厨推荐做法',
-          'not_selected_ingredients_title': '温馨提示',
-          'load_failed_retry': '加载失败，请重试',
+          'missing_video_url': '缺少视频地址',
+          'video_load_failed': '视频加载失败，请重试',
           'load_failed_try_again': '加载失败，请重试',
+          'semantics_search': '搜索食材',
+          'semantics_favorite': '收藏菜谱',
+          'semantics_delete': '删除所选',
+          'semantics_banner': '美食推荐轮播',
         },
         'en_US': {
           'app_name_title': 'Cooking fun',
@@ -220,9 +224,13 @@ class Messages extends Translations {
           'taste_label': 'Taste: ',
           'cooking_time_label': 'Cooking time: ',
           'chef_recommendation': 'Chef recommended recipe',
-          'not_selected_ingredients_title': 'Notice',
-          'load_failed_retry': 'Load failed, please retry',
+          'missing_video_url': 'Missing video URL',
+          'video_load_failed': 'Video failed to load, please retry',
           'load_failed_try_again': 'Load failed, please try again',
+          'semantics_search': 'Search ingredients',
+          'semantics_favorite': 'Add to favorites',
+          'semantics_delete': 'Delete selected',
+          'semantics_banner': 'Cooking inspiration carousel',
         }
       };
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
+import 'package:flutter_cook/base/widgets/app_network_image.dart';
 
 class CookHomeCell extends StatelessWidget {
   final CookListDataModel model;
@@ -37,25 +38,7 @@ class CookHomeCell extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(
-                      model.image ?? '',
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.grey.shade200,
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey.shade200,
-                        child: const Icon(Icons.image_not_supported,
-                            color: Colors.grey, size: 40),
-                      ),
-                    ),
+                    AppNetworkImage(url: model.image),
                     if (model.isSelected)
                       Positioned(
                         top: 8,
@@ -77,18 +60,23 @@ class CookHomeCell extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-              child: Text(
-                model.text ?? "--",
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: "Exo",
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+            Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.07),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  model.text ?? '—',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
               ),
             ),

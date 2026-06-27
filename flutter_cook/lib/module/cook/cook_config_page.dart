@@ -1,5 +1,6 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/base/widgets/app_dialog.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
 import 'package:flutter_cook/module/cook/cook_route_args.dart';
 import 'package:flutter_cook/module/cook/controller/cook_config_controller.dart';
@@ -55,24 +56,14 @@ class _CookConfigPageState extends State<CookConfigPage> {
   }
 
   _showConfigFailedAlert(String msg) {
-    Get.dialog(
-      AlertDialog(
-        title: Text('warning_prompt'.tr),
-        content: Text(msg),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Get.back();
-              Get.back();
-            },
-            child: Center(
-                child: Text(
-              'confirm'.tr,
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            )),
-          ),
-        ],
-      ),
+    AppDialog.alert(
+      context,
+      title: 'warning_prompt'.tr,
+      content: msg,
+      actionText: 'confirm'.tr,
+      onAction: () {
+        Get.back(); // 关闭当前页面
+      },
     );
   }
 

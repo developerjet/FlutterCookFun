@@ -45,6 +45,7 @@ class _BookPageState extends State<BookPage> {
               await controller.loadBookList(refresh: true);
             },
             onLoad: () async {
+              if (!controller.bookHasMore.value) return;
               final nextPage = controller.pageIndex.value + 1;
               final success = await controller.loadBookList(page: nextPage);
               if (!success) {
@@ -55,12 +56,19 @@ class _BookPageState extends State<BookPage> {
             child: controller.bookList.isEmpty
                 ? controller.isLoading.value
                     ? EmptyState.loading(title: 'loading'.tr)
-                    : EmptyState.empty(
-                        title: 'no_books'.tr,
-                        description: 'book_data_empty_desc'.tr,
-                        onRefresh: () =>
-                            controller.loadBookList(refresh: true),
-                      )
+                    : controller.errorMessage.value != null
+                        ? EmptyState.error(
+                            title: 'load_failed'.tr,
+                            description: controller.errorMessage.value,
+                            onRetry: () =>
+                                controller.loadBookList(refresh: true),
+                          )
+                        : EmptyState.empty(
+                            title: 'no_books'.tr,
+                            description: 'book_data_empty_desc'.tr,
+                            onRefresh: () =>
+                                controller.loadBookList(refresh: true),
+                          )
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate:

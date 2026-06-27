@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
-import 'package:getwidget/getwidget.dart';
+import 'package:flutter_cook/base/widgets/app_network_image.dart';
 
 class CookStepsHeader extends StatelessWidget {
   final CookStepDataModel model;
@@ -14,16 +14,14 @@ class CookStepsHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 主图 + 播放按钮
         SizedBox(
           height: 220,
           child: Stack(
             fit: StackFit.expand,
             children: [
-              GFImageOverlay(
+              AppNetworkImage(
+                url: model.image,
                 height: 220,
-                image: NetworkImage(model.image ?? ''),
-                boxFit: BoxFit.cover,
               ),
               Center(
                 child: IconButton(
@@ -35,30 +33,21 @@ class CookStepsHeader extends StatelessWidget {
             ],
           ),
         ),
-        // 菜名 + 食材描述
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 12, 15, 0),
           child: Text(
             model.dashesName ?? '',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
-            ),
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 6, 15, 0),
           child: Text(
             model.materialDesc ?? '',
-            maxLines: 3,
-            style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).textTheme.bodyMedium?.color,
-            ),
+            maxLines: 3, overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
-        // 烹饪时间 / 难度 / 口味
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
           child: Wrap(
@@ -74,16 +63,11 @@ class CookStepsHeader extends StatelessWidget {
             ],
           ),
         ),
-        // 大厨推荐
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 14, 15, 12),
           child: Text(
             'chef_recommendation'.tr,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.error,
-            ),
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
       ],

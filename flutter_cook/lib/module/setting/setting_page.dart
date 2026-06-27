@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/base/widgets/app_bottom_sheet.dart';
 import 'package:flutter_cook/module/setting/controller/setting_controller.dart';
 import 'package:get/get.dart';
 
@@ -54,106 +55,76 @@ class SettingPageState extends State<SettingPage> {
   }
 
   void _settingTheme() {
-    Get.bottomSheet(
-      Container(
-        color: Theme.of(context).bottomSheetTheme.backgroundColor,
-        height: 200,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(15),
-              child: Text('change_theme'.tr,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyLarge?.color)),
-            ),
-            ListTile(
-              leading: Icon(Icons.wb_sunny_outlined,
-                  color: Theme.of(context).iconTheme.color),
-              title: Text('light_theme'.tr,
-                  style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyLarge?.color)),
-              trailing: Obx(
-                () => Visibility(
-                  visible: controller.selectedTheme.value == 0,
-                  child: Icon(Icons.check_rounded,
-                      color: Theme.of(context).colorScheme.primary),
-                ),
-              ),
-              onTap: () {
-                controller.changeTheme(0);
-                Get.back();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.dark_mode, color: Theme.of(context).iconTheme.color),
-              title: Text('dark_theme'.tr,
-                  style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyLarge?.color)),
-              trailing: Obx(
-                () => Visibility(
-                  visible: controller.selectedTheme.value == 1,
-                  child: Icon(Icons.check_rounded,
-                      color: Theme.of(context).colorScheme.primary),
-                ),
-              ),
-              onTap: () {
-                controller.changeTheme(1);
-                Get.back();
-              },
-            ),
-          ],
-        ),
+    AppBottomSheet.show(context, children: [
+      Padding(
+        padding: const EdgeInsets.all(15),
+        child: Text('change_theme'.tr,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color)),
       ),
-    );
+      AppSheetAction(
+        icon: Icons.wb_sunny_outlined,
+        label: 'light_theme'.tr,
+        trailing: Obx(() => Visibility(
+              visible: controller.selectedTheme.value == 0,
+              child: Icon(Icons.check_rounded,
+                  color: Theme.of(context).colorScheme.primary, size: 22),
+            )),
+        onTap: () {
+          controller.changeTheme(0);
+          Navigator.pop(context);
+        },
+      ),
+      AppSheetAction(
+        icon: Icons.dark_mode,
+        label: 'dark_theme'.tr,
+        trailing: Obx(() => Visibility(
+              visible: controller.selectedTheme.value == 1,
+              child: Icon(Icons.check_rounded,
+                  color: Theme.of(context).colorScheme.primary, size: 22),
+            )),
+        onTap: () {
+          controller.changeTheme(1);
+          Navigator.pop(context);
+        },
+      ),
+    ]);
   }
 
   void _settingLanguage() {
-    Get.bottomSheet(
-      Container(
-        color: Theme.of(context).bottomSheetTheme.backgroundColor,
-        height: 200,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(15),
-              child: Text('setting_language'.tr,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
-            ),
-            ListTile(
-              title: Text('language_zh'.tr,
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
-              trailing: Obx(
-                () => Visibility(
-                  visible: controller.selectedLanguage.value == 0,
-                  child: Icon(Icons.check_rounded,
-                      color: Theme.of(context).colorScheme.primary),
-                ),
-              ),
-              onTap: () {
-                controller.changeLanguage(0);
-                Get.back();
-              },
-            ),
-            ListTile(
-              title: Text('language_en'.tr,
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
-              trailing: Obx(
-                () => Visibility(
-                  visible: controller.selectedLanguage.value == 1,
-                  child: Icon(Icons.check_rounded,
-                      color: Theme.of(context).colorScheme.primary),
-                ),
-              ),
-              onTap: () {
-                controller.changeLanguage(1);
-                Get.back();
-              },
-            ),
-          ],
-        ),
+    AppBottomSheet.show(context, children: [
+      Padding(
+        padding: const EdgeInsets.all(15),
+        child: Text('setting_language'.tr,
+            textAlign: TextAlign.center,
+            style:
+                TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
       ),
-    );
+      AppSheetAction(
+        label: 'language_zh'.tr,
+        trailing: Obx(() => Visibility(
+              visible: controller.selectedLanguage.value == 0,
+              child: Icon(Icons.check_rounded,
+                  color: Theme.of(context).colorScheme.primary, size: 22),
+            )),
+        onTap: () {
+          controller.changeLanguage(0);
+          Navigator.pop(context);
+        },
+      ),
+      AppSheetAction(
+        label: 'language_en'.tr,
+        trailing: Obx(() => Visibility(
+              visible: controller.selectedLanguage.value == 1,
+              child: Icon(Icons.check_rounded,
+                  color: Theme.of(context).colorScheme.primary, size: 22),
+            )),
+        onTap: () {
+          controller.changeLanguage(1);
+          Navigator.pop(context);
+        },
+      ),
+    ]);
   }
 }

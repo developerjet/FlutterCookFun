@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/base/widgets/app_bottom_sheet.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
 import 'package:flutter_cook/module/cook/cook_route_args.dart';
 import 'package:flutter_cook/module/cook/controller/cook_steps_controller.dart';
@@ -130,10 +131,13 @@ class _CookStepsPageState extends State<CookStepsPage> {
         actions: [
           Obx(() {
             final loaded = cookController.cookStepsData.value;
-            return IconButton(
-              icon: Icon(_isFavorite.value == true
-                  ? Icons.favorite_outlined
-                  : Icons.favorite_border),
+            return Semantics(
+              label: 'semantics_favorite'.tr,
+              button: true,
+              child: IconButton(
+                icon: Icon(_isFavorite.value == true
+                    ? Icons.favorite_outlined
+                    : Icons.favorite_border),
               onPressed: loaded == null
                   ? null
                   : () {
@@ -143,6 +147,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
                         _beginFavoriteCook();
                       }
                     },
+              ),
             );
           })
         ],
@@ -274,7 +279,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 4.0, vertical: 12.0),
-                          color: Colors.black.withAlpha((0.3 * 255).round()),
+                          color: Colors.black.withValues(alpha: 0.3),
                           child: Row(
                             children: [
                               IconButton(
@@ -322,93 +327,20 @@ class _CookStepsPageState extends State<CookStepsPage> {
 
   /// 长按/更多按钮 — 弹出操作菜单
   void _showImageActionSheet(BuildContext dialogContext, String imageUrl) {
-    showModalBottomSheet(
-      context: dialogContext,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.only(bottom: 34),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).bottomSheetTheme.backgroundColor ??
-                    Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Column(
-                children: [
-                  _buildSheetAction(
-                    ctx,
-                    icon: Icons.download_rounded,
-                    label: 'save_image'.tr,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _saveImageToGallery(imageUrl);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Theme.of(context).bottomSheetTheme.backgroundColor ??
-                    Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: _buildSheetAction(
-                ctx,
-                icon: null,
-                label: 'cancel'.tr,
-                isCancel: true,
-                onTap: () => Navigator.pop(ctx),
-              ),
-            ),
-          ],
-        ),
+    AppBottomSheet.show(dialogContext, children: [
+      AppSheetAction(
+        label: 'save_image'.tr,
+        onTap: () {
+          Navigator.pop(dialogContext);
+          _saveImageToGallery(imageUrl);
+        },
       ),
-    );
-  }
-
-  Widget _buildSheetAction(
-    BuildContext ctx, {
-    required String label,
-    IconData? icon,
-    VoidCallback? onTap,
-    bool isCancel = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 22,
-                  color: Theme.of(context).textTheme.bodyLarge?.color),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: isCancel ? FontWeight.w600 : FontWeight.w400,
-                color: isCancel
-                    ? Theme.of(context).textTheme.bodyLarge?.color
-                    : Theme.of(context).textTheme.bodyLarge?.color,
-              ),
-            ),
-          ],
-        ),
+      const Divider(height: 1),
+      AppSheetAction(
+        label: 'cancel'.tr,
+        onTap: () => Navigator.pop(dialogContext),
       ),
-    );
+    ]);
   }
 
   /// 下载网络图片到临时目录，再保存到系统相册
@@ -420,6 +352,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
 
     ToastUtils.showShortToast('saving'.tr);
 
+    String? filePath;
     try {
       // 请求相册写入权限 (iOS: toAlbum=true 访问系统相册)
       final hasAccess = await Gal.hasAccess(toAlbum: true);
@@ -433,74 +366,83 @@ class _CookStepsPageState extends State<CookStepsPage> {
 
       // 下载图片到临时目录
       final dir = await getTemporaryDirectory();
-      final ext = imageUrl.split('.').last.split('?').first;
-      final validExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(ext) ? ext : 'jpg';
-      final filePath = '${dir.path}/cook_save_${DateTime.now().millisecondsSinceEpoch}.$validExt';
+      String ext;
+      try {
+        final uri = Uri.parse(imageUrl);
+        final segments = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
+        ext = segments.contains('.') ? segments.split('.').last : '';
+        if (!['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(ext)) {
+          ext = 'jpg';
+        }
+      } catch (_) {
+        ext = 'jpg';
+      }
+      filePath = '${dir.path}/cook_save_${DateTime.now().millisecondsSinceEpoch}.$ext';
       final file = File(filePath);
 
       final response = await DioClient.dio.get<List<int>>(
         imageUrl,
         options: Options(responseType: ResponseType.bytes),
       );
+      if (response.data == null) {
+        ToastUtils.showShortToast('image_save_failed'.tr);
+        return;
+      }
       await file.writeAsBytes(response.data!);
 
       // 保存到系统相册
       await Gal.putImage(filePath, album: 'CookFun');
 
-      // 清理临时文件
-      if (await file.exists()) {
-        await file.delete();
-      }
-
       ToastUtils.showShortToast('image_saved'.tr);
     } catch (e) {
       ToastUtils.showShortToast('image_save_failed'.tr);
+    } finally {
+      // 清理临时文件（失败不影响保存结果）
+      if (filePath != null) {
+        try {
+          final f = File(filePath);
+          if (await f.exists()) await f.delete();
+        } catch (_) {}
+      }
     }
   }
 
   void _beginPlayVideo(int index) {
     final loaded = cookController.cookStepsData.value;
-    if (loaded == null) {
-      return;
-    }
+    if (loaded == null) return;
     final videoList = [loaded.materialVideo, loaded.processVideo];
-    Get.toNamed(RouteNames.playerVideo, arguments: {'url': videoList[index]});
+    Get.toNamed(RouteNames.playerVideo, arguments: {
+      'urls': videoList,
+      'index': index,
+    });
   }
 
   _showPlaySheetBottom() {
-    Get.bottomSheet(Container(
-      color: Theme.of(context).bottomSheetTheme.backgroundColor,
-      height: 200,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(15),
-            child: Text('choose_video'.tr,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
-          ),
-          ListTile(
-            leading: Icon(Icons.video_call_sharp,
-                color: Theme.of(context).iconTheme.color),
-            title: Text('video_one'.tr,
-                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
-            onTap: () {
-              Get.back();
-              _beginPlayVideo(0);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.video_call_sharp,
-                color: Theme.of(context).textTheme.bodyLarge?.color),
-            title: Text('video_two'.tr,
-                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
-            onTap: () {
-              Get.back();
-              _beginPlayVideo(1);
-            },
-          ),
-        ],
+    AppBottomSheet.show(context, children: [
+      Padding(
+        padding: const EdgeInsets.all(15),
+        child: Text('choose_video'.tr,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color)),
       ),
-    ));
-  }
-}
+      AppSheetAction(
+        icon: Icons.video_call_sharp,
+        label: 'video_one'.tr,
+        onTap: () {
+          Navigator.pop(context);
+          Future.delayed(const Duration(milliseconds: 300),
+              () => _beginPlayVideo(0));
+        },
+      ),
+      AppSheetAction(
+        icon: Icons.video_call_sharp,
+        label: 'video_two'.tr,
+        onTap: () {
+          Navigator.pop(context);
+          Future.delayed(const Duration(milliseconds: 300),
+              () => _beginPlayVideo(1));
+        },
+      ),
+    ]);
+  }}

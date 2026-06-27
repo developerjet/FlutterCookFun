@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:get/get.dart';
 
 class CusotmCarouselSlider extends StatefulWidget {
   final List imageList;
@@ -7,7 +9,7 @@ class CusotmCarouselSlider extends StatefulWidget {
   final double aspectRatio;
   final int intervalDuration;
   final bool infiniteScroll;
-  
+
   final void Function(int)? onTap;
 
   const CusotmCarouselSlider(
@@ -32,7 +34,6 @@ class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
     _carouselController = CarouselSliderController();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
@@ -56,21 +57,22 @@ class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
             ),
             itemBuilder: (context, index, realIdx) {
               final imagePath = widget.imageList[index]?.toString() ?? '';
-              final imageWidget = imagePath.startsWith('http')
-                  ? Image.network(imagePath, fit: BoxFit.cover)
-                  : Image.asset(imagePath.isNotEmpty
-                      ? imagePath
-                      : 'assets/images/banner_placeholder.png',
-                      fit: BoxFit.cover);
+              final isNetwork = imagePath.startsWith('http');
 
-              return InkWell(
-                child: Container(
-                  color: Colors.black,
-                  child: imageWidget,
-                ),
-                onTap: () {
-                  widget.onTap?.call(index);
-                },
+              return Semantics(
+                label: 'semantics_banner'.tr,
+                button: true,
+                child: InkWell(
+                  onTap: () => widget.onTap?.call(index),
+                  child: isNetwork
+                    ? AppNetworkImage(url: imagePath)
+                    : Image.asset(
+                        imagePath.isNotEmpty
+                            ? imagePath
+                            : 'assets/images/banner_placeholder.png',
+                        fit: BoxFit.cover,
+                      ),
+              ),
               );
             },
           ),
@@ -82,7 +84,6 @@ class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: widget.imageList.map((imageUrl) {
                 int index = widget.imageList.indexOf(imageUrl);
-                // 指示器
                 return Container(
                   width: 8,
                   height: 8,
@@ -102,4 +103,3 @@ class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
     );
   }
 }
-

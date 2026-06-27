@@ -9,11 +9,13 @@ class BookController extends GetxController {
   // 书籍列表数据
   final bookList = <BookListModel>[].obs;
   final pageIndex = 1.obs;
+  final bookHasMore = true.obs;
 
   // 书籍详情数据
   final bookDetail = Rx<BookDetailModel?>(null);
   final bookDetailList = <BookDishesListModel>[].obs;
   final detailPageIndex = 1.obs;
+  final detailHasMore = true.obs;
 
   // 加载状态
   final isLoading = false.obs;
@@ -29,11 +31,15 @@ class BookController extends GetxController {
     loadBookList(refresh: true);
   }
 
-  /// 加载书籍列表
+  /// 加载书籍列表（分页）
   Future<bool> loadBookList({int? page, bool refresh = false}) async {
+    if (isLoading.value) return false;
+    if (!refresh && !bookHasMore.value) return false;
+
     final requestPage = refresh ? 1 : (page ?? pageIndex.value);
     if (refresh) {
       bookList.clear();
+      bookHasMore.value = true;
       errorMessage.value = null;
     }
 
@@ -60,6 +66,7 @@ class BookController extends GetxController {
         bookList.addAll(items);
       }
 
+      bookHasMore.value = items.length >= BusinessConstants.pageSize;
       pageIndex.value = requestPage;
       AppLogger.info('BookController', 'Book list loaded successfully');
       return true;
@@ -76,12 +83,16 @@ class BookController extends GetxController {
     }
   }
 
-  /// 加载书籍详情
+  /// 加载书籍详情（分页）
   Future<bool> loadBookDetail(int sceneId, {int? page, bool refresh = false}) async {
+    if (isDetailLoading.value) return false;
+    if (!refresh && !detailHasMore.value) return false;
+
     final requestPage = refresh ? 1 : (page ?? detailPageIndex.value);
     if (refresh) {
       bookDetail.value = null;
       bookDetailList.clear();
+      detailHasMore.value = true;
       detailErrorMessage.value = null;
     }
 
@@ -94,7 +105,7 @@ class BookController extends GetxController {
         'version': '4.3.2',
         'scene_id': sceneId,
         'page': requestPage,
-        'size': BusinessConstants.pageSize.toString(),
+        'size': '200',
       });
 
       final model = BookDetailModel.fromJson(response.data);
@@ -107,6 +118,8 @@ class BookController extends GetxController {
         bookDetailList.addAll(dishes);
       }
 
+      // SceneInfo API 不支持分页，page 参数无效，一次加载全部
+      detailHasMore.value = false;
       detailPageIndex.value = requestPage;
       AppLogger.info('BookController', 'Book details loaded successfully');
       return true;

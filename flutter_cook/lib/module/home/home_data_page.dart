@@ -29,13 +29,14 @@ class HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('tab_home_title'.tr),
         actions: [
-          IconButton(
-            icon: Image.asset('assets/images/search_white.png',
-                width: 25, height: 25),
-            onPressed: () {
-              //搜索页面
-              Get.toNamed('/search');
-            },
+          Semantics(
+            label: 'search'.tr,
+            button: true,
+            child: IconButton(
+              icon: Image.asset('assets/images/search_white.png',
+                  width: 25, height: 25),
+              onPressed: () => Get.toNamed('/search'),
+            ),
           )
         ],
       ),
@@ -149,6 +150,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    Get.delete<HomeController>();
     super.dispose();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/book/model/book_home_model.dart';
-import 'package:getwidget/getwidget.dart';
+import 'package:flutter_cook/base/widgets/app_network_image.dart';
 
 class BookHomeCell extends StatelessWidget {
   final BookListModel model;
@@ -12,65 +12,58 @@ class BookHomeCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
       child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6.0),
-            color: Theme.of(context).cardColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha((0.04 * 255).round()),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6.0),
+          color: Theme.of(context).cardColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha((0.04 * 255).round()),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6.0),
+                topRight: Radius.circular(6.0),
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(6.0),
-                  topRight: Radius.circular(6.0),
+              child: SizedBox(
+                height: 110,
+                width: double.infinity,
+                child: AppNetworkImage(
+                  url: model.sceneBackground,
                 ),
-                child: SizedBox(
-                  height: 110,
-                  width: double.infinity,
-                  child: GFImageOverlay(
-                    image: NetworkImage(model.sceneBackground ?? ''),
-                    boxFit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  Text(
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                    model.sceneTitle ?? '',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                ),
+                  const SizedBox(height: 6.0),
+                  Text(
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                    model.sceneDesc ?? '',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-                child: Column(
-                  children: [
-                    Text(
-                      maxLines: 1,
-                      model.sceneTitle ?? "",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: "Exo",
-                          color: Theme.of(context).textTheme.bodyLarge?.color),
-                    ),
-                    const SizedBox(height: 6.0),
-                    Text(
-                      maxLines: 1,
-                      model.sceneDesc ?? "",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Exo",
-                          color: Theme.of(context).textTheme.bodyMedium?.color),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

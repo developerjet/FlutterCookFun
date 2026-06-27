@@ -51,7 +51,7 @@ class _TabsState extends State<Tabs> {
     return Scaffold(
       // 底部导航栏
       bottomNavigationBar: BottomNavigationBar(
-          unselectedItemColor: Theme.of(context).textTheme.bodySmall?.color?.withAlpha((0.8 * 255).round()),
+          unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           selectedItemColor: Theme.of(context).colorScheme.primary,
           iconSize: 30, //底部菜单大小
           unselectedFontSize: 11,
