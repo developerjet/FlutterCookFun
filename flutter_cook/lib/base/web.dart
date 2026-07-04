@@ -14,22 +14,23 @@ class WebViewPageState extends State<WebViewPage> {
 
   @override
   void initState() {
-    final String url = Get.arguments['url'];
+    super.initState();
+    final args = Get.arguments as Map<String, dynamic>?;
+    final url = args?['url'] as String? ?? '';
     debugPrint("url===$url");
 
     _webController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
-      ..loadRequest(Uri.parse(url));
-
-    super.initState();
+      ..loadRequest(Uri.parse(url.isNotEmpty ? url : 'about:blank'));
   }
 
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments as Map<String, dynamic>?;
     return Scaffold(
         appBar: AppBar(
-          title: Text(Get.arguments['title']),
+          title: Text(args?['title'] as String? ?? ''),
           backgroundColor: Theme.of(context).colorScheme.primary,
         ),
         body: Column(

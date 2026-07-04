@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
-import 'package:flutter_cook/module/home/model/home_banner_model.dart';
 import 'package:flutter_cook/module/home/model/home_list_model.dart';
 import 'package:flutter_cook/module/home/controller/home_controller.dart';
 import 'package:flutter_cook/module/home/views/home_banner.dart';
@@ -35,7 +34,7 @@ class HomePageState extends State<HomePage> {
             child: IconButton(
               icon: Image.asset('assets/images/search_white.png',
                   width: 25, height: 25),
-              onPressed: () => Get.toNamed('/search'),
+              onPressed: () => Get.toNamed(RouteNames.search),
             ),
           )
         ],
@@ -54,9 +53,8 @@ class HomePageState extends State<HomePage> {
         }
 
         final bannerData = controller.bannerData.value;
-        final rawBannerList = bannerData?.data?.moduleList?.isNotEmpty == true
-            ? bannerData!.data!.moduleList![0].moduleData ?? []
-            : <ModuleData>[];
+        final rawBannerList =
+            bannerData?.data?.moduleList?.firstOrNull?.moduleData ?? [];
         final bannerList = rawBannerList.where((val) {
           final picture = val.bannerPicture?.trim();
           return picture != null && picture.isNotEmpty && picture != 'null';
@@ -104,7 +102,7 @@ class HomePageState extends State<HomePage> {
                               'title': banner.bannerTitle,
                             });
                           } else if (link.startsWith('http')) {
-                            Get.toNamed('webPage', arguments: {
+                            Get.toNamed(RouteNames.web, arguments: {
                               'url': link,
                               'title': banner.bannerTitle,
                             });
@@ -145,7 +143,7 @@ class HomePageState extends State<HomePage> {
   }
 
   _skipClassPage(HomeFoodListData data) {
-    Get.toNamed('/foodClass', arguments: data);
+    Get.toNamed(RouteNames.foodClass, arguments: data);
   }
 
   @override

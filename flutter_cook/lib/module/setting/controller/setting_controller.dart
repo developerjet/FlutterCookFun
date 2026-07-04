@@ -72,7 +72,7 @@ class SettingController extends GetxController {
   Future<void> changeLanguage(int languageIndex) async {
     try {
       selectedLanguage.value = languageIndex;
-      LanguageManager.saveLanguage(languageIndex);
+      await LanguageManager.saveLanguage(languageIndex);
 
       // 更新语言
       final locale = languageIndex == 0

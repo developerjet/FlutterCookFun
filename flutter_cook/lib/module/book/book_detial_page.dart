@@ -50,8 +50,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
       appBar: AppBar(
         title: Text(arguments.title),
       ),
-      body: Obx(
-        () {
+      body: Obx(() {
           if (!arguments.isValid) {
             return EmptyState.error(
               title: 'parameter_error'.tr,
@@ -62,14 +61,17 @@ class _BookDetailPageState extends State<BookDetailPage> {
             );
           }
 
+          // 本地快照，防止 childCount 和 builder 之间列表被修改导致越界
+          final detailList = controller.bookDetailList.toList();
+
           return EasyRefresh(
             onRefresh: () async {
               await controller.loadBookDetail(arguments.sceneId, refresh: true);
             },
             controller: _refreshController,
-            child: controller.isDetailLoading.value && controller.bookDetailList.isEmpty
+            child: controller.isDetailLoading.value && detailList.isEmpty
                 ? EmptyState.loading(title: 'loading'.tr)
-                : controller.bookDetail.value == null && controller.bookDetailList.isEmpty
+                : controller.bookDetail.value == null && detailList.isEmpty
                     ? EmptyState.error(
                         title: 'load_failed'.tr,
                         description:
@@ -78,7 +80,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                           await controller.loadBookDetail(arguments.sceneId, refresh: true);
                         },
                       )
-                    : controller.bookDetailList.isEmpty
+                    : detailList.isEmpty
                         ? EmptyState.empty(
                             title: 'no_data'.tr,
                             description: 'no_recipe_data'.tr,
@@ -107,17 +109,16 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                   ),
                                 ),
                               ),
-                              Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Text(
-                                    controller.bookDetail.value?.data?.sceneDesc ?? '',
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                              Positioned(
+                                bottom: 16,
+                                right: 16,
+                                child: Text(
+                                  controller.bookDetail.value?.data?.sceneDesc ?? '',
+                                  textAlign: TextAlign.right,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
@@ -128,7 +129,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                       SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (BuildContext context, int index) {
-                            final item = controller.bookDetailList[index];
+                            final item = detailList[index];
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -144,7 +145,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                               ],
                             );
                           },
-                          childCount: controller.bookDetailList.length,
+                          childCount: detailList.length,
                         ),
                       ),
                     ],

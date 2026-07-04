@@ -19,8 +19,15 @@ class ImageViewerState extends State<ImageViewer> {
   void initState() {
     super.initState();
 
-    imageUrls = List<String>.from(Get.arguments["imageUrls"] ?? []);
+    imageUrls = List<String>.from(
+        (Get.arguments as Map<String, dynamic>?)?['imageUrls'] ?? []);
     _pageController = PageController(initialPage: 0);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override

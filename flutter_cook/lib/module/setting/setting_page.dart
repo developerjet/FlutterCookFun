@@ -22,14 +22,15 @@ class SettingPageState extends State<SettingPage> {
       body: SafeArea(
         child: Obx(
           () {
+            final items = controller.settingsItems.toList();
             return ListView.builder(
               itemExtent: 60,
-              itemCount: controller.settingsItems.length,
+              itemCount: items.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: [
                     ListTile(
-                      title: Text(controller.settingsItems[index]),
+                      title: Text(items[index]),
                       trailing: Image.asset('assets/images/arrow_right.png',
                           width: 20, height: 18),
                       onTap: () {

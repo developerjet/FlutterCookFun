@@ -55,10 +55,12 @@ class _SearchPageState extends State<SearchPage> {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_historyKey);
     if (raw != null) {
-      final list = jsonDecode(raw) as List<dynamic>;
-      setState(() {
-        _searchHistory = list.map((e) => e.toString()).toList();
-      });
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        setState(() {
+          _searchHistory = decoded.map((e) => e.toString()).toList();
+        });
+      }
     }
   }
 
@@ -147,6 +149,7 @@ class _SearchPageState extends State<SearchPage> {
     final seq = ++_requestSeq;
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
       _showResults = true;
       _materialResults = [];
     });
@@ -233,82 +236,17 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildSearchBar(BuildContext context) {
-    return Container(
-      height: 88,
-      padding: const EdgeInsets.all(15.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 40,
-              child: TextField(
-                autofocus: true,
-                focusNode: _focusNode,
-                controller: _searchController,
-                textInputAction: TextInputAction.search,
-                onSubmitted: (value) => _submitSearch(value.trim()),
-                decoration: InputDecoration(
-                  hintText: 'search_hint'.tr,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 15.0),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: Icon(Icons.clear,
-                              size: 18,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.color),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              _showResults = false;
-                              _suggestions = [];
-                            });
-                          },
-                        )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                        color: Theme.of(context).dividerColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                        color: Theme.of(context).dividerColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {}); // 刷新清除按钮
-                  _fetchSuggestions(value.trim());
-                },
-              ),
-            ),
-          ),
-          const SizedBox(width: 8.0),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 72),
-            child: TextButton(
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: const Size(72, 40),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text('cancel'.tr,
-                  style: TextStyle(
-                      fontSize: 17.0,
-                      color: Theme.of(context).colorScheme.primary)),
-              onPressed: () => Get.back(),
-            ),
-          ),
-        ],
-      ),
+    return _SearchBarWidget(
+      controller: _searchController,
+      focusNode: _focusNode,
+      onClear: () {
+        setState(() {
+          _showResults = false;
+          _suggestions = [];
+        });
+      },
+      onChanged: (value) => _fetchSuggestions(value.trim()),
+      onSubmitted: (value) => _submitSearch(value.trim()),
     );
   }
 
@@ -534,6 +472,121 @@ class _SearchPageState extends State<SearchPage> {
           ],
         );
       },
+    );
+  }
+}
+
+/// 搜索栏独立组件 — setState 仅重建自身，不影响父页面
+class _SearchBarWidget extends StatefulWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final VoidCallback onClear;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onSubmitted;
+
+  const _SearchBarWidget({
+    required this.controller,
+    required this.focusNode,
+    required this.onClear,
+    required this.onChanged,
+    required this.onSubmitted,
+  });
+
+  @override
+  State<_SearchBarWidget> createState() => _SearchBarWidgetState();
+}
+
+class _SearchBarWidgetState extends State<_SearchBarWidget> {
+  bool get _hasText => widget.controller.text.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    setState(() {}); // 仅重建搜索栏
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onTextChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 88,
+      padding: const EdgeInsets.all(15.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 40,
+              child: TextField(
+                autofocus: true,
+                focusNode: widget.focusNode,
+                controller: widget.controller,
+                textInputAction: TextInputAction.search,
+                onSubmitted: widget.onSubmitted,
+                decoration: InputDecoration(
+                  hintText: 'search_hint'.tr,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 15.0),
+                  suffixIcon: _hasText
+                      ? IconButton(
+                          icon: Icon(Icons.clear,
+                              size: 18,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color),
+                          onPressed: () {
+                            widget.controller.clear();
+                            widget.onClear();
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).dividerColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).dividerColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+                onChanged: widget.onChanged,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 72),
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(72, 40),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text('cancel'.tr,
+                  style: TextStyle(
+                      fontSize: 17.0,
+                      color: Theme.of(context).colorScheme.primary)),
+              onPressed: () => Get.back(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

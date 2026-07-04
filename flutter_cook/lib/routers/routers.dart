@@ -18,11 +18,11 @@ class AppRouter {
   // 路由配置
   static final routers = [
     // TabBar
-    GetPage(name: "/", page: () => const Tabs()),
+    GetPage(name: RouteNames.home, page: () => const Tabs()),
 
     // 首页食材分类
     GetPage(
-        name: "/foodClass",
+        name: RouteNames.foodClass,
         page: () => const FoodClassPage(),
         transition: Transition.cupertino), // iOS风格的过渡动画
 
@@ -53,33 +53,33 @@ class AppRouter {
 
     // 去设置界面
     GetPage(
-      name: "/setting",
+      name: RouteNames.setting,
       page: () => const SettingPage(),
       transition: Transition.cupertino,
     ),
 
     // 收藏
     GetPage(
-      name: "/favorite",
+      name: RouteNames.favorites,
       page: () => const FavoritePage(),
       transition: Transition.cupertino,
     ),
 
     // 去搜索界面
     GetPage(
-        name: "/search",
+        name: RouteNames.search,
         page: () => const SearchPage(),
         transition: Transition.cupertino),
 
     // Web界面
     GetPage(
-        name: "/webPage",
+        name: RouteNames.web,
         page: () => const WebViewPage(),
         transition: Transition.cupertino),
 
     // 图片浏览
     GetPage(
-        name: "/imageViewer",
+        name: RouteNames.imageViewer,
         page: () => const ImageViewer(),
         transition: Transition.cupertino),
   ];

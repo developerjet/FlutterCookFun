@@ -37,89 +37,43 @@ class ThemeManager {
 
   static Color get maskBgColor => const Color(0x60000000);
 
+  // 主题缓存 — 首次访问后缓存，避免每次 Obx 重建都重新构建 ThemeData
+  static ThemeData? _cachedLightTheme;
+  static ThemeData? _cachedDarkTheme;
+
   static ThemeData get lightTheme {
-    return ThemeData(
-      brightness: Brightness.light,
-      primaryColor: primaryColor,
-      primarySwatch: createMaterialColor(primaryColor),
-      scaffoldBackgroundColor: backgroundColor,
-      canvasColor: surfaceColor,
-      cardColor: cardColor,
-      dividerColor: dividerColor,
-      fontFamily: 'Exo',
-      appBarTheme: const AppBarTheme(
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
-        centerTitle: true,
-        elevation: 0,
-      ),
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: surfaceColor,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-        ),
-      ),
-      dividerTheme: DividerThemeData(color: dividerColor, thickness: 0.5),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primaryColor,
-          side: const BorderSide(color: primaryColor),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: primaryColor,
-        ),
-      ),
-      iconTheme: IconThemeData(color: textPrimaryColor),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, height: 1.3, color: textPrimaryColor),
-        displayMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, height: 1.3, color: textPrimaryColor),
-        headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, height: 1.35, color: textPrimaryColor),
-        headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.35, color: textPrimaryColor),
-        headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, height: 1.4, color: textPrimaryColor),
-        titleLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, height: 1.4, color: textPrimaryColor),
-        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, height: 1.4, color: textPrimaryColor),
-        titleSmall: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, height: 1.4, color: textPrimaryColor),
-        bodyLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, height: 1.5, color: textPrimaryColor),
-        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 1.5, color: textSecondaryColor),
-        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, height: 1.4, color: textSecondaryColor),
-        labelLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, height: 1.4, color: textPrimaryColor),
-        labelMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, height: 1.3, color: textPrimaryColor),
-        labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, height: 1.3, color: textSecondaryColor),
-      ),
-      colorScheme: ColorScheme.light(
-        primary: primaryColor,
-        secondary: primaryColor,
-        surface: surfaceColor,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: textPrimaryColor,
-      ),
-    );
+    _cachedLightTheme ??= _buildTheme(Brightness.light);
+    return _cachedLightTheme!;
   }
 
   static ThemeData get darkTheme {
+    _cachedDarkTheme ??= _buildTheme(Brightness.dark);
+    return _cachedDarkTheme!;
+  }
+
+  static void invalidateThemeCache() {
+    _cachedLightTheme = null;
+    _cachedDarkTheme = null;
+  }
+
+  static ThemeData _buildTheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF121212) : const Color(0xFFF5F6F7);
+    final surface = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF);
+    final card = isDark ? const Color(0xFF202020) : const Color(0xFFFFFFFF);
+    final textPrimary = isDark ? const Color(0xFFFFFFFF) : Colors.black;
+    final textSecondary =
+        isDark ? const Color(0xFFB5B5B5) : const Color(0xFF6F777A);
+    final divider = isDark ? const Color(0xFF383838) : const Color(0xFFE5E5E5);
+
     return ThemeData(
-      brightness: Brightness.dark,
+      brightness: brightness,
       primaryColor: primaryColor,
       primarySwatch: createMaterialColor(primaryColor),
-      scaffoldBackgroundColor: backgroundColor,
-      canvasColor: surfaceColor,
-      cardColor: cardColor,
-      dividerColor: dividerColor,
+      scaffoldBackgroundColor: bg,
+      canvasColor: surface,
+      cardColor: card,
+      dividerColor: divider,
       fontFamily: 'Exo',
       appBarTheme: const AppBarTheme(
         backgroundColor: primaryColor,
@@ -128,12 +82,12 @@ class ThemeManager {
         elevation: 0,
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: surfaceColor,
+        backgroundColor: surface,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
         ),
       ),
-      dividerTheme: DividerThemeData(color: dividerColor, thickness: 0.5),
+      dividerTheme: DividerThemeData(color: divider, thickness: 0.5),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
@@ -153,35 +107,98 @@ class ThemeManager {
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: primaryColor,
-        ),
+        style: TextButton.styleFrom(foregroundColor: primaryColor),
       ),
-      iconTheme: IconThemeData(color: textPrimaryColor),
+      iconTheme: IconThemeData(color: textPrimary),
       textTheme: TextTheme(
-        displayLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, height: 1.3, color: textPrimaryColor),
-        displayMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, height: 1.3, color: textPrimaryColor),
-        headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, height: 1.35, color: textPrimaryColor),
-        headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.35, color: textPrimaryColor),
-        headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, height: 1.4, color: textPrimaryColor),
-        titleLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, height: 1.4, color: textPrimaryColor),
-        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, height: 1.4, color: textPrimaryColor),
-        titleSmall: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, height: 1.4, color: textPrimaryColor),
-        bodyLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, height: 1.5, color: textPrimaryColor),
-        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 1.5, color: textSecondaryColor),
-        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, height: 1.4, color: textSecondaryColor),
-        labelLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, height: 1.4, color: textPrimaryColor),
-        labelMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, height: 1.3, color: textPrimaryColor),
-        labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, height: 1.3, color: textSecondaryColor),
+        displayLarge: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            height: 1.3,
+            color: textPrimary),
+        displayMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            height: 1.3,
+            color: textPrimary),
+        headlineLarge: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            height: 1.35,
+            color: textPrimary),
+        headlineMedium: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            height: 1.35,
+            color: textPrimary),
+        headlineSmall: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            height: 1.4,
+            color: textPrimary),
+        titleLarge: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            height: 1.4,
+            color: textPrimary),
+        titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            height: 1.4,
+            color: textPrimary),
+        titleSmall: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            height: 1.4,
+            color: textPrimary),
+        bodyLarge: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
+            color: textPrimary),
+        bodyMedium: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
+            color: textSecondary),
+        bodySmall: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            height: 1.4,
+            color: textSecondary),
+        labelLarge: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            height: 1.4,
+            color: textPrimary),
+        labelMedium: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            height: 1.3,
+            color: textPrimary),
+        labelSmall: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            height: 1.3,
+            color: textSecondary),
       ),
-      colorScheme: ColorScheme.dark(
-        primary: primaryColor,
-        secondary: primaryColor,
-        surface: surfaceColor,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: textPrimaryColor,
-      ),
+      colorScheme: isDark
+          ? ColorScheme.dark(
+              primary: primaryColor,
+              secondary: primaryColor,
+              surface: surface,
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: textPrimary,
+            )
+          : ColorScheme.light(
+              primary: primaryColor,
+              secondary: primaryColor,
+              surface: surface,
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: textPrimary,
+            ),
     );
   }
 
@@ -200,12 +217,13 @@ class ThemeManager {
   static Color bottomSheetColor() => bottomSheetBackground;
 
   // 随机颜色
+  static final Random _random = Random();
+
   static Color generateRandomColor() {
-    final random = Random();
     return Color.fromRGBO(
-      random.nextInt(256),
-      random.nextInt(256),
-      random.nextInt(256),
+      _random.nextInt(256),
+      _random.nextInt(256),
+      _random.nextInt(256),
       1.0,
     );
   }

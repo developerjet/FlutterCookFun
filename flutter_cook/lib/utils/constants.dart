@@ -44,9 +44,9 @@ abstract class RouteNames {
   static const String bookDetail = '/bookDetail';
   static const String playerVideo = '/player';
   static const String setting = '/setting';
-  static const String favorites = '/favorites';
+  static const String favorites = '/favorite';
   static const String search = '/search';
-  static const String web = '/web';
+  static const String web = '/webPage';
   static const String imageViewer = '/imageViewer';
 }
 

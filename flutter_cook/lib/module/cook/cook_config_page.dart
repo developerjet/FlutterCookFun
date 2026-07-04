@@ -84,15 +84,17 @@ class _CookConfigPageState extends State<CookConfigPage> {
           );
         }
 
-        if (controller.isLoading.value &&
-            controller.cookConfigList.isEmpty) {
+        // 本地快照，防止 itemCount 和 itemBuilder 之间列表被修改导致越界
+        final configList = controller.cookConfigList.toList();
+
+        if (controller.isLoading.value && configList.isEmpty) {
           return EmptyState.loading(
             title: 'loading'.tr,
             description: 'loading_recipes'.tr,
           );
         }
 
-        if (controller.cookConfigList.isEmpty) {
+        if (configList.isEmpty) {
           if (controller.configErrorMessage.value != null) {
             return EmptyState.error(
               title: 'load_failed'.tr,
@@ -124,12 +126,12 @@ class _CookConfigPageState extends State<CookConfigPage> {
             await _fetchConfigCooking();
           },
           child: ListView.builder(
-            itemCount: controller.cookConfigList.length,
+            itemCount: configList.length,
             itemBuilder: (context, index) {
               return InkWell(
                 child: Column(
                   children: [
-                    CookConfigCell(model: controller.cookConfigList[index]),
+                    CookConfigCell(model: configList[index]),
                     Divider(
                         height: 0.75, // 设置分割线的高度
                         color: Theme.of(context).dividerColor),

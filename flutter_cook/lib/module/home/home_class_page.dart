@@ -13,18 +13,19 @@ class FoodClassPage extends StatelessWidget {
     final dynamic arguments = Get.arguments;
     final HomeFoodListData foodData =
         arguments is HomeFoodListData ? arguments : HomeFoodListData();
+    final items = foodData.data;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(foodData.text ?? '—'),
       ),
-      body: (foodData.data?.isEmpty ?? true)
+      body: (items == null || items.isEmpty)
           ? EmptyState.empty(title: 'no_data'.tr, description: 'no_ingredients'.tr)
           : ListView.builder(
-              itemCount: foodData.data!.length,
+              itemCount: items.length,
               padding: const EdgeInsets.symmetric(vertical: 4),
               itemBuilder: (context, index) {
-                final item = foodData.data![index];
+                final item = items[index];
                 return InkWell(
             onTap: () => _classConfigCook(item),
             child: Padding(

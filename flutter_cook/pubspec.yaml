@@ -25,54 +25,38 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # 系统图片
-  cupertino_icons: ^1.0.2
+  # 状态管理
+  get: ^4.6.6                    # GetX — 路由、状态管理(.obs/Obx)、依赖注入、国际化
 
-  # Getx
-  get: ^4.6.6
+  # 网络
+  dio: ^5.4.0                    # HTTP 客户端 — 拦截器、超时、错误处理
+  webview_flutter: ^4.4.4       # WebView — 内嵌网页（设置页 Flutter.cn / GitHub 链接）
 
-  #UI布局
-  getwidget: ^7.0.0
+  # JSON 序列化
+  json_annotation: ^4.11.0      # 注解 — @JsonSerializable 标记 Model，配合 build_runner 生成 .g.dart
 
-  #轮播图
-  carousel_slider: ^5.1.0
+  # UI 组件
+  cupertino_icons: ^1.0.2       # iOS 风格图标
+  carousel_slider: ^5.1.0       # 轮播图 — 首页 Banner
+  easy_refresh: ^3.3.4          # 下拉刷新 + 上拉加载更多
+  flutter_easyloading: ^3.0.5   # HUD 加载提示 / Toast
+  fluttertoast: ^8.2.4          # Toast 轻提示（与 EasyLoading 功能有重叠，后续可统一）
+  photo_view: ^0.14.0           # 图片全屏预览 + 手势缩放（菜谱步骤图）
+  visibility_detector: ^0.4.0+2 # 可见性检测 — 视频播放器自动暂停/恢复
 
-  #toast
-  fluttertoast: ^8.2.4
+  # 视频
+  flick_video_player: ^0.7.0    # 视频播放器封装（基于 video_player）
+  video_player: ^2.6.0          # Flutter 官方视频播放插件
 
-  #网络请求
-  dio: ^5.4.0
-
-  #WebView
-  webview_flutter: ^4.4.4
-
-  #JSON转Model
-  json_annotation: ^4.11.0
-
-  #视频播放
-  flick_video_player: ^0.7.0
-  visibility_detector: ^0.4.0+2
-
-  #HUDLoading
-  flutter_easyloading: ^3.0.5
-
-  #列表上下拉刷新
-  easy_refresh: ^3.3.4
-
-  #数据库
-  sqflite: ^2.3.2
-  path_provider: ^2.1.5
-  shared_preferences: ^2.2.2
-  photo_view: ^0.14.0
-  video_player: ^2.6.0
-  path: ^1.8.4
-  gal: ^2.3.2
-  flutter_sticky_header: ^0.8.0
+  # 本地存储
+  sqflite: ^2.3.2               # SQLite — 收藏数据持久化
+  shared_preferences: ^2.2.2    # 键值对存储 — 主题模式、语言、搜索历史
+  path_provider: ^2.1.5         # 文件系统路径 — 图片缓存、数据库路径
+  gal: ^2.3.2                   # 相册保存 — 菜谱图片保存到系统相册
+  path: ^1.8.4                  # 文件路径拼接工具
 
 dependency_overrides:
-  win32: ^5.15.0
-  getwidget: ^7.0.0
-  carousel_slider: ^5.1.0
+  win32: ^5.15.0                # Windows 平台传递依赖版本锁定，仅影响 Windows 构建
 
 
 dev_dependencies:

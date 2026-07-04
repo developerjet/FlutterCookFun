@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'cook_data_model.g.dart';
@@ -28,16 +29,16 @@ class CookListDataModel {
   final String? text;
   final String? image;
 
-  /// 是否选中
+  /// 是否选中（响应式）
   @JsonKey(includeFromJson: false, includeToJson: false)
-  bool isSelected;
+  final RxBool isSelected;
 
   CookListDataModel({
     this.id,
     this.text,
     this.image,
-    this.isSelected = false,
-  });
+    bool isSelected = false,
+  }) : isSelected = isSelected.obs;
 
   factory CookListDataModel.fromJson(Map<String, dynamic> json) =>
       _$CookListDataModelFromJson(json);

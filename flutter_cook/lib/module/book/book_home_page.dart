@@ -39,8 +39,11 @@ class _BookPageState extends State<BookPage> {
         title: Text('tab_book_title'.tr),
       ),
       body: SafeArea(
-        child: Obx(
-          () => EasyRefresh(
+        child: Obx(() {
+          // 本地快照，避免 itemCount 和 itemBuilder 之间列表被修改导致越界
+          final books = controller.bookList.toList();
+
+          return EasyRefresh(
             onRefresh: () async {
               await controller.loadBookList(refresh: true);
             },
@@ -53,22 +56,8 @@ class _BookPageState extends State<BookPage> {
               }
             },
             controller: _refreshController,
-            child: controller.bookList.isEmpty
-                ? controller.isLoading.value
-                    ? EmptyState.loading(title: 'loading'.tr)
-                    : controller.errorMessage.value != null
-                        ? EmptyState.error(
-                            title: 'load_failed'.tr,
-                            description: controller.errorMessage.value,
-                            onRetry: () =>
-                                controller.loadBookList(refresh: true),
-                          )
-                        : EmptyState.empty(
-                            title: 'no_books'.tr,
-                            description: 'book_data_empty_desc'.tr,
-                            onRefresh: () =>
-                                controller.loadBookList(refresh: true),
-                          )
+            child: books.isEmpty
+                ? _buildEmptyState()
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate:
@@ -77,9 +66,9 @@ class _BookPageState extends State<BookPage> {
                       crossAxisSpacing: 8.0,
                       mainAxisSpacing: 8.0,
                     ),
-                    itemCount: controller.bookList.length,
+                    itemCount: books.length,
                     itemBuilder: (context, index) {
-                      final item = controller.bookList[index];
+                      final item = books[index];
                       return BookHomeCell(
                         model: item,
                         onTap: () {
@@ -91,9 +80,27 @@ class _BookPageState extends State<BookPage> {
                       );
                     },
                   ),
-          ),
-        ),
+          );
+        }),
       ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    if (controller.isLoading.value) {
+      return EmptyState.loading(title: 'loading'.tr);
+    }
+    if (controller.errorMessage.value != null) {
+      return EmptyState.error(
+        title: 'load_failed'.tr,
+        description: controller.errorMessage.value,
+        onRetry: () => controller.loadBookList(refresh: true),
+      );
+    }
+    return EmptyState.empty(
+      title: 'no_books'.tr,
+      description: 'book_data_empty_desc'.tr,
+      onRefresh: () => controller.loadBookList(refresh: true),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:get/get.dart';
 
 class CookHomeCell extends StatelessWidget {
   final CookListDataModel model;
@@ -39,23 +40,24 @@ class CookHomeCell extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     AppNetworkImage(url: model.image),
-                    if (model.isSelected)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.85),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Image.asset(
-                            'assets/images/checked.png',
-                            width: 18,
-                            height: 18,
-                          ),
-                        ),
-                      ),
+                    Obx(() => model.isSelected.value
+                        ? Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.85),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Image.asset(
+                                'assets/images/checked.png',
+                                width: 18,
+                                height: 18,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink()),
                   ],
                 ),
               ),

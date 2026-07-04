@@ -37,7 +37,7 @@ class CookHomeController extends GetxController {
       if (preserveSelection) {
         _restoreSelection(selectedIds);
       } else {
-        clearSelectedFoods(emit: false);
+        clearSelectedFoods();
       }
       _updateSelectedMaterialNames();
 
@@ -56,35 +56,31 @@ class CookHomeController extends GetxController {
   }
 
   bool toggleFoodSelection(CookListDataModel model) {
-    if (!model.isSelected && selectedCookList.length >= 5) {
+    if (!model.isSelected.value && selectedCookList.length >= 5) {
       return false;
     }
 
-    model.isSelected = !model.isSelected;
+    model.isSelected.value = !model.isSelected.value;
 
-    if (model.isSelected) {
+    if (model.isSelected.value) {
       selectedCookList.add(model);
     } else {
       selectedCookList.removeWhere((item) => item.id == model.id);
     }
 
     _updateSelectedMaterialNames();
-    cookHomeList.refresh();
     return true;
   }
 
-  void clearSelectedFoods({bool emit = true}) {
+  void clearSelectedFoods() {
     for (final group in cookHomeList) {
       group.data?.forEach((item) {
-        item.isSelected = false;
+        item.isSelected.value = false;
       });
     }
 
     selectedCookList.clear();
     selectedMaterialNames.value = '';
-    if (emit) {
-      cookHomeList.refresh();
-    }
   }
 
   void _restoreSelection(Set<dynamic> selectedIds) {
@@ -92,12 +88,11 @@ class CookHomeController extends GetxController {
     for (final group in cookHomeList) {
       group.data?.forEach((item) {
         if (selectedIds.contains(item.id)) {
-          item.isSelected = true;
+          item.isSelected.value = true;
           selectedCookList.add(item);
         }
       });
     }
-    cookHomeList.refresh();
   }
 
   void _updateSelectedMaterialNames() {

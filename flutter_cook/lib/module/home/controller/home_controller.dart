@@ -45,8 +45,15 @@ class HomeController extends GetxController {
         _repository.fetchHomeListData(),
       ]);
 
-      bannerData.value = results[0] as HomeBannerModel;
-      listData.value = results[1] as HomeDataModel;
+      if (results[0] is HomeBannerModel && results[1] is HomeDataModel) {
+        bannerData.value = results[0] as HomeBannerModel;
+        listData.value = results[1] as HomeDataModel;
+      } else {
+        throw DataException(
+          message: 'unexpected_response_format'.tr,
+          code: 'PARSE_ERROR',
+        );
+      }
 
       AppLogger.info(_tag, 'Home data loaded');
     } catch (e) {
@@ -70,8 +77,15 @@ class HomeController extends GetxController {
         _repository.fetchHomeListData(),
       ]);
 
-      bannerData.value = results[0] as HomeBannerModel;
-      listData.value = results[1] as HomeDataModel;
+      if (results[0] is HomeBannerModel && results[1] is HomeDataModel) {
+        bannerData.value = results[0] as HomeBannerModel;
+        listData.value = results[1] as HomeDataModel;
+      } else {
+        throw DataException(
+          message: 'unexpected_response_format'.tr,
+          code: 'PARSE_ERROR',
+        );
+      }
 
       AppLogger.info(_tag, 'Home data refreshed');
       EasyLoading.showSuccess('refresh_success'.tr);

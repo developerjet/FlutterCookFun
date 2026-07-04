@@ -18,6 +18,7 @@ class DioClient {
       BaseOptions options = BaseOptions(
         baseUrl: ApiConstants.baseUrl,
         connectTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
+        sendTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
         receiveTimeout: const Duration(milliseconds: ApiConstants.receiveTimeout),
       );
 
@@ -41,10 +42,9 @@ class DioClient {
       _validateResponse(response);
       return response;
     } on DioException catch (e) {
-      _handleDioError(e, 'GET', path);
-      rethrow;
+      throw _toNetworkException(e, 'GET', path);
     } catch (e) {
-      AppLogger.error(_tag, 'Unknown error: $path', e as Exception?);
+      AppLogger.error(_tag, 'Unknown error: $path', e is Exception ? e : null);
       rethrow;
     }
   }
@@ -61,10 +61,9 @@ class DioClient {
       _validateResponse(response);
       return response;
     } on DioException catch (e) {
-      _handleDioError(e, 'POST', path);
-      rethrow;
+      throw _toNetworkException(e, 'POST', path);
     } catch (e) {
-      AppLogger.error(_tag, 'Unknown error: $path', e as Exception?);
+      AppLogger.error(_tag, 'Unknown error: $path', e is Exception ? e : null);
       rethrow;
     }
   }
@@ -81,10 +80,9 @@ class DioClient {
       _validateResponse(response);
       return response;
     } on DioException catch (e) {
-      _handleDioError(e, 'PUT', path);
-      rethrow;
+      throw _toNetworkException(e, 'PUT', path);
     } catch (e) {
-      AppLogger.error(_tag, 'Unknown error: $path', e as Exception?);
+      AppLogger.error(_tag, 'Unknown error: $path', e is Exception ? e : null);
       rethrow;
     }
   }
@@ -101,10 +99,9 @@ class DioClient {
       _validateResponse(response);
       return response;
     } on DioException catch (e) {
-      _handleDioError(e, 'DELETE', path);
-      rethrow;
+      throw _toNetworkException(e, 'DELETE', path);
     } catch (e) {
-      AppLogger.error(_tag, 'Unknown error: $path', e as Exception?);
+      AppLogger.error(_tag, 'Unknown error: $path', e is Exception ? e : null);
       rethrow;
     }
   }
@@ -120,8 +117,8 @@ class DioClient {
     }
   }
 
-  /// 统一处理 Dio 错误
-  static void _handleDioError(DioException e, String method, String path) {
+  /// 将 DioException 转换为标准化的 NetworkException
+  static NetworkException _toNetworkException(DioException e, String method, String path) {
     String message;
     String code;
 
@@ -158,6 +155,8 @@ class DioClient {
       '[$method] $path - $message (Code: $code)',
       e as Exception?,
     );
+
+    return NetworkException(message: message, code: code);
   }
 
   /// 根据 HTTP 状态码获取错误信息

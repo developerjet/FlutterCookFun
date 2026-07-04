@@ -125,8 +125,15 @@ class CookRepository extends BaseRepository {
           );
         }
 
+        final data = responseData['data'];
+        if (data is! Map) {
+          throw DataException(
+            message: 'unexpected_response_format'.tr,
+            code: 'PARSE_ERROR',
+          );
+        }
         final model = CookStepDataModel.fromJson(
-          Map<String, dynamic>.from(responseData['data'] as Map),
+          Map<String, dynamic>.from(data),
         );
 
         AppLogger.info(_tag, 'Fetched cook steps data successfully: ${model.step?.length ?? 0} steps');

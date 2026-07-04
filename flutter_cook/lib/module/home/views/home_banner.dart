@@ -25,13 +25,13 @@ class CusotmCarouselSlider extends StatefulWidget {
 }
 
 class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
-  late CarouselSliderController _carouselController;
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _carouselController = CarouselSliderController();
   }
 
   @override
@@ -82,8 +82,7 @@ class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
             bottom: 20,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: widget.imageList.map((imageUrl) {
-                int index = widget.imageList.indexOf(imageUrl);
+              children: List.generate(widget.imageList.length, (index) {
                 return Container(
                   width: 8,
                   height: 8,
@@ -95,7 +94,7 @@ class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                 );
-              }).toList(),
+              }),
             ),
           ),
         ],

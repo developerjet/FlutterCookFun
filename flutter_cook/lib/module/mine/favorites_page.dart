@@ -19,7 +19,6 @@ class _FavoritePageState extends State<FavoritePage> {
   @override
   void initState() {
     super.initState();
-    controller.refreshFavorites();
   }
 
   @override
@@ -42,7 +41,10 @@ class _FavoritePageState extends State<FavoritePage> {
           );
         }
 
-        if (controller.favoritesList.isEmpty) {
+        // 本地快照，防止 itemCount 和 itemBuilder 之间列表被修改导致越界
+        final favorites = controller.favoritesList.toList();
+
+        if (favorites.isEmpty) {
           return EmptyState.empty(
             title: 'no_favorites'.tr,
             description: 'favorite_data_empty_desc'.tr,
@@ -51,12 +53,13 @@ class _FavoritePageState extends State<FavoritePage> {
         }
 
         return ListView.builder(
-          itemCount: controller.favoritesList.length,
+          itemCount: favorites.length,
           itemBuilder: (context, index) {
+            final item = favorites[index];
             return InkWell(
               child: Column(
                 children: [
-                  CookConfigCell(model: controller.favoritesList[index]),
+                  CookConfigCell(model: item),
                   Divider(
                       height: 0.75, // 设置分割线的高度
                       color: Theme.of(context).dividerColor),
@@ -64,7 +67,7 @@ class _FavoritePageState extends State<FavoritePage> {
               ),
               onTap: () {
                 Get.toNamed(RouteNames.cookSteps, arguments: {
-                  'dishes_id': controller.favoritesList[index].dishesId,
+                  'dishes_id': item.dishesId,
                   'pushPage': 'myFavorites'
                 });
               },

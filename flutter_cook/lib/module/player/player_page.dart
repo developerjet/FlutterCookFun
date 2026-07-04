@@ -52,6 +52,7 @@ class PlayerVideoPageState extends State<PlayerVideoPage> {
 
   void _switchVideo(int index) {
     if (index == _currentIndex) return;
+    if (index < 0 || index >= _urls.length) return;
     _flickManager?.flickControlManager?.autoPause();
     setState(() {
       _currentIndex = index;
@@ -62,7 +63,7 @@ class PlayerVideoPageState extends State<PlayerVideoPage> {
   Future<ClosedCaptionFile> _loadCaptions() async {
     final String fileContents = await DefaultAssetBundle.of(context)
         .loadString('assets/bumble_bee_captions.srt');
-    _flickManager!.flickControlManager!.toggleSubtitle();
+    _flickManager?.flickControlManager?.toggleSubtitle();
     return SubRipCaptionFile(fileContents);
   }
 
@@ -84,36 +85,53 @@ class PlayerVideoPageState extends State<PlayerVideoPage> {
         title: Text(title),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
-      body: _urls.isEmpty
-          ? Center(
-              child: Text('missing_video_url'.tr,
-                  style: Theme.of(context).textTheme.bodyLarge))
-          : Column(
-              children: [
-                VisibilityDetector(
-                  key: ObjectKey(_flickManager),
-                  onVisibilityChanged: (visibility) {
-                    if (visibility.visibleFraction == 0 && mounted) {
-                      _flickManager?.flickControlManager?.autoPause();
-                    } else if (visibility.visibleFraction == 1) {
-                      _flickManager?.flickControlManager?.autoResume();
-                    }
-                  },
-                  child: AspectRatio(aspectRatio: 16 / 9, child: _player),
-                ),
-                if (total > 1) _buildVideoList(context),
-              ],
-            ),
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: _urls.isEmpty
+            ? Center(
+                child: Text('missing_video_url'.tr,
+                    style: Theme.of(context).textTheme.bodyLarge))
+            : Column(
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: VisibilityDetector(
+                          key: ObjectKey(_flickManager),
+                          onVisibilityChanged: (visibility) {
+                            if (visibility.visibleFraction == 0 && mounted) {
+                              _flickManager?.flickControlManager?.autoPause();
+                            } else if (visibility.visibleFraction > 0) {
+                              _flickManager?.flickControlManager?.autoResume();
+                            }
+                          },
+                          child: _player ?? const SizedBox.shrink(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (total > 1) _buildVideoList(context),
+                ],
+              ),
+      ),
     );
   }
 
   Widget _buildVideoList(BuildContext context) {
-    // 使用 i18n key 映射：索引 0 → video_one, 索引 1 → video_two
     final labels = ['video_one'.tr, 'video_two'.tr];
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPadding),
       child: Row(
         children: List.generate(_urls.length.clamp(0, 2), (index) {
           final isActive = index == _currentIndex;

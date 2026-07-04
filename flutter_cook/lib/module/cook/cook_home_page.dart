@@ -6,7 +6,6 @@ import 'package:flutter_cook/module/cook/views/cook_home_cell.dart';
 import 'package:flutter_cook/base/widgets/app_dialog.dart';
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/toast.dart';
-import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:get/get.dart';
 
 class CookPage extends StatefulWidget {
@@ -18,41 +17,43 @@ class CookPage extends StatefulWidget {
 
 class _CookPageState extends State<CookPage> {
   static const int _maxFoodCount = 5;
+  static const double _selectedItemHeight = 40.0;
 
   final CookHomeController controller = Get.isRegistered<CookHomeController>()
       ? Get.find<CookHomeController>()
       : Get.put(CookHomeController());
 
-  final ScrollController _listScrollController = ScrollController();
-  final List<GlobalKey> _groupKeys = [];
-  final List<GlobalKey> _chipKeys = [];
+  late final PageController _pageController = PageController();
+  late final ScrollController _chipScrollController = ScrollController();
   int _activeGroupIndex = 0;
 
-  void _scrollToGroup(int index) {
-    if (index >= _groupKeys.length) return;
+  void _onPageChanged(int index) {
+    if (index == _activeGroupIndex) return;
     setState(() => _activeGroupIndex = index);
+    _scrollChipToVisible(index);
+  }
 
-    // 标签栏自动滚动
-    final chipCtx = _chipKeys[index].currentContext;
-    if (chipCtx != null) {
-      Scrollable.ensureVisible(
-        chipCtx,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-        alignment: 0.5,
-      );
-    }
+  void _onChipTapped(int index) {
+    if (index == _activeGroupIndex) return;
+    setState(() => _activeGroupIndex = index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    _scrollChipToVisible(index);
+  }
 
-    // 列表跳转到对应分组
-    final groupCtx = _groupKeys[index].currentContext;
-    if (groupCtx != null) {
-      Scrollable.ensureVisible(
-        groupCtx,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        alignment: 0.05,
-      );
-    }
+  void _scrollChipToVisible(int index) {
+    if (!_chipScrollController.hasClients) return;
+    // 估算每个 chip 约 80px 宽 + 8px 间距 = 88px
+    final estimatedOffset = (index * 88.0) - 50.0;
+    final maxScroll = _chipScrollController.position.maxScrollExtent;
+    _chipScrollController.animateTo(
+      estimatedOffset.clamp(0.0, maxScroll < 0 ? 0.0 : maxScroll),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
   }
 
   void _handlerSelectFood(CookListDataModel model) {
@@ -98,7 +99,8 @@ class _CookPageState extends State<CookPage> {
 
   @override
   void dispose() {
-    _listScrollController.dispose();
+    _pageController.dispose();
+    _chipScrollController.dispose();
     super.dispose();
   }
 
@@ -130,7 +132,7 @@ class _CookPageState extends State<CookPage> {
           );
         }
 
-        final dataList = controller.cookHomeList;
+        final dataList = controller.cookHomeList.toList();
         if (dataList.isEmpty) {
           if (controller.errorMessage.value != null) {
             return EmptyState.error(
@@ -146,12 +148,8 @@ class _CookPageState extends State<CookPage> {
           );
         }
 
-        // 初始化 key 列表
-        _groupKeys.clear();
-        _chipKeys.clear();
-        for (int i = 0; i < dataList.length; i++) {
-          _groupKeys.add(GlobalKey());
-          _chipKeys.add(GlobalKey());
+        if (_activeGroupIndex >= dataList.length) {
+          _activeGroupIndex = 0;
         }
 
         return Column(
@@ -159,39 +157,28 @@ class _CookPageState extends State<CookPage> {
             _buildSelectionPanel(context),
             _buildCategoryChips(context, dataList),
             Expanded(
-              child: CustomScrollView(
-                controller: _listScrollController,
-                slivers: [
-                  ...dataList.asMap().entries.map((entry) {
-                    final groupIndex = entry.key;
-                    final group = entry.value;
-                    final items = group.data ?? [];
-                    return SliverStickyHeader(
-                      key: _groupKeys[groupIndex],
-                      header: _buildGroupHeader(
-                          context, group.text ?? '', items.length),
-                      sliver: SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-                        sliver: SliverGrid(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            childAspectRatio: 0.78,
-                          ),
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) => CookHomeCell(
-                              model: items[index],
-                              onTap: () => _handlerSelectFood(items[index]),
-                            ),
-                            childCount: items.length,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ],
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                itemCount: dataList.length,
+                itemBuilder: (context, pageIndex) {
+                  final items = dataList[pageIndex].data ?? [];
+                  return GridView.builder(
+                    padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 0.78,
+                    ),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) => CookHomeCell(
+                      model: items[index],
+                      onTap: () => _handlerSelectFood(items[index]),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -207,6 +194,7 @@ class _CookPageState extends State<CookPage> {
       color: Theme.of(context).cardColor,
       height: 44,
       child: ListView.builder(
+        controller: _chipScrollController,
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         itemCount: dataList.length,
@@ -217,14 +205,13 @@ class _CookPageState extends State<CookPage> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
             child: Material(
-              key: _chipKeys[index],
               color: isActive
                   ? Theme.of(context).colorScheme.primary
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
-                onTap: () => _scrollToGroup(index),
+                onTap: () => _onChipTapped(index),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   alignment: Alignment.center,
@@ -247,37 +234,34 @@ class _CookPageState extends State<CookPage> {
     );
   }
 
+  /// 顶部已选食材面板（固定高度 + 横向滚动）
   Widget _buildSelectionPanel(BuildContext context) {
     return Container(
       color: Theme.of(context).cardColor,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             'select_ingredients_prompt'.tr,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Obx(() {
             final items = controller.selectedCookList;
-            if (items.isEmpty) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: items.map((item) => Chip(
-                  label: Text(item.text ?? '',
-                      style: const TextStyle(fontSize: 13)),
-                  deleteIcon: const Icon(Icons.close, size: 16),
-                  onDeleted: () => _removeFood(item),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
-                )).toList(),
-              ),
+            return SizedBox(
+              height: _selectedItemHeight,
+              child: items.isEmpty
+                  ? null
+                  : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) =>
+                          _buildSelectedItem(context, items[index]),
+                    ),
             );
           }),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -304,44 +288,34 @@ class _CookPageState extends State<CookPage> {
     );
   }
 
-  Widget _buildGroupHeader(BuildContext context, String title, int count) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 3,
-            height: 16,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(2),
-            ),
+  /// 单个已选食材项
+  Widget _buildSelectedItem(BuildContext context, CookListDataModel item) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              '$count',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.primary,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 10),
+            Text(item.text ?? '', style: const TextStyle(fontSize: 13)),
+            InkWell(
+              onTap: () => _removeFood(item),
+              borderRadius: BorderRadius.circular(12),
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(Icons.close, size: 16),
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 2),
+          ],
+        ),
       ),
     );
   }
