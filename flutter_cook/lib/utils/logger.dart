@@ -21,7 +21,7 @@ class AppLogger {
   static void debug(String tag, String message) {
     if (kDebugMode) {
       final timestamp = DateTime.now().toString().split('.')[0];
-      print('[$timestamp] 🐛 [$tag] $message');
+      debugPrint('[$timestamp] 🐛 [$tag] $message');
     }
   }
 
@@ -29,7 +29,7 @@ class AppLogger {
   static void info(String tag, String message) {
     if (kDebugMode) {
       final timestamp = DateTime.now().toString().split('.')[0];
-      print('[$timestamp] ℹ️  [$tag] $message');
+      debugPrint('[$timestamp] ℹ️  [$tag] $message');
     }
   }
 
@@ -37,14 +37,14 @@ class AppLogger {
   static void warning(String tag, String message) {
     final timestamp = DateTime.now().toString().split('.')[0];
     if (kDebugMode) {
-      print('[$timestamp] ⚠️  [$tag] $message');
+      debugPrint('[$timestamp] ⚠️  [$tag] $message');
     } else {
       _reportToRemote(tag, message, 'WARNING');
     }
   }
 
   /// 错误日志
-  static void error(String tag, String message, [Exception? exception]) {
+  static void error(String tag, String message, [Object? exception]) {
     if (kDebugMode) {
       final timestamp = DateTime.now().toString().split('.')[0];
       debugPrint('[$timestamp] ❌ [$tag] $message');
@@ -83,7 +83,7 @@ class AppLogger {
     String tag,
     String message,
     String level, [
-    Exception? exception,
+    Object? exception,
   ]) {
     // TODO: 集成远程服务
   }

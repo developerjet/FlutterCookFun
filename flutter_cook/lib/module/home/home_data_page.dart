@@ -59,9 +59,8 @@ class HomePageState extends State<HomePage> {
           final picture = val.bannerPicture?.trim();
           return picture != null && picture.isNotEmpty && picture != 'null';
         }).toList();
-        final bannerImages = bannerList
-            .map((val) => val.bannerPicture!.toString())
-            .toList();
+        final bannerImages =
+            bannerList.map((val) => val.bannerPicture!.toString()).toList();
         final dataList = controller.listData.value?.data ?? [];
 
         if (dataList.isEmpty) {
@@ -115,25 +114,22 @@ class HomePageState extends State<HomePage> {
                       ),
               ),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  return InkWell(
-                    child: Column(
-                      children: [
-                        HomeDataCell(model: dataList[index]),
-                        Divider(
-                          height: 0.5,
-                          color: Theme.of(context).dividerColor,
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      _skipClassPage(dataList[index]);
-                    },
-                  );
-                },
-                childCount: dataList.length,
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: 8),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      child: HomeDataCell(model: dataList[index]),
+                      onTap: () {
+                        _skipClassPage(dataList[index]);
+                      },
+                    );
+                  },
+                  childCount: dataList.length,
+                ),
               ),
             ),
           ],

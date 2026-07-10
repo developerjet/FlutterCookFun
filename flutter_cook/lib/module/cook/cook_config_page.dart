@@ -17,17 +17,18 @@ class CookConfigPage extends StatefulWidget {
 }
 
 class _CookConfigPageState extends State<CookConfigPage> {
-  final CookConfigController controller = Get.isRegistered<CookConfigController>()
-      ? Get.find<CookConfigController>()
-      : Get.put(CookConfigController());
+  final CookConfigController controller =
+      Get.isRegistered<CookConfigController>()
+          ? Get.find<CookConfigController>()
+          : Get.put(CookConfigController());
   final EasyRefreshController _refreshController = EasyRefreshController();
   late final CookConfigArguments arguments;
 
   @override
   void initState() {
     super.initState();
-    arguments = CookConfigArguments.fromMap(
-        Get.arguments as Map<String, dynamic>?);
+    arguments =
+        CookConfigArguments.fromMap(Get.arguments as Map<String, dynamic>?);
     controller.loadCookConfigData(arguments, refresh: true);
   }
 
@@ -71,7 +72,8 @@ class _CookConfigPageState extends State<CookConfigPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() => Text('recipe_count_title'.trArgs([controller.cookConfigList.length.toString()]))),
+        title: Obx(() => Text('recipe_count_title'
+            .trArgs([controller.cookConfigList.length.toString()]))),
       ),
       body: Obx(() {
         if (!arguments.isValid) {
@@ -126,20 +128,15 @@ class _CookConfigPageState extends State<CookConfigPage> {
             await _fetchConfigCooking();
           },
           child: ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 6),
             itemCount: configList.length,
             itemBuilder: (context, index) {
               return InkWell(
-                child: Column(
-                  children: [
-                    CookConfigCell(model: configList[index]),
-                    Divider(
-                        height: 0.75, // 设置分割线的高度
-                        color: Theme.of(context).dividerColor),
-                  ],
-                ),
+                borderRadius: BorderRadius.circular(10),
+                child: CookConfigCell(model: configList[index]),
                 onTap: () {
                   Get.toNamed(RouteNames.cookSteps, arguments: {
-                    'dishes_id': controller.cookConfigList[index].dishesId,
+                    'dishes_id': configList[index].dishesId,
                     'pushPage': 'cookConfig'
                   });
                 },

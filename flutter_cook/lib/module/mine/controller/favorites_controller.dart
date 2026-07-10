@@ -33,10 +33,11 @@ class FavoritesController extends GetxController {
       final data = await DBManager().findAll();
       favoritesList.assignAll(data?.reversed.toList() ?? []);
 
-      AppLogger.info(_tag, 'Favorites loaded successfully: ${favoritesList.length} items');
+      AppLogger.info(
+          _tag, 'Favorites loaded successfully: ${favoritesList.length} items');
     } catch (e) {
       errorMessage.value = 'load_favorites_failed'.tr;
-      AppLogger.error(_tag, 'Failed to load favorites', e as Exception?);
+      AppLogger.error(_tag, 'Failed to load favorites', e);
     } finally {
       isLoading.value = false;
     }
@@ -58,7 +59,7 @@ class FavoritesController extends GetxController {
       return true;
     } catch (e) {
       errorMessage.value = 'add_favorite_failed'.tr;
-      AppLogger.error(_tag, 'Failed to add favorite: ${item.title}', e as Exception?);
+      AppLogger.error(_tag, 'Failed to add favorite: ${item.title}', e);
       return false;
     }
   }
@@ -73,7 +74,7 @@ class FavoritesController extends GetxController {
       return true;
     } catch (e) {
       errorMessage.value = 'remove_favorites_failed'.tr;
-      AppLogger.error(_tag, 'Failed to remove favorite: $id', e as Exception?);
+      AppLogger.error(_tag, 'Failed to remove favorite: $id', e);
       return false;
     }
   }
@@ -88,14 +89,14 @@ class FavoritesController extends GetxController {
       final item = await DBManager().find(id);
       return item != null && item.isNotEmpty;
     } catch (e) {
-      AppLogger.error(_tag, 'Failed to check favorite status: $id', e as Exception?);
+      AppLogger.error(_tag, 'Failed to check favorite status: $id', e);
       return false;
     }
   }
 
   /// 切换收藏状态
   Future<bool> toggleFavorite(CookConfigListModel item) async {
-      final isFav = await isFavorited(item.dishesId ?? '');
+    final isFav = await isFavorited(item.dishesId ?? '');
     if (isFav) {
       return await removeFromFavorites(item.dishesId ?? '');
     } else {
@@ -113,7 +114,7 @@ class FavoritesController extends GetxController {
       return true;
     } catch (e) {
       errorMessage.value = 'clear_favorites_failed'.tr;
-      AppLogger.error(_tag, 'Failed to clear all favorites', e as Exception?);
+      AppLogger.error(_tag, 'Failed to clear all favorites', e);
       return false;
     }
   }

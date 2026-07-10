@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter_cook/module/cook/model/cook_config_model.dart';
 
 class DBManager {
+  static const String _tableName = "CookConfig";
+
   /// 数据库名
   final String _dbName = "CookFun";
 
@@ -33,8 +33,8 @@ class DBManager {
 
   /// 初始化数据库
   Future<Database> _initDB() async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    String path = join(directory.path, _dbName);
+    final databaseDirectory = await getDatabasesPath();
+    final path = join(databaseDirectory, _dbName);
     return await openDatabase(
       path,
       version: _version,
@@ -76,7 +76,7 @@ class DBManager {
       'description': cook.description ?? "",
     };
 
-    return await database.insert("CookConfig", values);
+    return await database.insert(_tableName, values);
   }
 
   /// 使用SQL保存数据
@@ -99,7 +99,7 @@ class DBManager {
   /// 查询全部数据
   Future<List<CookConfigListModel>?> findAll() async {
     Database? database = await db;
-    List<Map<String, Object?>> result = await database.query("CookConfig");
+    List<Map<String, Object?>> result = await database.query(_tableName);
     if (result.isNotEmpty) {
       return result.map((e) => CookConfigListModel.fromJson(e)).toList();
     } else {
@@ -111,7 +111,7 @@ class DBManager {
   Future<List<CookConfigListModel>?> find(String dishesId) async {
     Database database = await db;
     List<Map<String, Object?>> result = await database
-        .query("CookConfig", where: "dishes_id=?", whereArgs: [dishesId]);
+        .query(_tableName, where: "dishes_id=?", whereArgs: [dishesId]);
     if (result.isNotEmpty) {
       return result.map((e) => CookConfigListModel.fromJson(e)).toList();
     } else {
@@ -138,7 +138,7 @@ class DBManager {
       content: cook.content,
       tagsInfo: cook.tagsInfo,
     );
-    int count = await database.update("CookConfig", updatedCook.toJson(),
+    int count = await database.update(_tableName, updatedCook.toJson(),
         where: "dishes_id=?", whereArgs: [dishesId]);
     return count;
   }
@@ -147,14 +147,14 @@ class DBManager {
   Future<int> delete(String dishesId) async {
     Database database = await db;
     int count = await database
-        .delete("CookConfig", where: "dishes_id=?", whereArgs: [dishesId]);
+        .delete(_tableName, where: "dishes_id=?", whereArgs: [dishesId]);
     return count;
   }
 
   /// 删除全部
   Future<int> deleteAll() async {
     Database database = await db;
-    int count = await database.delete("CookConfig");
+    int count = await database.delete(_tableName);
     return count;
   }
 }

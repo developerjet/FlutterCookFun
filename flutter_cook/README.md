@@ -12,6 +12,9 @@
 - 模块化路由与控制器管理
 - PageView 滑动切换食材分类
 - 视频播放（全屏/竖屏，视频切换）
+- SQLite 本地收藏（单库路径，统一读写链路）
+- 统一网络图片组件（加载/失败占位、解码尺寸控制、无缝换帧）
+- iOS 26 SDK / Xcode 26.6 模拟器构建验证
 - 全局 Crash 防御（RxList 快照、空安全加固、类型安全）
 
 ## 目录结构
@@ -72,6 +75,14 @@ flutter_cook/
 ### 搜索优化
 - 输入防抖 300ms + 请求序列号丢弃过期响应
 
+### 收藏链路：`lib/module/mine/controller/favorites_controller.dart` + `lib/utils/sqlite/db_manager.dart`
+- 收藏数据使用 `sqflite` 本地持久化，数据库名为 `CookFun`，表名为 `CookConfig`
+- 数据库路径统一使用 `getDatabasesPath()`，不维护 Documents 旧路径或双库迁移逻辑
+- 菜谱详情页加载成功后调用 `isFavorited(dishesId)` 判断收藏状态
+- 收藏写入链路：详情数据转换为 `CookConfigListModel` → `addToFavorites()` → `DBManager.saveData()`
+- 取消收藏链路：`removeFromFavorites(dishesId)` → `DBManager.delete()` → 同步移除内存列表
+- 收藏页通过 `favoritesList` 响应式列表展示，进入详情时传递 `pushPage: 'myFavorites'`
+
 ### 空状态组件：`lib/base/empty_state_view.dart`
 - 统一处理空数据、加载中、错误三种占位视图
 - 支持文本、图标、按钮和自定义内容
@@ -84,6 +95,13 @@ flutter_cook/
 | `AppDialog.alert()` | 单按钮提示弹窗 |
 | `AppBottomSheet.show()` | 底部弹窗，自动圆角 + 安全区 |
 | `AppSheetAction` | 底部弹窗操作项 |
+
+### 图片与列表体验优化
+- `AppNetworkImage` 统一处理网络图片加载、失败占位、圆角裁切和解码尺寸控制
+- 图片解码只传单轴尺寸提示，避免部分网络图片被预解码成错误比例
+- `gaplessPlayback` 保留上一帧图片，减少父级重建时的占位闪烁
+- 首页、分类、菜谱、收藏、搜索等高频列表统一卡片间距和边界节奏
+- 配菜页食材 Cell 的选中态只刷新边框、勾选和底部标题区域，避免图片区域跟随选中状态重建
 
 ## 开发约定
 
@@ -98,6 +116,7 @@ flutter_cook/
 - **空安全**：`Get.arguments` 必须 `as Map<String, dynamic>?` 空判断后再取值。
 - **类型安全**：优先用 `is` 类型守卫代替 `as` 强转，防止 API 返回异常数据时 `TypeError`。
 - **late 慎用**：优先声明时赋默认值；必须用 `late` 的场景确保 `initState` 中赋值。
+- **本地数据验证**：验证收藏链路时使用覆盖安装；卸载 App 会删除 iOS 沙盒，收藏数据库会被系统清除。
 
 ### 模块目录规范
 ```
@@ -125,6 +144,7 @@ module/<name>/
    ```bash
    flutter analyze
    flutter test
+   flutter build ios --simulator
    ```
 
 ## 技术栈
@@ -141,6 +161,15 @@ module/<name>/
 | 图片 | gal（相册保存）+ path_provider |
 | 国际化 | GetX Translations（zh_CN 主，en_US 备） |
 
+## iOS 适配状态
+
+- 当前已在 Xcode 26.6 环境下验证 iOS 模拟器构建：
+  ```bash
+  flutter build ios --simulator
+  ```
+- 收藏数据库使用 `sqflite` 的 `getDatabasesPath()`，避免依赖 `path_provider` 获取 Documents 目录造成的 iOS 26 运行时兼容风险。
+- 相册保存、临时文件下载等仍使用 `path_provider`，相关权限说明由 iOS 原生配置维护。
+
 ## 已知 API 特性
 
 | 接口 | 注意 |
@@ -149,21 +178,6 @@ module/<name>/
 | `SearchHome` | 返回 `{material, course, dishes}`，不能直接给 cookConfig 用 |
 | `SearchKeyword` | 建议数据在 `top.data[]` 不是 `data[]` |
 | `CategoryIndex` | 首页列表不支持分页，每次返回全量数据 |
-
-## 常见问题速查
-
-| 问题 | 解决 |
-|------|------|
-| `LateInitializationError` | 不用 `late`，声明时赋默认值 |
-| `A RenderFlex overflowed` | `Expanded`/`Flexible` 包裹 |
-| `setState() after dispose()` | 异步后检查 `mounted` |
-| EasyRefresh 上拉卡死 | 不要手动调 `finishLoad()` |
-| BottomSheet 圆角不生效 | `Get.bottomSheet` 不读 theme shape；用 `AppBottomSheet` |
-| 视频播放器卡死 | 不要给 `FlickManager` 的 controller 加 `setState` listener |
-| GetX 路由同帧冲突 | `Get.back()` + `Future.delayed(300ms)` → 导航 |
-| iOS 相册崩溃 | Info.plist 加 `NSPhotoLibraryUsageDescription` |
-| 搜索结果被建议覆盖 | 建议回调中检查 `_showResults` 标志位 |
-| 列表构建时 RangeError | Obx 内对 .obs 列表做 `toList()` 快照后再传 itemCount |
 
 ## 贡献与维护
 

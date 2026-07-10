@@ -27,8 +27,7 @@ class _FavoritePageState extends State<FavoritePage> {
       appBar: AppBar(
         title: Text('favorite_title'.tr),
       ),
-      body: SafeArea(
-          child: Obx(() {
+      body: SafeArea(child: Obx(() {
         if (controller.isLoading.value) {
           return EmptyState.loading(title: 'loading'.tr);
         }
@@ -53,18 +52,13 @@ class _FavoritePageState extends State<FavoritePage> {
         }
 
         return ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 6),
           itemCount: favorites.length,
           itemBuilder: (context, index) {
             final item = favorites[index];
             return InkWell(
-              child: Column(
-                children: [
-                  CookConfigCell(model: item),
-                  Divider(
-                      height: 0.75, // 设置分割线的高度
-                      color: Theme.of(context).dividerColor),
-                ],
-              ),
+              borderRadius: BorderRadius.circular(10),
+              child: CookConfigCell(model: item),
               onTap: () {
                 Get.toNamed(RouteNames.cookSteps, arguments: {
                   'dishes_id': item.dishesId,

@@ -4,7 +4,7 @@ import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 /// Dio 网络客户端 - 单例模式
-/// 
+///
 /// 功能：
 /// 1. 集中管理所有 HTTP 请求
 /// 2. 统一的拦截器配置
@@ -17,9 +17,11 @@ class DioClient {
     if (_dio == null) {
       BaseOptions options = BaseOptions(
         baseUrl: ApiConstants.baseUrl,
-        connectTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
+        connectTimeout:
+            const Duration(milliseconds: ApiConstants.connectTimeout),
         sendTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
-        receiveTimeout: const Duration(milliseconds: ApiConstants.receiveTimeout),
+        receiveTimeout:
+            const Duration(milliseconds: ApiConstants.receiveTimeout),
       );
 
       _dio = Dio(options);
@@ -118,7 +120,8 @@ class DioClient {
   }
 
   /// 将 DioException 转换为标准化的 NetworkException
-  static NetworkException _toNetworkException(DioException e, String method, String path) {
+  static NetworkException _toNetworkException(
+      DioException e, String method, String path) {
     String message;
     String code;
 
@@ -153,7 +156,7 @@ class DioClient {
     AppLogger.error(
       _tag,
       '[$method] $path - $message (Code: $code)',
-      e as Exception?,
+      e,
     );
 
     return NetworkException(message: message, code: code);

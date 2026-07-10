@@ -70,7 +70,8 @@ class _CookPageState extends State<CookPage> {
 
   void _showDeleteAlert() {
     if (controller.selectedCookList.isEmpty) {
-      ToastUtils.showSnackbar('warning_prompt'.tr, 'not_selected_ingredients'.tr);
+      ToastUtils.showSnackbar(
+          'warning_prompt'.tr, 'not_selected_ingredients'.tr);
       return;
     }
     AppDialog.show(
@@ -85,7 +86,8 @@ class _CookPageState extends State<CookPage> {
 
   void _customConfigCook() {
     if (controller.selectedCookList.isEmpty) {
-      ToastUtils.showSnackbar('warning_prompt'.tr, 'not_selected_ingredients'.tr);
+      ToastUtils.showSnackbar(
+          'warning_prompt'.tr, 'not_selected_ingredients'.tr);
       return;
     }
     final materialIds =
@@ -238,21 +240,44 @@ class _CookPageState extends State<CookPage> {
   Widget _buildSelectionPanel(BuildContext context) {
     return Container(
       color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'select_ingredients_prompt'.tr,
-            style: Theme.of(context).textTheme.bodyLarge,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'select_ingredients_prompt'.tr,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+              Obx(
+                () => Text(
+                  '${controller.selectedCookList.length}/$_maxFoodCount',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Obx(() {
             final items = controller.selectedCookList;
             return SizedBox(
               height: _selectedItemHeight,
               child: items.isEmpty
-                  ? null
+                  ? Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'not_selected_ingredients'.tr,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    )
                   : ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: items.length,
@@ -264,23 +289,30 @@ class _CookPageState extends State<CookPage> {
           const SizedBox(height: 6),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: controller.selectedCookList.isEmpty
-                  ? null
-                  : _customConfigCook,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                disabledBackgroundColor: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-              child: Text('start_cooking'.tr),
+            child: Obx(
+              () {
+                final selectedCount = controller.selectedCookList.length;
+                return ElevatedButton(
+                  onPressed: selectedCount == 0 ? null : _customConfigCook,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    disabledBackgroundColor: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                  ),
+                  child: Text(
+                    selectedCount == 0
+                        ? 'start_cooking'.tr
+                        : '${'start_cooking'.tr} ($selectedCount)',
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -295,7 +327,7 @@ class _CookPageState extends State<CookPage> {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
@@ -304,13 +336,23 @@ class _CookPageState extends State<CookPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(width: 10),
-            Text(item.text ?? '', style: const TextStyle(fontSize: 13)),
+            Text(
+              item.text ?? '',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
             InkWell(
               onTap: () => _removeFood(item),
               borderRadius: BorderRadius.circular(12),
-              child: const Padding(
-                padding: EdgeInsets.all(4),
-                child: Icon(Icons.close, size: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  Icons.close,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
             const SizedBox(width: 2),

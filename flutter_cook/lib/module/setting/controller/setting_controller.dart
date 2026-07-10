@@ -39,10 +39,11 @@ class SettingController extends GetxController {
       selectedTheme.value = await ThemeManager.fetchLastTheme() ?? 0;
       selectedLanguage.value = await LanguageManager.fetchLastLanguage() ?? 0;
 
-      AppLogger.info(_tag, 'Settings loaded successfully: theme=$selectedTheme, language=$selectedLanguage');
+      AppLogger.info(_tag,
+          'Settings loaded successfully: theme=$selectedTheme, language=$selectedLanguage');
     } catch (e) {
       errorMessage.value = 'load_settings_failed'.tr;
-      AppLogger.error(_tag, 'Failed to load settings data', e as Exception?);
+      AppLogger.error(_tag, 'Failed to load settings data', e);
     } finally {
       isLoading.value = false;
     }
@@ -64,7 +65,7 @@ class SettingController extends GetxController {
       AppLogger.info(_tag, 'Theme changed successfully: $themeIndex');
     } catch (e) {
       errorMessage.value = 'change_theme_failed'.tr;
-      AppLogger.error(_tag, 'Failed to change theme: $themeIndex', e as Exception?);
+      AppLogger.error(_tag, 'Failed to change theme: $themeIndex', e);
     }
   }
 
@@ -85,7 +86,7 @@ class SettingController extends GetxController {
       AppLogger.info(_tag, 'Language changed successfully: $languageIndex');
     } catch (e) {
       errorMessage.value = 'change_language_failed'.tr;
-      AppLogger.error(_tag, 'Failed to change language: $languageIndex', e as Exception?);
+      AppLogger.error(_tag, 'Failed to change language: $languageIndex', e);
     }
   }
 
@@ -110,7 +111,7 @@ class SettingController extends GetxController {
       AppLogger.info(_tag, 'Settings reset successfully');
     } catch (e) {
       errorMessage.value = 'reset_settings_failed'.tr;
-      AppLogger.error(_tag, 'Failed to reset settings', e as Exception?);
+      AppLogger.error(_tag, 'Failed to reset settings', e);
     }
   }
 

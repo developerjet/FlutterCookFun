@@ -144,29 +144,47 @@ class EmptyStateView extends StatelessWidget {
 
   /// 构建图标或加载指示器
   Widget _buildIconOrLoading(BuildContext context) {
+    final Color accentColor = switch (type) {
+      EmptyStateType.loading => Theme.of(context).colorScheme.primary,
+      EmptyStateType.error => Theme.of(context).colorScheme.error,
+      EmptyStateType.empty => Theme.of(context).textTheme.bodyMedium?.color ??
+          Theme.of(context).colorScheme.primary,
+    };
+
+    return Container(
+      width: 72,
+      height: 72,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: accentColor.withValues(alpha: 0.10),
+      ),
+      alignment: Alignment.center,
+      child: _buildIconContent(context, accentColor),
+    );
+  }
+
+  Widget _buildIconContent(BuildContext context, Color accentColor) {
     switch (type) {
       case EmptyStateType.loading:
         return SizedBox(
-          width: 50,
-          height: 50,
+          width: 34,
+          height: 34,
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.primary,
-            ),
+            valueColor: AlwaysStoppedAnimation<Color>(accentColor),
             strokeWidth: 3,
           ),
         );
       case EmptyStateType.error:
         return Icon(
           Icons.error_outline,
-          size: 60,
-          color: Theme.of(context).colorScheme.error,
+          size: 34,
+          color: accentColor,
         );
       case EmptyStateType.empty:
         return Icon(
           icon ?? Icons.inbox_outlined,
-          size: 60,
-          color: Theme.of(context).textTheme.bodyMedium?.color,
+          size: 34,
+          color: accentColor,
         );
     }
   }
@@ -182,14 +200,15 @@ class EmptyStateView extends StatelessWidget {
         children: [
           Expanded(
             child: ElevatedButton(
-              style: actionButtonStyle ?? ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
+              style: actionButtonStyle ??
+                  ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
               onPressed: onAction,
               child: Text(
                 mainButtonText,
@@ -212,7 +231,7 @@ class EmptyStateView extends StatelessWidget {
                 foregroundColor: Theme.of(context).colorScheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
               onPressed: onSecondaryAction,
@@ -233,17 +252,18 @@ class EmptyStateView extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        style: actionButtonStyle ?? ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          padding: const EdgeInsets.symmetric(
-            vertical: 14,
-            horizontal: 30,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
-        ),
+        style: actionButtonStyle ??
+            ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(
+                vertical: 14,
+                horizontal: 30,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
         onPressed: onAction,
         child: Text(
           mainButtonText,

@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
     return Obx(
       () => GetMaterialApp(
         defaultGlobalState: true,
+        debugShowCheckedModeBanner: false,
         title: "Cook Fun",
         translations: Messages(),
         locale: const Locale('zh', 'CN'),

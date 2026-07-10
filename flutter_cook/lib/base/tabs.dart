@@ -17,7 +17,19 @@ class Tabs extends StatefulWidget {
 }
 
 class _TabsState extends State<Tabs> {
+  static const List<String> _tabIconPaths = [
+    'assets/images/tab_home_none.png',
+    'assets/images/tab_home_selected.png',
+    'assets/images/tab_cook_none.png',
+    'assets/images/tab_cook_selected.png',
+    'assets/images/tab_book_none.png',
+    'assets/images/tab_book_selected.png',
+    'assets/images/tab_mine_none.png',
+    'assets/images/tab_mine_selected.png',
+  ];
+
   late int _currentIndex;
+  bool _didPrecacheTabIcons = false;
 
   final List<Widget> _pages = [
     const HomePage(),
@@ -28,11 +40,22 @@ class _TabsState extends State<Tabs> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     _currentIndex = widget.index;
     _handlerAppData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didPrecacheTabIcons) {
+      return;
+    }
+    _didPrecacheTabIcons = true;
+    for (final path in _tabIconPaths) {
+      precacheImage(AssetImage(path), context);
+    }
   }
 
   Future<void> _handlerAppData() async {
@@ -51,7 +74,8 @@ class _TabsState extends State<Tabs> {
     return Scaffold(
       // 底部导航栏
       bottomNavigationBar: BottomNavigationBar(
-          unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          unselectedItemColor:
+              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           selectedItemColor: Theme.of(context).colorScheme.primary,
           iconSize: 30, //底部菜单大小
           unselectedFontSize: 11,
@@ -80,7 +104,7 @@ class _TabsState extends State<Tabs> {
             BottomNavigationBarItem(
                 icon: Image.asset('assets/images/tab_book_none.png',
                     width: 20, height: 20),
-                activeIcon: Image.asset('assets/images/tab_book_seleced.png',
+                activeIcon: Image.asset('assets/images/tab_book_selected.png',
                     width: 20, height: 20),
                 label: 'tab_book_title'.tr),
             BottomNavigationBarItem(

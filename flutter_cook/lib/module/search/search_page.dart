@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/base/widgets/app_network_image.dart';
 import 'package:flutter_cook/module/search/model/search_data_model.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/constants.dart';
@@ -298,61 +299,27 @@ class _SearchPageState extends State<SearchPage> {
   /// 实时建议列表
   Widget _buildSuggestions(BuildContext context) {
     return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 6),
       itemCount: _suggestions.length,
       itemBuilder: (context, index) {
         final suggestion = _suggestions[index];
 
-        return Column(
-          children: [
-            ListTile(
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.network(
-                  suggestion.image ?? '',
-                  width: 44,
-                  height: 44,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 44,
-                    height: 44,
-                    color: Colors.grey.shade200,
-                    child: Icon(Icons.search,
-                        size: 24,
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.color),
-                  ),
-                ),
-              ),
-              title: Text(
-                suggestion.title ?? '',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                ),
-              ),
-              subtitle: Text(
-                'tap_to_search_ingredient'.tr,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-              ),
-              trailing: Icon(Icons.arrow_forward_ios,
-                  size: 14,
-                  color: Theme.of(context).textTheme.bodyMedium?.color),
-              onTap: () => _onSuggestionTap(suggestion),
-            ),
-            Divider(
-              height: 0.5,
-              color: Theme.of(context).dividerColor,
-            ),
-          ],
+        return _SearchListItem(
+          imageUrl: suggestion.image,
+          title: suggestion.title ?? '',
+          subtitle: 'tap_to_search_ingredient'.tr,
+          fallbackIcon: Icons.search,
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            size: 14,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+          onTap: () => _onSuggestionTap(suggestion),
         );
       },
     );
   }
+
   /// 搜索历史
   Widget _buildSearchHistory(BuildContext context) {
     return Column(
@@ -362,23 +329,20 @@ class _SearchPageState extends State<SearchPage> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Row(
             children: [
-              Text('搜索历史',
-                  style: Theme.of(context).textTheme.titleSmall),
+              Text('搜索历史', style: Theme.of(context).textTheme.titleSmall),
               const Spacer(),
               GestureDetector(
                 onTap: _clearHistory,
                 child: Icon(Icons.delete_outline,
                     size: 18,
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.color),
+                    color: Theme.of(context).textTheme.bodySmall?.color),
               ),
             ],
           ),
         ),
         Expanded(
           child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: 8),
             itemCount: _searchHistory.length,
             itemBuilder: (context, index) {
               final keyword = _searchHistory[index];
@@ -386,18 +350,13 @@ class _SearchPageState extends State<SearchPage> {
                 dense: true,
                 leading: Icon(Icons.history,
                     size: 18,
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.color),
-                title: Text(keyword,
-                    style: Theme.of(context).textTheme.bodyLarge),
+                    color: Theme.of(context).textTheme.bodySmall?.color),
+                title:
+                    Text(keyword, style: Theme.of(context).textTheme.bodyLarge),
                 trailing: IconButton(
-                  icon: Icon(Icons.close, size: 16,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.color),
+                  icon: Icon(Icons.close,
+                      size: 16,
+                      color: Theme.of(context).textTheme.bodySmall?.color),
                   onPressed: () => _removeFromHistory(keyword),
                   padding: EdgeInsets.zero,
                   constraints:
@@ -425,53 +384,103 @@ class _SearchPageState extends State<SearchPage> {
     }
 
     return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 6),
       itemCount: _materialResults.length,
       itemBuilder: (context, index) {
         final material = _materialResults[index];
-        return Column(
-          children: [
-            ListTile(
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.network(
-                  material.image ?? '',
-                  width: 44,
-                  height: 44,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 44,
-                    height: 44,
-                    color: Colors.grey.shade200,
-                    child: Icon(Icons.fastfood,
-                        size: 24,
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.color),
-                  ),
-                ),
-              ),
-              title: Text(
-                material.title ?? '',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                ),
-              ),
-              trailing: const Image(
-                image: AssetImage('assets/images/arrow_right.png'),
-                width: 20,
-                height: 18,
-              ),
-              onTap: () => _onMaterialTap(material),
-            ),
-            Divider(
-              height: 0.5,
-              color: Theme.of(context).dividerColor,
-            ),
-          ],
+        return _SearchListItem(
+          imageUrl: material.image,
+          title: material.title ?? '',
+          fallbackIcon: Icons.fastfood,
+          trailing: const Image(
+            image: AssetImage('assets/images/arrow_right.png'),
+            width: 20,
+            height: 18,
+          ),
+          onTap: () => _onMaterialTap(material),
         );
       },
+    );
+  }
+}
+
+class _SearchListItem extends StatelessWidget {
+  final String? imageUrl;
+  final String title;
+  final String? subtitle;
+  final IconData fallbackIcon;
+  final Widget trailing;
+  final VoidCallback onTap;
+
+  const _SearchListItem({
+    required this.imageUrl,
+    required this.title,
+    required this.fallbackIcon,
+    required this.trailing,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Material(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
+              ),
+            ),
+            child: Row(
+              children: [
+                AppNetworkImage(
+                  url: imageUrl,
+                  width: 48,
+                  height: 48,
+                  borderRadius: BorderRadius.circular(8),
+                  fallbackIcon: fallbackIcon,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                trailing,
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -518,8 +527,8 @@ class _SearchBarWidgetState extends State<_SearchBarWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 88,
-      padding: const EdgeInsets.all(15.0),
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
           Expanded(
@@ -533,8 +542,7 @@ class _SearchBarWidgetState extends State<_SearchBarWidget> {
                 onSubmitted: widget.onSubmitted,
                 decoration: InputDecoration(
                   hintText: 'search_hint'.tr,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 15.0),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
                   suffixIcon: _hasText
                       ? IconButton(
                           icon: Icon(Icons.clear,
@@ -551,13 +559,13 @@ class _SearchBarWidgetState extends State<_SearchBarWidget> {
                       : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                        color: Theme.of(context).dividerColor),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).dividerColor),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                        color: Theme.of(context).dividerColor),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).dividerColor),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
@@ -571,11 +579,11 @@ class _SearchBarWidgetState extends State<_SearchBarWidget> {
           ),
           const SizedBox(width: 8.0),
           ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 72),
+            constraints: const BoxConstraints(minWidth: 64),
             child: TextButton(
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
-                minimumSize: const Size(72, 40),
+                minimumSize: const Size(64, 40),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: Text('cancel'.tr,

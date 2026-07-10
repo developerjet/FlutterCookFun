@@ -1,5 +1,5 @@
 /// 首页 Repository
-/// 
+///
 /// 职责：
 /// 1. 管理首页所有网络请求
 /// 2. 处理数据转换和验证
@@ -73,8 +73,8 @@ class HomeRepository extends BaseRepository {
     if (_hasValidBannerData(model)) return model;
 
     // 最终降级：本地占位
-    AppLogger.warning(
-        _tag, 'HomePage banner still empty after all strategies, using local fallback');
+    AppLogger.warning(_tag,
+        'HomePage banner still empty after all strategies, using local fallback');
     return _buildLocalFallbackBanner();
   }
 
@@ -118,7 +118,11 @@ class HomeRepository extends BaseRepository {
 
           return model;
         } catch (e) {
-          AppLogger.error(_tag, 'Failed to fetch banner data for page $page', e as Exception?);
+          AppLogger.error(
+            _tag,
+            'Failed to fetch banner data for page $page',
+            e,
+          );
 
           if (e is AppException) {
             rethrow;
@@ -127,7 +131,7 @@ class HomeRepository extends BaseRepository {
           throw NetworkException(
             message: 'load_failed_try_again'.tr,
             code: 'FETCH_BANNER_FAILED',
-            originalException: e as Exception?,
+            originalException: e is Exception ? e : null,
           );
         }
       },
@@ -139,9 +143,13 @@ class HomeRepository extends BaseRepository {
     return model.data?.moduleList?.any((module) {
           return module.moduleData?.any((item) {
                 final picture = item.bannerPicture?.trim();
-                return picture != null && picture.isNotEmpty && picture != 'null';
-              }) == true;
-        }) == true;
+                return picture != null &&
+                    picture.isNotEmpty &&
+                    picture != 'null';
+              }) ==
+              true;
+        }) ==
+        true;
   }
 
   HomeBannerModel _buildLocalFallbackBanner() {
@@ -212,11 +220,13 @@ class HomeRepository extends BaseRepository {
     if (selected.isEmpty) return null;
 
     // 合成为 ModuleData（复用 banner 字段）
-    final moduleDataList = selected.map((c) => ModuleData(
-          bannerTitle: c.title,
-          bannerPicture: c.image,
-          bannerLink: c.link,
-        )).toList();
+    final moduleDataList = selected
+        .map((c) => ModuleData(
+              bannerTitle: c.title,
+              bannerPicture: c.image,
+              bannerLink: c.link,
+            ))
+        .toList();
 
     AppLogger.info(
       _tag,
@@ -366,9 +376,9 @@ class HomeRepository extends BaseRepository {
 
         try {
           AppLogger.logNetworkRequest('/home/list', 'GET', params);
-          
+
           final response = await DioClient.get('', queryParameters: params);
-          
+
           if (response.data == null || response.data['data'] == null) {
             throw DataException(
               message: 'load_failed_try_again'.tr,
@@ -377,24 +387,24 @@ class HomeRepository extends BaseRepository {
           }
 
           final model = HomeDataModel.fromJson(response.data['data']);
-          
+
           AppLogger.info(
             _tag,
             'Fetched list data successfully: ${model.data.length} items',
           );
-          
+
           return model;
         } catch (e) {
-          AppLogger.error(_tag, 'Failed to fetch list data', e as Exception?);
-          
+          AppLogger.error(_tag, 'Failed to fetch list data', e);
+
           if (e is AppException) {
             rethrow;
           }
-          
+
           throw NetworkException(
             message: 'load_failed_try_again'.tr,
             code: 'FETCH_LIST_FAILED',
-            originalException: e as Exception?,
+            originalException: e is Exception ? e : null,
           );
         }
       },
