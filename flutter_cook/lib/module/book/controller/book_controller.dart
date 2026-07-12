@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 import 'package:flutter_cook/module/book/model/book_home_model.dart';
 import 'package:flutter_cook/module/book/model/book_detail_model.dart';
+import 'package:flutter_cook/services/book_service.dart';
 import 'package:flutter_cook/utils/constants.dart';
-import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 class BookController extends GetxController {
-  final DioClient client;
+  final BookService service;
 
   final RxList<BookListModel> bookList = <BookListModel>[].obs;
   final RxInt pageIndex = 1.obs;
@@ -22,7 +22,7 @@ class BookController extends GetxController {
   final Rxn<String> errorMessage = Rxn<String>();
   final Rxn<String> detailErrorMessage = Rxn<String>();
 
-  BookController({required this.client});
+  BookController({required this.service});
 
   Future<bool> loadBookList({int? page}) async {
     final requestPage = page ?? 1;
@@ -32,20 +32,7 @@ class BookController extends GetxController {
       isLoading.value = true;
       errorMessage.value = null;
 
-      final response = await client.get('', queryParameters: {
-        'methodName': 'SceneList',
-        'version': '4.3.2',
-        'page': requestPage,
-        'size': BusinessConstants.pageSize.toString(),
-      });
-
-      final jsonData = response.data['data'] as Map<String, dynamic>?;
-      final rawList = jsonData?['data'] as List<dynamic>? ?? [];
-      final items = rawList
-          .whereType<Map<String, dynamic>>()
-          .map((e) => BookListModel.fromJson(e))
-          .toList();
-
+      final items = await service.fetchBookList(page: requestPage);
       final hasMore = items.length >= BusinessConstants.pageSize;
       bookHasMore.value = hasMore;
 
@@ -82,20 +69,11 @@ class BookController extends GetxController {
       isDetailLoading.value = true;
       detailErrorMessage.value = null;
 
-      final response = await client.get('', queryParameters: {
-        'methodName': 'SceneInfo',
-        'version': '4.3.2',
-        'scene_id': sceneId,
-        'page': requestPage,
-        'size': '200',
-      });
-
-      final model = BookDetailModel.fromJson(response.data);
+      final model = await service.fetchBookDetail(sceneId, page: requestPage);
       bookDetail.value = model;
 
       final newItems = model.data?.dishesList ?? [];
-
-      // SceneInfo 不支持分页，page 参数无效
+      // SceneInfo 不支持分页
       final hasMore = false;
       detailHasMore.value = hasMore;
 
