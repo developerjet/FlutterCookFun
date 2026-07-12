@@ -4,6 +4,7 @@ import 'package:flutter_cook/module/cook/controller/cook_home_controller.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
 import 'package:flutter_cook/module/cook/views/cook_home_cell.dart';
 import 'package:flutter_cook/base/widgets/app_dialog.dart';
+import 'package:flutter_cook/base/widgets/tab_scroll_padding.dart';
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/toast.dart';
 import 'package:get/get.dart';
@@ -164,7 +165,10 @@ class _CookPageState extends State<CookPage> {
                 itemBuilder: (context, pageIndex) {
                   final items = dataList[pageIndex].data ?? [];
                   return GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+                    padding: resolveTabScrollPadding(
+                      context,
+                      const EdgeInsets.fromLTRB(8, 12, 8, 8),
+                    ),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,

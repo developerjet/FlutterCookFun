@@ -1,9 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_cook/module/cook/controller/cook_home_controller.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
-import 'package:flutter_cook/module/cook/repository/cook_repository.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 import '../helpers/mocks.dart';
@@ -26,7 +24,8 @@ void main() {
   group('CookHomeController', () {
     test('loadCookHomeData sets loading then data on success', () async {
       final mockData = <CookHomeListModel>[];
-      when(() => mockRepo.fetchCookHomeData()).thenAnswer((_) async => mockData);
+      when(() => mockRepo.fetchCookHomeData())
+          .thenAnswer((_) async => mockData);
 
       await controller.loadCookHomeData(forceRefresh: true);
 
@@ -63,12 +62,14 @@ void main() {
     });
 
     test('toggleFoodSelection enforces max 5 limit', () {
-      final items = List.generate(6, (i) => CookListDataModel(
-            id: '$i',
-            text: 'item$i',
-            image: '',
-            isSelected: false,
-          ));
+      final items = List.generate(
+          6,
+          (i) => CookListDataModel(
+                id: '$i',
+                text: 'item$i',
+                image: '',
+                isSelected: false,
+              ));
 
       for (int i = 0; i < 5; i++) {
         expect(controller.toggleFoodSelection(items[i]), true);

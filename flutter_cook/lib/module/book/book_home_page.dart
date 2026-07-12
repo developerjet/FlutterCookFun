@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/base/widgets/tab_scroll_padding.dart';
 import 'package:flutter_cook/module/book/controller/book_controller.dart';
 import 'package:flutter_cook/module/book/views/book_home_cell.dart';
 import 'package:flutter_cook/utils/constants.dart';
@@ -37,6 +38,7 @@ class _BookPageState extends State<BookPage> {
         title: Text('tab_book_title'.tr),
       ),
       body: SafeArea(
+        bottom: false,
         child: Obx(() {
           // 本地快照，避免 itemCount 和 itemBuilder 之间列表被修改导致越界
           final books = controller.bookList.toList();
@@ -57,7 +59,10 @@ class _BookPageState extends State<BookPage> {
             child: books.isEmpty
                 ? _buildEmptyState()
                 : GridView.builder(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: resolveTabScrollPadding(
+                      context,
+                      const EdgeInsets.all(8.0),
+                    ),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,

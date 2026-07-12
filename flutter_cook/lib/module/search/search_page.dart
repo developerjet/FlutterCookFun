@@ -301,6 +301,7 @@ class _SearchPageState extends State<SearchPage> {
   /// 实时建议列表
   Widget _buildSuggestions(BuildContext context) {
     return ListView.builder(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.symmetric(vertical: 6),
       itemCount: _suggestions.length,
       itemBuilder: (context, index) {
@@ -344,6 +345,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
         Expanded(
           child: ListView.builder(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.only(bottom: 8),
             itemCount: _searchHistory.length,
             itemBuilder: (context, index) {
@@ -386,6 +388,7 @@ class _SearchPageState extends State<SearchPage> {
     }
 
     return ListView.builder(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.symmetric(vertical: 6),
       itemCount: _materialResults.length,
       itemBuilder: (context, index) {
@@ -542,6 +545,7 @@ class _SearchBarWidgetState extends State<_SearchBarWidget> {
                 controller: widget.controller,
                 textInputAction: TextInputAction.search,
                 onSubmitted: widget.onSubmitted,
+                onTapOutside: (_) => widget.focusNode.unfocus(),
                 decoration: InputDecoration(
                   hintText: 'search_hint'.tr,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),

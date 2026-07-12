@@ -158,7 +158,9 @@ class BannerService {
     final trimmedImage = image?.trim();
     if (trimmedImage == null ||
         trimmedImage.isEmpty ||
-        trimmedImage == 'null') return null;
+        trimmedImage == 'null') {
+      return null;
+    }
 
     final hasTitle = title != null && title.isNotEmpty && title != 'null';
     final hasLink = link != null && link.isNotEmpty && link != 'null';

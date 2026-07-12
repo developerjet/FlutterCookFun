@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/base/widgets/tab_scroll_padding.dart';
 import 'package:flutter_cook/module/home/model/home_list_model.dart';
 import 'package:flutter_cook/module/home/controller/home_controller.dart';
 import 'package:flutter_cook/module/home/views/home_banner.dart';
@@ -116,7 +117,10 @@ class HomePageState extends State<HomePage> {
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 8)),
             SliverPadding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: resolveTabScrollPadding(
+                context,
+                const EdgeInsets.only(bottom: 8),
+              ),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
@@ -144,7 +148,6 @@ class HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    Get.delete<HomeController>();
     super.dispose();
   }
 }

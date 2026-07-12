@@ -13,7 +13,8 @@ class BookController extends GetxController {
   final RxBool bookHasMore = true.obs;
 
   final Rx<BookDetailModel?> bookDetail = Rx<BookDetailModel?>(null);
-  final RxList<BookDishesListModel> bookDetailList = <BookDishesListModel>[].obs;
+  final RxList<BookDishesListModel> bookDetailList =
+      <BookDishesListModel>[].obs;
   final RxInt detailPageIndex = 1.obs;
   final RxBool detailHasMore = true.obs;
 
@@ -23,6 +24,13 @@ class BookController extends GetxController {
   final Rxn<String> detailErrorMessage = Rxn<String>();
 
   BookController({required this.service});
+
+  @override
+  void onInit() {
+    super.onInit();
+    // BookPage 首屏依赖控制器初始化触发加载，避免进入页面后停留在空态。
+    loadBookList(page: 1);
+  }
 
   Future<bool> loadBookList({int? page}) async {
     final requestPage = page ?? 1;
@@ -44,12 +52,14 @@ class BookController extends GetxController {
         pageIndex.value = requestPage;
       }
 
-      AppLogger.info('BookController', 'Loaded books: page $requestPage, ${items.length} items');
+      AppLogger.info('BookController',
+          'Loaded books: page $requestPage, ${items.length} items');
       return true;
     } catch (e) {
       errorMessage.value =
           e is AppException ? e.message : 'load_failed_try_again'.tr;
-      AppLogger.error('BookController', 'Failed to load book list', e is Exception ? e : null);
+      AppLogger.error('BookController', 'Failed to load book list',
+          e is Exception ? e : null);
       return false;
     } finally {
       isLoading.value = false;
@@ -74,7 +84,7 @@ class BookController extends GetxController {
 
       final newItems = model.data?.dishesList ?? [];
       // SceneInfo 不支持分页
-      final hasMore = false;
+      const hasMore = false;
       detailHasMore.value = hasMore;
 
       if (requestPage == 1) {
@@ -85,12 +95,14 @@ class BookController extends GetxController {
         detailPageIndex.value = requestPage;
       }
 
-      AppLogger.info('BookController', 'Loaded book detail: $sceneId, ${newItems.length} items');
+      AppLogger.info('BookController',
+          'Loaded book detail: $sceneId, ${newItems.length} items');
       return true;
     } catch (e) {
       detailErrorMessage.value =
           e is AppException ? e.message : 'load_failed_try_again'.tr;
-      AppLogger.error('BookController', 'Failed to load book detail', e is Exception ? e : null);
+      AppLogger.error('BookController', 'Failed to load book detail',
+          e is Exception ? e : null);
       return false;
     } finally {
       isDetailLoading.value = false;

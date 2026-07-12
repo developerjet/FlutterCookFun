@@ -11,7 +11,6 @@ import 'package:flutter_cook/module/cook/controller/cook_home_controller.dart';
 import 'package:flutter_cook/module/cook/controller/cook_config_controller.dart';
 import 'package:flutter_cook/module/cook/controller/cook_steps_controller.dart';
 import 'package:flutter_cook/module/book/controller/book_controller.dart';
-import 'package:flutter_cook/module/search/controller/search_controller.dart';
 import 'package:flutter_cook/module/mine/controller/favorites_controller.dart';
 import 'package:flutter_cook/module/setting/controller/setting_controller.dart';
 
@@ -20,37 +19,47 @@ class AppBindings extends Bindings {
   @override
   void dependencies() {
     // ── 基础设施 ──
-    Get.lazyPut<DioClient>(() => DioClient(), fenix: true);
-    Get.lazyPut<ThemeManager>(() => ThemeManager(), fenix: true);
+    _lazyPutPermanent<DioClient>(() => DioClient());
+    _lazyPutPermanent<ThemeManager>(() => ThemeManager());
 
     // ── Services ──
-    Get.lazyPut<BannerService>(() => BannerService());
-    Get.lazyPut<CookService>(
+    _lazyPutPermanent<BannerService>(() => BannerService());
+    _lazyPutPermanent<CookService>(
         () => CookService(repository: Get.find<CookRepository>()));
-    Get.lazyPut<BookService>(
+    _lazyPutPermanent<BookService>(
         () => BookService(client: Get.find<DioClient>()));
 
     // ── Repository ──
-    Get.lazyPut<HomeRepository>(() => HomeRepository(
+    _lazyPutPermanent<HomeRepository>(
+      () => HomeRepository(
         client: Get.find<DioClient>(),
-        bannerService: Get.find<BannerService>()));
-    Get.lazyPut<CookRepository>(
+        bannerService: Get.find<BannerService>(),
+      ),
+    );
+    _lazyPutPermanent<CookRepository>(
         () => CookRepository(client: Get.find<DioClient>()));
 
     // ── Controller ──
-    Get.lazyPut<HomeController>(
-        () => HomeController(repository: Get.find<HomeRepository>()));
-    Get.lazyPut<CookHomeController>(
-        () => CookHomeController(repository: Get.find<CookRepository>()));
-    Get.lazyPut<CookConfigController>(
-        () => CookConfigController(repository: Get.find<CookRepository>()));
-    Get.lazyPut<CookStepsController>(
-        () => CookStepsController(repository: Get.find<CookRepository>()));
-    Get.lazyPut<BookController>(
-        () => BookController(service: Get.find<BookService>()));
-    Get.lazyPut<SearchController>(
-        () => SearchController(client: Get.find<DioClient>()));
-    Get.lazyPut<FavoritesController>(() => FavoritesController());
-    Get.lazyPut<SettingController>(() => SettingController());
+    _lazyPutPermanent<HomeController>(
+      () => HomeController(repository: Get.find<HomeRepository>()),
+    );
+    _lazyPutPermanent<CookHomeController>(
+      () => CookHomeController(repository: Get.find<CookRepository>()),
+    );
+    _lazyPutPermanent<CookConfigController>(
+      () => CookConfigController(repository: Get.find<CookRepository>()),
+    );
+    _lazyPutPermanent<CookStepsController>(
+      () => CookStepsController(repository: Get.find<CookRepository>()),
+    );
+    _lazyPutPermanent<BookController>(
+      () => BookController(service: Get.find<BookService>()),
+    );
+    _lazyPutPermanent<FavoritesController>(() => FavoritesController());
+    _lazyPutPermanent<SettingController>(() => SettingController());
+  }
+
+  void _lazyPutPermanent<T>(T Function() builder) {
+    GetInstance().lazyPut<T>(builder, permanent: true);
   }
 }

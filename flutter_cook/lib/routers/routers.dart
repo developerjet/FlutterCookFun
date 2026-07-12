@@ -1,6 +1,5 @@
 import 'package:flutter_cook/base/web.dart';
 import 'package:flutter_cook/module/book/book_detial_page.dart';
-import 'package:flutter_cook/module/book/binding/book_binding.dart';
 import 'package:flutter_cook/module/cook/cook_config_page.dart';
 import 'package:flutter_cook/module/cook/cook_steps_page.dart';
 import 'package:flutter_cook/base/image_viewer.dart';
@@ -47,7 +46,6 @@ class AppRouter {
     // 菜谱详情列表
     GetPage(
         name: RouteNames.bookDetail,
-        binding: BookBinding(),
         page: () => const BookDetailPage(),
         transition: Transition.cupertino),
 

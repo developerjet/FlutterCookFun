@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:mocktail/mocktail.dart';
 
 /// 注册测试模式
 void registerTestDependencies() {
