@@ -1,53 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
-// toast弹框封装
+/// Toast 工具类 — 统一切换为 EasyLoading
 class ToastUtils {
-  
   static void showShortToast(String message) {
-    _showToast(message, Toast.LENGTH_SHORT);
+    EasyLoading.showToast(message,
+        duration: const Duration(seconds: 2),
+        toastPosition: EasyLoadingToastPosition.center);
   }
 
   static void showLongToast(String message) {
-    _showToast(message, Toast.LENGTH_LONG);
-  }
-
-  static void _showToast(String message, Toast toastLength) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: toastLength,
-      gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.black,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
+    EasyLoading.showToast(message,
+        duration: const Duration(seconds: 4),
+        toastPosition: EasyLoadingToastPosition.center);
   }
 
   static void showColoredToast(
       String message, Color backgroundColor, Color textColor) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: 1,
-      backgroundColor: backgroundColor,
-      textColor: textColor,
-      fontSize: 16.0,
-    );
+    EasyLoading.showToast(message,
+        duration: const Duration(seconds: 2),
+        toastPosition: EasyLoadingToastPosition.center);
   }
 
   static void showCustomDurationToast(String message, int durationInSeconds) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: durationInSeconds,
-      backgroundColor: Colors.black,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
+    EasyLoading.showToast(message,
+        duration: Duration(seconds: durationInSeconds),
+        toastPosition: EasyLoadingToastPosition.center);
   }
 
   static void showSnackbar(String title, String message) {

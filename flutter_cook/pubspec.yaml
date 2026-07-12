@@ -40,7 +40,6 @@ dependencies:
   carousel_slider: ^5.1.0       # 轮播图 — 首页 Banner
   easy_refresh: ^3.3.4          # 下拉刷新 + 上拉加载更多
   flutter_easyloading: ^3.0.5   # HUD 加载提示 / Toast
-  fluttertoast: ^8.2.4          # Toast 轻提示（与 EasyLoading 功能有重叠，后续可统一）
   photo_view: ^0.14.0           # 图片全屏预览 + 手势缩放（菜谱步骤图）
   visibility_detector: ^0.4.0+2 # 可见性检测 — 视频播放器自动暂停/恢复
 
