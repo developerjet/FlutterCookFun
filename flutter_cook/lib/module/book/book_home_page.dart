@@ -21,9 +21,7 @@ class _BookPageState extends State<BookPage> {
   @override
   void initState() {
     super.initState();
-    controller = Get.isRegistered<BookController>()
-        ? Get.find<BookController>()
-        : Get.put(BookController());
+    controller = Get.find<BookController>();
   }
 
   @override
@@ -45,7 +43,7 @@ class _BookPageState extends State<BookPage> {
 
           return EasyRefresh(
             onRefresh: () async {
-              await controller.loadBookList(refresh: true);
+              await controller.loadBookList(page: 1);
             },
             onLoad: () async {
               if (!controller.bookHasMore.value) return;
@@ -94,13 +92,13 @@ class _BookPageState extends State<BookPage> {
       return EmptyState.error(
         title: 'load_failed'.tr,
         description: controller.errorMessage.value,
-        onRetry: () => controller.loadBookList(refresh: true),
+        onRetry: () => controller.loadBookList(page: 1),
       );
     }
     return EmptyState.empty(
       title: 'no_books'.tr,
       description: 'book_data_empty_desc'.tr,
-      onRefresh: () => controller.loadBookList(refresh: true),
+      onRefresh: () => controller.loadBookList(page: 1),
     );
   }
 }

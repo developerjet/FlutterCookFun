@@ -17,10 +17,7 @@ class CookConfigPage extends StatefulWidget {
 }
 
 class _CookConfigPageState extends State<CookConfigPage> {
-  final CookConfigController controller =
-      Get.isRegistered<CookConfigController>()
-          ? Get.find<CookConfigController>()
-          : Get.put(CookConfigController());
+  final CookConfigController controller = Get.find<CookConfigController>();
   final EasyRefreshController _refreshController = EasyRefreshController();
   late final CookConfigArguments arguments;
 

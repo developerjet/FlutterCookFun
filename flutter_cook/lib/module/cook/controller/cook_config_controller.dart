@@ -6,13 +6,15 @@ import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 class CookConfigController extends GetxController {
-  final CookRepository _repository = CookRepository();
+  final CookRepository repository;
 
-  final cookConfigList = <CookConfigListModel>[].obs;
-  final isLoading = false.obs;
-  final configErrorMessage = Rx<String?>(null);
-  final configHasMore = true.obs;
-  final pageIndex = 1.obs;
+  final RxList<CookConfigListModel> cookConfigList = <CookConfigListModel>[].obs;
+  final RxBool isLoading = false.obs;
+  final Rxn<String> configErrorMessage = Rxn<String>();
+  final RxBool configHasMore = true.obs;
+  final RxInt pageIndex = 1.obs;
+
+  CookConfigController({required this.repository});
 
   Future<bool> loadCookConfigData(
     CookConfigArguments arguments, {
@@ -42,7 +44,7 @@ class CookConfigController extends GetxController {
         requestedPage,
         BusinessConstants.pageSize,
       );
-      final list = await _repository.fetchCookConfigData(params);
+      final list = await repository.fetchCookConfigData(params);
 
       configHasMore.value = list.length >= BusinessConstants.pageSize;
       if (refresh) {

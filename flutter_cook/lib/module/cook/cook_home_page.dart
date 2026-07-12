@@ -19,9 +19,7 @@ class _CookPageState extends State<CookPage> {
   static const int _maxFoodCount = 5;
   static const double _selectedItemHeight = 40.0;
 
-  final CookHomeController controller = Get.isRegistered<CookHomeController>()
-      ? Get.find<CookHomeController>()
-      : Get.put(CookHomeController());
+  final CookHomeController controller = Get.find<CookHomeController>();
 
   late final PageController _pageController = PageController();
   late final ScrollController _chipScrollController = ScrollController();

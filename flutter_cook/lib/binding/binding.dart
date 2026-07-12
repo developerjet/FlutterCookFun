@@ -1,22 +1,45 @@
 import 'package:get/get.dart';
-
-import 'package:flutter_cook/binding/controller/bind_controller.dart';
+import 'package:flutter_cook/utils/networking/networking.dart';
+import 'package:flutter_cook/utils/theme.dart';
+import 'package:flutter_cook/module/home/repository/home_repository.dart';
+import 'package:flutter_cook/module/cook/repository/cook_repository.dart';
 import 'package:flutter_cook/module/home/controller/home_controller.dart';
+import 'package:flutter_cook/module/cook/controller/cook_home_controller.dart';
+import 'package:flutter_cook/module/cook/controller/cook_config_controller.dart';
+import 'package:flutter_cook/module/cook/controller/cook_steps_controller.dart';
 import 'package:flutter_cook/module/search/controller/search_controller.dart';
+import 'package:flutter_cook/module/book/controller/book_controller.dart';
 import 'package:flutter_cook/module/mine/controller/favorites_controller.dart';
 import 'package:flutter_cook/module/setting/controller/setting_controller.dart';
 
-// 实现Bindings的接口
-class AllControllerBinding implements Bindings {
+/// 全局依赖注入配置
+class AppBindings extends Bindings {
   @override
   void dependencies() {
-    // 核心控制器 - 懒初始化
-    Get.lazyPut<HomeController>(() => HomeController());
-    Get.lazyPut<SearchController>(() => SearchController());
+    // ── 基础设施 ──
+    Get.lazyPut<DioClient>(() => DioClient(), fenix: true);
+    Get.lazyPut<ThemeManager>(() => ThemeManager(), fenix: true);
+
+    // ── Repository ──
+    Get.lazyPut<HomeRepository>(
+        () => HomeRepository(client: Get.find<DioClient>()));
+    Get.lazyPut<CookRepository>(
+        () => CookRepository(client: Get.find<DioClient>()));
+
+    // ── Controller ──
+    Get.lazyPut<HomeController>(
+        () => HomeController(repository: Get.find<HomeRepository>()));
+    Get.lazyPut<CookHomeController>(
+        () => CookHomeController(repository: Get.find<CookRepository>()));
+    Get.lazyPut<CookConfigController>(
+        () => CookConfigController(repository: Get.find<CookRepository>()));
+    Get.lazyPut<CookStepsController>(
+        () => CookStepsController(repository: Get.find<CookRepository>()));
+    Get.lazyPut<SearchController>(
+        () => SearchController(client: Get.find<DioClient>()));
+    Get.lazyPut<BookController>(
+        () => BookController(client: Get.find<DioClient>()));
     Get.lazyPut<FavoritesController>(() => FavoritesController());
     Get.lazyPut<SettingController>(() => SettingController());
-
-    // TODO: 逐步淘汰全局控制器，迁移完成后删除
-    Get.lazyPut<GetxDataController>(() => GetxDataController());
   }
 }

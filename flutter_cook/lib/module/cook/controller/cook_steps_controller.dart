@@ -4,20 +4,20 @@ import 'package:flutter_cook/module/cook/repository/cook_repository.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 class CookStepsController extends GetxController {
-  final CookRepository _repository = CookRepository();
+  final CookRepository repository;
 
-  final cookStepsData = Rx<CookStepDataModel?>(null);
-  final isLoading = false.obs;
-  final errorMessage = Rx<String?>(null);
-  final currentDishId = ''.obs;
+  final Rx<CookStepDataModel?> cookStepsData = Rx<CookStepDataModel?>(null);
+  final RxBool isLoading = false.obs;
+  final Rxn<String> errorMessage = Rxn<String>();
+  final RxString currentDishId = ''.obs;
+
+  CookStepsController({required this.repository});
 
   Future<bool> loadCookSteps(String dishesId, {bool refresh = false}) async {
-    if (isLoading.value) {
-      return false;
-    }
+    if (isLoading.value) return false;
 
     if (dishesId.isEmpty) {
-      errorMessage.value = 'missing_dish_id'.tr;
+      errorMessage.value = '缺少菜品ID'.tr;
       return false;
     }
 
@@ -29,7 +29,7 @@ class CookStepsController extends GetxController {
 
     try {
       isLoading.value = true;
-      cookStepsData.value = await _repository.fetchCookStepsData(dishesId);
+      cookStepsData.value = await repository.fetchCookStepsData(dishesId);
       AppLogger.info('CookStepsController', 'Loaded cook steps data successfully');
       return true;
     } catch (e) {

@@ -36,7 +36,8 @@ class SettingController extends GetxController {
     errorMessage.value = null;
 
     try {
-      selectedTheme.value = await ThemeManager.fetchLastTheme() ?? 0;
+      final themeManager = Get.find<ThemeManager>();
+      selectedTheme.value = themeManager.isDarkMode ? 1 : 0;
       selectedLanguage.value = await LanguageManager.fetchLastLanguage() ?? 0;
 
       AppLogger.info(_tag,
@@ -61,7 +62,7 @@ class SettingController extends GetxController {
   Future<void> changeTheme(int themeIndex) async {
     try {
       selectedTheme.value = themeIndex;
-      await ThemeManager.saveTheme(themeIndex);
+      await Get.find<ThemeManager>().saveTheme(themeIndex);
       AppLogger.info(_tag, 'Theme changed successfully: $themeIndex');
     } catch (e) {
       errorMessage.value = 'change_theme_failed'.tr;

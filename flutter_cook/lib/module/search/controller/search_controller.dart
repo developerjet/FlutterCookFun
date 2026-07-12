@@ -4,18 +4,15 @@ import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 class SearchController extends GetxController {
-  // 搜索数据
-  final searchData = Rx<SearchDataModel?>(null);
+  final DioClient client;
 
-  // 搜索关键词
-  final searchKeyword = ''.obs;
+  final Rx<SearchDataModel?> searchData = Rx<SearchDataModel?>(null);
+  final RxString searchKeyword = ''.obs;
+  final RxBool isLoading = false.obs;
+  final RxBool isSearching = false.obs;
+  final Rxn<String> errorMessage = Rxn<String>();
 
-  // 加载状态
-  final isLoading = false.obs;
-  final isSearching = false.obs;
-
-  // 错误信息
-  final errorMessage = Rx<String?>(null);
+  SearchController({required this.client});
 
   @override
   void onInit() {
@@ -23,13 +20,12 @@ class SearchController extends GetxController {
     loadSearchData();
   }
 
-  /// 加载搜索数据
   Future<void> loadSearchData() async {
     try {
       isLoading.value = true;
       errorMessage.value = null;
 
-      final response = await DioClient.get('/search/data');
+      final response = await client.get('/search/data');
       final data = response.data;
 
       if (data != null && data['data'] != null) {
@@ -45,7 +41,6 @@ class SearchController extends GetxController {
     }
   }
 
-  /// 执行搜索
   Future<void> performSearch(String keyword) async {
     if (keyword.trim().isEmpty) return;
 
@@ -54,17 +49,14 @@ class SearchController extends GetxController {
       searchKeyword.value = keyword;
       errorMessage.value = null;
 
-      final response = await DioClient.get('/search', queryParameters: {
+      final response = await client.get('/search', queryParameters: {
         'keyword': keyword,
       });
 
-      // 处理搜索结果
       final data = response.data;
       if (data != null && data['data'] != null) {
-        // 这里可以根据实际API返回的数据结构来处理
         AppLogger.info('SearchController', 'Search succeeded: $keyword');
       }
-
     } catch (e) {
       errorMessage.value = 'search_failed'.tr;
       AppLogger.error('SearchController', 'Search failed: $keyword', e is Exception ? e : null);
@@ -73,18 +65,15 @@ class SearchController extends GetxController {
     }
   }
 
-  /// 清空搜索
   void clearSearch() {
     searchKeyword.value = '';
     errorMessage.value = null;
   }
 
-  /// 刷新数据
   Future<void> refreshData() async {
     await loadSearchData();
   }
 
-  /// 清空错误信息
   void clearError() {
     errorMessage.value = null;
   }

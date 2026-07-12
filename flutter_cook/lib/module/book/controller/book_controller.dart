@@ -6,48 +6,33 @@ import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 class BookController extends GetxController {
-  // 书籍列表数据
-  final bookList = <BookListModel>[].obs;
-  final pageIndex = 1.obs;
-  final bookHasMore = true.obs;
+  final DioClient client;
 
-  // 书籍详情数据
-  final bookDetail = Rx<BookDetailModel?>(null);
-  final bookDetailList = <BookDishesListModel>[].obs;
-  final detailPageIndex = 1.obs;
-  final detailHasMore = true.obs;
+  final RxList<BookListModel> bookList = <BookListModel>[].obs;
+  final RxInt pageIndex = 1.obs;
+  final RxBool bookHasMore = true.obs;
 
-  // 加载状态
-  final isLoading = false.obs;
-  final isDetailLoading = false.obs;
+  final Rx<BookDetailModel?> bookDetail = Rx<BookDetailModel?>(null);
+  final RxList<BookDishesListModel> bookDetailList = <BookDishesListModel>[].obs;
+  final RxInt detailPageIndex = 1.obs;
+  final RxBool detailHasMore = true.obs;
 
-  // 错误信息
-  final errorMessage = Rx<String?>(null);
-  final detailErrorMessage = Rx<String?>(null);
+  final RxBool isLoading = false.obs;
+  final RxBool isDetailLoading = false.obs;
+  final Rxn<String> errorMessage = Rxn<String>();
+  final Rxn<String> detailErrorMessage = Rxn<String>();
 
-  @override
-  void onInit() {
-    super.onInit();
-    loadBookList(refresh: true);
-  }
+  BookController({required this.client});
 
-  /// 加载书籍列表（分页）
-  Future<bool> loadBookList({int? page, bool refresh = false}) async {
-    if (isLoading.value) return false;
-    if (!refresh && !bookHasMore.value) return false;
-
-    final requestPage = refresh ? 1 : (page ?? pageIndex.value);
-    if (refresh) {
-      bookList.clear();
-      bookHasMore.value = true;
-      errorMessage.value = null;
-    }
+  Future<bool> loadBookList({int? page}) async {
+    final requestPage = page ?? 1;
+    if (requestPage > 1 && !bookHasMore.value) return false;
 
     try {
       isLoading.value = true;
       errorMessage.value = null;
 
-      final response = await DioClient.get('', queryParameters: {
+      final response = await client.get('', queryParameters: {
         'methodName': 'SceneList',
         'version': '4.3.2',
         'page': requestPage,
@@ -57,50 +42,47 @@ class BookController extends GetxController {
       final jsonData = response.data['data'] as Map<String, dynamic>?;
       final rawList = jsonData?['data'] as List<dynamic>? ?? [];
       final items = rawList
-          .map((item) => BookListModel.fromJson(item as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map((e) => BookListModel.fromJson(e))
           .toList();
 
-      if (refresh) {
+      final hasMore = items.length >= BusinessConstants.pageSize;
+      bookHasMore.value = hasMore;
+
+      if (requestPage == 1) {
         bookList.assignAll(items);
+        pageIndex.value = 1;
       } else {
         bookList.addAll(items);
+        pageIndex.value = requestPage;
       }
 
-      bookHasMore.value = items.length >= BusinessConstants.pageSize;
-      pageIndex.value = requestPage;
-      AppLogger.info('BookController', 'Book list loaded successfully');
+      AppLogger.info('BookController', 'Loaded books: page $requestPage, ${items.length} items');
       return true;
     } catch (e) {
-      errorMessage.value = 'load_book_list_failed'.tr;
-      AppLogger.error(
-        'BookController',
-        'Failed to load book list',
-        e is Exception ? e : null,
-      );
+      errorMessage.value =
+          e is AppException ? e.message : 'load_failed_try_again'.tr;
+      AppLogger.error('BookController', 'Failed to load book list', e is Exception ? e : null);
       return false;
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// 加载书籍详情（分页）
-  Future<bool> loadBookDetail(int sceneId, {int? page, bool refresh = false}) async {
-    if (isDetailLoading.value) return false;
-    if (!refresh && !detailHasMore.value) return false;
+  Future<bool> loadBookDetail(int sceneId, {int? page}) async {
+    final requestPage = page ?? 1;
+    if (requestPage > 1 && !detailHasMore.value) return false;
 
-    final requestPage = refresh ? 1 : (page ?? detailPageIndex.value);
-    if (refresh) {
-      bookDetail.value = null;
-      bookDetailList.clear();
-      detailHasMore.value = true;
-      detailErrorMessage.value = null;
+    if (sceneId <= 0) {
+      detailErrorMessage.value = 'Invalid scene ID';
+      return false;
     }
 
     try {
       isDetailLoading.value = true;
       detailErrorMessage.value = null;
 
-      final response = await DioClient.get('', queryParameters: {
+      final response = await client.get('', queryParameters: {
         'methodName': 'SceneInfo',
         'version': '4.3.2',
         'scene_id': sceneId,
@@ -111,37 +93,32 @@ class BookController extends GetxController {
       final model = BookDetailModel.fromJson(response.data);
       bookDetail.value = model;
 
-      final dishes = model.data?.dishesList ?? [];
-      if (refresh) {
-        bookDetailList.assignAll(dishes);
+      final newItems = model.data?.dishesList ?? [];
+
+      // SceneInfo 不支持分页，page 参数无效
+      final hasMore = false;
+      detailHasMore.value = hasMore;
+
+      if (requestPage == 1) {
+        bookDetailList.assignAll(newItems);
+        detailPageIndex.value = 1;
       } else {
-        bookDetailList.addAll(dishes);
+        bookDetailList.addAll(newItems);
+        detailPageIndex.value = requestPage;
       }
 
-      // SceneInfo API 不支持分页，page 参数无效，一次加载全部
-      detailHasMore.value = false;
-      detailPageIndex.value = requestPage;
-      AppLogger.info('BookController', 'Book details loaded successfully');
+      AppLogger.info('BookController', 'Loaded book detail: $sceneId, ${newItems.length} items');
       return true;
     } catch (e) {
-      detailErrorMessage.value = 'load_book_detail_failed'.tr;
-      AppLogger.error(
-        'BookController',
-        'Failed to load book details',
-        e is Exception ? e : null,
-      );
+      detailErrorMessage.value =
+          e is AppException ? e.message : 'load_failed_try_again'.tr;
+      AppLogger.error('BookController', 'Failed to load book detail', e is Exception ? e : null);
       return false;
     } finally {
       isDetailLoading.value = false;
     }
   }
 
-  /// 刷新数据
-  Future<void> refreshData() async {
-    await loadBookList(refresh: true);
-  }
-
-  /// 清空错误信息
   void clearError() {
     errorMessage.value = null;
     detailErrorMessage.value = null;

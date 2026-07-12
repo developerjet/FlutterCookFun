@@ -4,60 +4,51 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ThemeManager {
+class ThemeManager extends GetxController {
   static const Color primaryColor = Color(0xFF00CC99);
   static const Color themeColor = primaryColor;
   static const Color tabSelectedColor = Color(0xFF00CC99);
   static const Color tabUnselectedColor = Color(0xFFAAAAAA);
 
-  static final Rx<ThemeMode> currentThemeMode = ThemeMode.light.obs;
+  final Rx<ThemeMode> currentThemeMode = ThemeMode.light.obs;
 
-  static ThemeMode get themeMode => currentThemeMode.value;
+  ThemeMode get themeMode => currentThemeMode.value;
+  bool get isDarkMode => currentThemeMode.value == ThemeMode.dark;
 
-  static bool get isDarkMode => currentThemeMode.value == ThemeMode.dark;
-
-  static Color get surfaceColor =>
+  Color get surfaceColor =>
       isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF);
-
-  static Color get backgroundColor =>
+  Color get backgroundColor =>
       isDarkMode ? const Color(0xFF121212) : const Color(0xFFF5F6F7);
-
-  static Color get cardColor =>
+  Color get cardColor =>
       isDarkMode ? const Color(0xFF202020) : const Color(0xFFFFFFFF);
-
-  static Color get textPrimaryColor =>
+  Color get textPrimaryColor =>
       isDarkMode ? const Color(0xFFFFFFFF) : Colors.black;
-
-  static Color get textSecondaryColor =>
+  Color get textSecondaryColor =>
       isDarkMode ? const Color(0xFFB5B5B5) : const Color(0xFF6F777A);
-
-  static Color get dividerColor =>
+  Color get dividerColor =>
       isDarkMode ? const Color(0xFF383838) : const Color(0xFFE5E5E5);
+  Color get bottomSheetBackground => surfaceColor;
+  Color get maskBgColor => const Color(0x60000000);
 
-  static Color get bottomSheetBackground => surfaceColor;
+  ThemeData? _cachedLightTheme;
+  ThemeData? _cachedDarkTheme;
 
-  static Color get maskBgColor => const Color(0x60000000);
-
-  // 主题缓存 — 首次访问后缓存，避免每次 Obx 重建都重新构建 ThemeData
-  static ThemeData? _cachedLightTheme;
-  static ThemeData? _cachedDarkTheme;
-
-  static ThemeData get lightTheme {
+  ThemeData get lightTheme {
     _cachedLightTheme ??= _buildTheme(Brightness.light);
     return _cachedLightTheme!;
   }
 
-  static ThemeData get darkTheme {
+  ThemeData get darkTheme {
     _cachedDarkTheme ??= _buildTheme(Brightness.dark);
     return _cachedDarkTheme!;
   }
 
-  static void invalidateThemeCache() {
+  void invalidateThemeCache() {
     _cachedLightTheme = null;
     _cachedDarkTheme = null;
   }
 
-  static ThemeData _buildTheme(Brightness brightness) {
+  ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final bg = isDark ? const Color(0xFF121212) : const Color(0xFFF5F6F7);
     final surface = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF);
@@ -117,76 +108,20 @@ class ThemeManager {
       ),
       iconTheme: IconThemeData(color: textPrimary),
       textTheme: TextTheme(
-        displayLarge: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            height: 1.3,
-            color: textPrimary),
-        displayMedium: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            height: 1.3,
-            color: textPrimary),
-        headlineLarge: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            height: 1.35,
-            color: textPrimary),
-        headlineMedium: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            height: 1.35,
-            color: textPrimary),
-        headlineSmall: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            height: 1.4,
-            color: textPrimary),
-        titleLarge: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            height: 1.4,
-            color: textPrimary),
-        titleMedium: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.4,
-            color: textPrimary),
-        titleSmall: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            height: 1.4,
-            color: textPrimary),
-        bodyLarge: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w400,
-            height: 1.5,
-            color: textPrimary),
-        bodyMedium: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            height: 1.5,
-            color: textSecondary),
-        bodySmall: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            height: 1.4,
-            color: textSecondary),
-        labelLarge: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            height: 1.4,
-            color: textPrimary),
-        labelMedium: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            height: 1.3,
-            color: textPrimary),
-        labelSmall: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            height: 1.3,
-            color: textSecondary),
+        displayLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, height: 1.3, color: textPrimary),
+        displayMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, height: 1.3, color: textPrimary),
+        headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, height: 1.35, color: textPrimary),
+        headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.35, color: textPrimary),
+        headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, height: 1.4, color: textPrimary),
+        titleLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, height: 1.4, color: textPrimary),
+        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, height: 1.4, color: textPrimary),
+        titleSmall: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, height: 1.4, color: textPrimary),
+        bodyLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, height: 1.5, color: textPrimary),
+        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 1.5, color: textSecondary),
+        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, height: 1.4, color: textSecondary),
+        labelLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, height: 1.4, color: textPrimary),
+        labelMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, height: 1.3, color: textPrimary),
+        labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, height: 1.3, color: textSecondary),
       ),
       colorScheme: isDark
           ? ColorScheme.dark(
@@ -208,34 +143,8 @@ class ThemeManager {
     );
   }
 
-  static Future<void> initialize() async {
-    final int themeIndex = await fetchLastTheme() ?? 0;
-    currentThemeMode.value = themeIndex == 0 ? ThemeMode.light : ThemeMode.dark;
-  }
-
-  static Color textMainColor() => textPrimaryColor;
-  static Color textGrayColor() => textSecondaryColor;
-  static Color redMainColor() => const Color(0xFFFF4F4F);
-  static Color lineBoardColor() => dividerColor;
-  static Color bg1Color() => surfaceColor;
-  static Color bg2Color() => backgroundColor;
-  static Color bg3Color() => cardColor;
-  static Color bottomSheetColor() => bottomSheetBackground;
-
-  // 随机颜色
-  static final Random _random = Random();
-
-  static Color generateRandomColor() {
-    return Color.fromRGBO(
-      _random.nextInt(256),
-      _random.nextInt(256),
-      _random.nextInt(256),
-      1.0,
-    );
-  }
-
   static MaterialColor createMaterialColor(Color color) {
-    final List strengths = <double>[.05];
+    final List<double> strengths = <double>[.05];
     final Map<int, Color> swatch = {};
     final int r = color.r.round(), g = color.g.round(), b = color.b.round();
 
@@ -254,7 +163,13 @@ class ThemeManager {
     return MaterialColor(color.toARGB32(), swatch);
   }
 
-  static Future<void> saveTheme(int themeMode) async {
+  Future<void> initialize() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int themeIndex = prefs.getInt('ThemeMode') ?? 0;
+    currentThemeMode.value = themeIndex == 0 ? ThemeMode.light : ThemeMode.dark;
+  }
+
+  Future<void> saveTheme(int themeMode) async {
     currentThemeMode.value = themeMode == 0 ? ThemeMode.light : ThemeMode.dark;
     Get.changeThemeMode(currentThemeMode.value);
 
@@ -262,9 +177,22 @@ class ThemeManager {
     await prefs.setInt('ThemeMode', themeMode);
   }
 
-  static Future<int?> fetchLastTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final int lastTheme = prefs.getInt('ThemeMode') ?? 0;
-    return lastTheme;
+  Color textMainColor() => textPrimaryColor;
+  Color textGrayColor() => textSecondaryColor;
+  Color redMainColor() => const Color(0xFFFF4F4F);
+  Color lineBoardColor() => dividerColor;
+  Color bg1Color() => surfaceColor;
+  Color bg2Color() => backgroundColor;
+  Color bg3Color() => cardColor;
+  Color bottomSheetColor() => bottomSheetBackground;
+
+  static final Random _random = Random();
+  Color generateRandomColor() {
+    return Color.fromRGBO(
+      _random.nextInt(256),
+      _random.nextInt(256),
+      _random.nextInt(256),
+      1.0,
+    );
   }
 }

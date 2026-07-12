@@ -3,43 +3,41 @@ import 'package:get/get.dart' hide Response;
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
-/// Dio 网络客户端 - 单例模式
+/// Dio 网络客户端
 ///
-/// 功能：
-/// 1. 集中管理所有 HTTP 请求
-/// 2. 统一的拦截器配置
-/// 3. 错误处理和日志记录
+/// 通过 GetX DI 注册：Get.lazyPut<DioClient>(() => DioClient(), fenix: true)
+/// 注入到 Repository 构造函数中使用。
 class DioClient {
-  static Dio? _dio;
+  final Dio dio;
   static const String _tag = 'DioClient';
 
-  static Dio get dio {
-    if (_dio == null) {
-      BaseOptions options = BaseOptions(
-        baseUrl: ApiConstants.baseUrl,
-        connectTimeout:
-            const Duration(milliseconds: ApiConstants.connectTimeout),
-        sendTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
-        receiveTimeout:
-            const Duration(milliseconds: ApiConstants.receiveTimeout),
-      );
+  DioClient({Dio? dio}) : dio = dio ?? _createDefaultDio();
 
-      _dio = Dio(options);
+  static Dio _createDefaultDio() {
+    final options = BaseOptions(
+      baseUrl: ApiConstants.baseUrl,
+      connectTimeout:
+          const Duration(milliseconds: ApiConstants.connectTimeout),
+      sendTimeout:
+          const Duration(milliseconds: ApiConstants.connectTimeout),
+      receiveTimeout:
+          const Duration(milliseconds: ApiConstants.receiveTimeout),
+    );
 
-      // 添加统一的拦截器
-      _dio!.interceptors.add(_LoggingInterceptor());
-    }
-    return _dio!;
+    final d = Dio(options);
+    d.interceptors.add(_LoggingInterceptor());
+    return d;
   }
 
   /// GET 请求
-  static Future<Response> get(
+  Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
       AppLogger.logNetworkRequest(path, 'GET', queryParameters);
-      final response = await dio.get(path, queryParameters: queryParameters);
+      final response =
+          await dio.get<T>(path, queryParameters: queryParameters);
       AppLogger.logNetworkResponse(path, response.statusCode, response.data);
       _validateResponse(response);
       return response;
@@ -52,13 +50,13 @@ class DioClient {
   }
 
   /// POST 请求
-  static Future<Response> post(
+  Future<Response<T>> post<T>(
     String path, {
     Map<String, dynamic>? data,
   }) async {
     try {
       AppLogger.logNetworkRequest(path, 'POST', data);
-      final response = await dio.post(path, data: data);
+      final response = await dio.post<T>(path, data: data);
       AppLogger.logNetworkResponse(path, response.statusCode, response.data);
       _validateResponse(response);
       return response;
@@ -71,13 +69,13 @@ class DioClient {
   }
 
   /// PUT 请求
-  static Future<Response> put(
+  Future<Response<T>> put<T>(
     String path, {
     Map<String, dynamic>? data,
   }) async {
     try {
       AppLogger.logNetworkRequest(path, 'PUT', data);
-      final response = await dio.put(path, data: data);
+      final response = await dio.put<T>(path, data: data);
       AppLogger.logNetworkResponse(path, response.statusCode, response.data);
       _validateResponse(response);
       return response;
@@ -90,13 +88,14 @@ class DioClient {
   }
 
   /// DELETE 请求
-  static Future<Response> delete(
+  Future<Response<T>> delete<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
       AppLogger.logNetworkRequest(path, 'DELETE', queryParameters);
-      final response = await dio.delete(path, queryParameters: queryParameters);
+      final response =
+          await dio.delete<T>(path, queryParameters: queryParameters);
       AppLogger.logNetworkResponse(path, response.statusCode, response.data);
       _validateResponse(response);
       return response;
@@ -109,7 +108,7 @@ class DioClient {
   }
 
   /// 验证响应状态码
-  static void _validateResponse(Response response) {
+  void _validateResponse(Response response) {
     final statusCode = response.statusCode;
     if (statusCode != null && statusCode >= 400) {
       throw NetworkException(
@@ -119,8 +118,8 @@ class DioClient {
     }
   }
 
-  /// 将 DioException 转换为标准化的 NetworkException
-  static NetworkException _toNetworkException(
+  /// 将 DioException 转换为 NetworkException
+  NetworkException _toNetworkException(
       DioException e, String method, String path) {
     String message;
     String code;
@@ -162,8 +161,7 @@ class DioClient {
     return NetworkException(message: message, code: code);
   }
 
-  /// 根据 HTTP 状态码获取错误信息
-  static String _getHttpErrorMessage(int? statusCode) {
+  String _getHttpErrorMessage(int? statusCode) {
     switch (statusCode) {
       case 400:
         return 'request_param_error'.tr;

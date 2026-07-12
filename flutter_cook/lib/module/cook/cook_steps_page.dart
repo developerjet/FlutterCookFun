@@ -27,9 +27,7 @@ class CookStepsPage extends StatefulWidget {
 
 class _CookStepsPageState extends State<CookStepsPage> {
   late final CookStepsArguments arguments;
-  final CookStepsController cookController = Get.isRegistered<CookStepsController>()
-      ? Get.find<CookStepsController>()
-      : Get.put(CookStepsController());
+  final CookStepsController cookController = Get.find<CookStepsController>();
   final FavoritesController favoritesController =
       Get.isRegistered<FavoritesController>()
           ? Get.find<FavoritesController>()
@@ -380,7 +378,8 @@ class _CookStepsPageState extends State<CookStepsPage> {
       filePath = '${dir.path}/cook_save_${DateTime.now().millisecondsSinceEpoch}.$ext';
       final file = File(filePath);
 
-      final response = await DioClient.dio.get<List<int>>(
+      final dioClient = Get.find<DioClient>();
+      final response = await dioClient.dio.get<List<int>>(
         imageUrl,
         options: Options(responseType: ResponseType.bytes),
       );

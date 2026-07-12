@@ -4,14 +4,16 @@ import 'package:flutter_cook/module/cook/repository/cook_repository.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 class CookHomeController extends GetxController {
-  final CookRepository _repository = CookRepository();
+  final CookRepository repository;
 
-  final cookHomeList = <CookHomeListModel>[].obs;
-  final selectedCookList = <CookListDataModel>[].obs;
-  final selectedMaterialNames = ''.obs;
+  final RxList<CookHomeListModel> cookHomeList = <CookHomeListModel>[].obs;
+  final RxList<CookListDataModel> selectedCookList = <CookListDataModel>[].obs;
+  final RxString selectedMaterialNames = ''.obs;
 
-  final isLoading = false.obs;
-  final errorMessage = Rx<String?>(null);
+  final RxBool isLoading = false.obs;
+  final Rxn<String> errorMessage = Rxn<String>();
+
+  CookHomeController({required this.repository});
 
   @override
   void onInit() {
@@ -20,9 +22,7 @@ class CookHomeController extends GetxController {
   }
 
   Future<void> loadCookHomeData({bool forceRefresh = false}) async {
-    if (isLoading.value && !forceRefresh) {
-      return;
-    }
+    if (isLoading.value && !forceRefresh) return;
 
     final selectedIds = selectedCookList.map((item) => item.id).toSet();
     final preserveSelection = selectedIds.isNotEmpty;
@@ -31,7 +31,7 @@ class CookHomeController extends GetxController {
       isLoading.value = true;
       errorMessage.value = null;
 
-      final list = await _repository.fetchCookHomeData();
+      final list = await repository.fetchCookHomeData();
       cookHomeList.assignAll(list);
 
       if (preserveSelection) {

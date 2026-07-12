@@ -32,7 +32,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
     );
 
     if (arguments.isValid) {
-      controller.loadBookDetail(arguments.sceneId, refresh: true);
+      controller.loadBookDetail(arguments.sceneId, page: 1);
     } else {
       controller.detailErrorMessage.value = 'missing_book_param'.tr;
     }
@@ -66,7 +66,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
 
           return EasyRefresh(
             onRefresh: () async {
-              await controller.loadBookDetail(arguments.sceneId, refresh: true);
+              await controller.loadBookDetail(arguments.sceneId, page: 1);
             },
             controller: _refreshController,
             child: controller.isDetailLoading.value && detailList.isEmpty
@@ -77,7 +77,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                         description:
                             controller.detailErrorMessage.value ?? 'unable_get_recipe_steps'.tr,
                         onRetry: () async {
-                          await controller.loadBookDetail(arguments.sceneId, refresh: true);
+                          await controller.loadBookDetail(arguments.sceneId, page: 1);
                         },
                       )
                     : detailList.isEmpty

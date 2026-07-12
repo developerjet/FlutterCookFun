@@ -6,7 +6,6 @@ import '../module/home/home_data_page.dart';
 import '../module/cook/cook_home_page.dart';
 import '../module/book/book_home_page.dart';
 import '../module/mine/mine_page.dart';
-import '../utils/theme.dart';
 
 class Tabs extends StatefulWidget {
   final int index;
@@ -59,14 +58,9 @@ class _TabsState extends State<Tabs> {
   }
 
   Future<void> _handlerAppData() async {
-    int lastTheme = await ThemeManager.fetchLastTheme() ?? 0;
-    ThemeManager.saveTheme(lastTheme);
-
+    // 主题/语言初始化已由 main.dart 中 AppBindings 和 ThemeManager.initialize() 处理
     int lastLanguage = await LanguageManager.fetchLastLanguage() ?? 0;
     LanguageManager.saveLanguage(lastLanguage);
-
-    // 初始化主题和语言设置
-    // 由 ThemeManager 与 LanguageManager 管理全局状态
   }
 
   @override

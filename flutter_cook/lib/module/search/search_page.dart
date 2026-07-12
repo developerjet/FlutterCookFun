@@ -19,6 +19,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final _focusNode = FocusNode();
   final _searchController = TextEditingController();
+  late final DioClient _client;
 
   /// 实时搜索建议（食材匹配）
   List<SearchTopData> _suggestions = [];
@@ -49,6 +50,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
+    _client = Get.find<DioClient>();
     _loadHistory();
   }
 
@@ -119,7 +121,7 @@ class _SearchPageState extends State<SearchPage> {
     };
 
     try {
-      final response = await DioClient.get('', queryParameters: params);
+      final response = await _client.get('', queryParameters: params);
       if (seq != _requestSeq || !mounted) return;
 
       final data = (response.data as Map?)?['data'];
@@ -164,7 +166,7 @@ class _SearchPageState extends State<SearchPage> {
     };
 
     try {
-      final response = await DioClient.get('', queryParameters: params);
+      final response = await _client.get('', queryParameters: params);
       if (seq != _requestSeq || !mounted) return;
 
       final data = (response.data as Map?)?['data'] as Map<String, dynamic>?;

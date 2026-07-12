@@ -16,6 +16,8 @@ import 'package:flutter_cook/utils/networking/networking.dart';
 class CookRepository extends BaseRepository {
   static const String _tag = 'CookRepository';
 
+  CookRepository({required DioClient client}) : super(client: client);
+
   Future<List<CookHomeListModel>> fetchCookHomeData({
     String methodName = 'MaterialSubtype',
     String version = '4.3.2',
@@ -29,7 +31,7 @@ class CookRepository extends BaseRepository {
 
         AppLogger.logNetworkRequest('/cook/home', 'GET', params);
 
-        final response = await DioClient.get('', queryParameters: params);
+        final response = await client.get('', queryParameters: params);
         final responseData = response.data;
 
         if (responseData == null || responseData['data'] == null) {
@@ -70,7 +72,7 @@ class CookRepository extends BaseRepository {
       () async {
         AppLogger.logNetworkRequest('/cook/config', 'GET', params);
 
-        final response = await DioClient.get('', queryParameters: params);
+        final response = await client.get('', queryParameters: params);
         final responseData = response.data;
 
         if (responseData == null || responseData['data'] == null) {
@@ -115,7 +117,7 @@ class CookRepository extends BaseRepository {
 
         AppLogger.logNetworkRequest('/cook/steps', 'GET', params);
 
-        final response = await DioClient.get('', queryParameters: params);
+        final response = await client.get('', queryParameters: params);
         final responseData = response.data;
 
         if (responseData == null || responseData['data'] == null) {

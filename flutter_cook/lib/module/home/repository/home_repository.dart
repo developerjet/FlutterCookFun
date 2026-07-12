@@ -16,6 +16,8 @@ import 'package:flutter_cook/utils/networking/networking.dart';
 class HomeRepository extends BaseRepository {
   static const String _tag = 'HomeRepository';
 
+  HomeRepository({required DioClient client}) : super(client: client);
+
   /// 模块质量权重（越高越优先推荐）
   static const Map<String, double> _moduleWeights = {
     '14': 0.80, // 今日新品
@@ -100,7 +102,7 @@ class HomeRepository extends BaseRepository {
         try {
           AppLogger.logNetworkRequest('/home', 'GET', params);
 
-          final response = await DioClient.get('', queryParameters: params);
+          final response = await client.get('', queryParameters: params);
 
           if (response.data == null) {
             throw DataException(
@@ -377,7 +379,7 @@ class HomeRepository extends BaseRepository {
         try {
           AppLogger.logNetworkRequest('/home/list', 'GET', params);
 
-          final response = await DioClient.get('', queryParameters: params);
+          final response = await client.get('', queryParameters: params);
 
           if (response.data == null || response.data['data'] == null) {
             throw DataException(

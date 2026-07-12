@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final HomeController controller = Get.put(HomeController());
+  final HomeController controller = Get.find<HomeController>();
 
   @override
   void initState() {
