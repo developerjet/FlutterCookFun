@@ -2,9 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/tabs.dart';
 import 'package:flutter_cook/base/widgets/tab_scroll_padding.dart';
+import 'package:flutter_cook/module/book/controller/book_controller.dart';
+import 'package:flutter_cook/module/cook/controller/cook_config_controller.dart';
+import 'package:flutter_cook/module/cook/controller/cook_steps_controller.dart';
+import 'package:flutter_cook/module/mine/controller/favorites_controller.dart';
+import 'package:flutter_cook/module/setting/controller/setting_controller.dart';
 import 'package:flutter_cook/routers/routers.dart';
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/language/language.dart';
+import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +31,32 @@ void main() {
 
     expect(routeNames, contains(RouteNames.home));
     expect(routeNames.toSet(), hasLength(routeNames.length));
+  });
+
+  test('子路由必须自带页面依赖兜底', () {
+    _runRouteBinding(RouteNames.cookConfig);
+    expect(Get.find<CookConfigController>(), isA<CookConfigController>());
+
+    Get.reset();
+    _runRouteBinding(RouteNames.cookSteps);
+    expect(Get.find<CookStepsController>(), isA<CookStepsController>());
+    expect(Get.find<FavoritesController>(), isA<FavoritesController>());
+
+    Get.reset();
+    _runRouteBinding(RouteNames.bookDetail);
+    expect(Get.find<BookController>(), isA<BookController>());
+
+    Get.reset();
+    _runRouteBinding(RouteNames.favorites);
+    expect(Get.find<FavoritesController>(), isA<FavoritesController>());
+
+    Get.reset();
+    _runRouteBinding(RouteNames.setting);
+    expect(Get.find<SettingController>(), isA<SettingController>());
+
+    Get.reset();
+    _runRouteBinding(RouteNames.search);
+    expect(Get.find<DioClient>(), isA<DioClient>());
   });
 
   test('核心导航文案必须提供中英文翻译', () {
@@ -208,6 +240,14 @@ Future<void> _pumpTabs(
     ),
   );
   await tester.pump();
+}
+
+void _runRouteBinding(String routeName) {
+  final route = AppRouter.routers.singleWhere(
+    (route) => route.name == routeName,
+  );
+
+  route.binding?.dependencies();
 }
 
 class _TestTabPage extends StatelessWidget {

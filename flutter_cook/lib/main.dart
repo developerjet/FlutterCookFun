@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/binding/binding.dart';
+import 'package:flutter_cook/utils/toast.dart';
 import 'package:flutter_cook/utils/theme.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -15,6 +16,7 @@ Future<void> main() async {
 
   // 初始化主题
   await Get.find<ThemeManager>().initialize();
+  ToastUtils.configure();
 
   runApp(const MyApp());
 }

@@ -11,7 +11,9 @@ class SettingPage extends StatefulWidget {
 }
 
 class SettingPageState extends State<SettingPage> {
-  final SettingController controller = Get.put(SettingController());
+  final SettingController controller = Get.isRegistered<SettingController>()
+      ? Get.find<SettingController>()
+      : Get.put(SettingController());
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +63,8 @@ class SettingPageState extends State<SettingPage> {
         padding: const EdgeInsets.all(15),
         child: Text('change_theme'.tr,
             textAlign: TextAlign.center,
-            style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color)),
+            style:
+                TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
       ),
       AppSheetAction(
         icon: Icons.wb_sunny_outlined,

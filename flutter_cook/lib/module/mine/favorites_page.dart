@@ -14,7 +14,9 @@ class FavoritePage extends StatefulWidget {
 }
 
 class _FavoritePageState extends State<FavoritePage> {
-  final FavoritesController controller = Get.put(FavoritesController());
+  final FavoritesController controller = Get.isRegistered<FavoritesController>()
+      ? Get.find<FavoritesController>()
+      : Get.put(FavoritesController());
 
   @override
   void initState() {

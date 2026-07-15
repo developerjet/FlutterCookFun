@@ -1,136 +1,206 @@
-# FlutterCookFun — 厨艺乐 🍳
+# flutter_cook
 
-基于 Flutter 开发的美食烹饪 App，提供食材浏览、智能配菜、步骤教学、视频播放等一站式烹饪体验。
+## 项目简介
 
-## 预览
+`flutter_cook` 是基于 Flutter 和 GetX 构建的一款菜谱/美食类应用，涵盖首页推荐、食材配菜、菜谱浏览、图书模块和个人中心。
 
-| 首页 | 食材选择 | 做菜步骤 |
-| -- | -- | -- |
-|![首页](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_01.png)|![食材](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_03.png)|![步骤](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_02.png)|
+本项目已支持：
+- 深色/浅色主题切换（ThemeData 缓存，切换流畅）
+- 国际化文本（中英文切换）
+- 网络数据请求与分页加载（Dio + BaseRepository 重试）
+- 空状态、加载状态和错误状态统一占位显示
+- 模块化路由与控制器管理
+- PageView 滑动切换食材分类
+- 视频播放（全屏/竖屏，视频切换）
+- SQLite 本地收藏（单库路径，统一读写链路）
+- 统一网络图片组件（加载/失败占位、解码尺寸控制、无缝换帧）
+- iOS 26 SDK / Xcode 26.6 模拟器构建验证
+- 全局 Crash 防御（RxList 快照、空安全加固、类型安全）
 
-| 菜谱 | 我的 | 视频播放 |
-| -- | -- | -- |
-|![菜谱](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_04.png)|![我的](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_05.png)|![视频](https://github.com/developerjet/FlutterCookFun/blob/main/ScreenShot/iPhone_06.jpg)|
+## 目录结构
 
-## 功能
+```
+flutter_cook/
+├─ android/                  # Android 原生工程
+├─ ios/                      # iOS 原生工程
+├─ lib/                      # Flutter 代码主目录
+│  ├─ base/                  # 共享组件与基础控件
+│  │  ├─ repository/         # 网络请求基类（重试/错误处理）
+│  │  └─ widgets/            # 通用 UI 组件
+│  ├─ binding/               # 全局绑定与控制器注册
+│  ├─ module/                # 应用模块目录
+│  │  ├─ book/               # 书籍/菜谱模块
+│  │  ├─ cook/               # 配菜与菜谱模块
+│  │  ├─ home/               # 首页模块
+│  │  ├─ mine/               # 个人中心模块
+│  │  ├─ player/             # 播放器模块
+│  │  ├─ search/             # 搜索模块
+│  │  └─ setting/            # 设置模块
+│  ├─ routers/               # 路由定义
+│  ├─ utils/                 # 工具类（日志、主题、常量、语言、错误处理等）
+│  └─ main.dart              # 应用入口
+├─ assets/                   # 资源文件
+├─ test/                     # 自动化测试
+├─ pubspec.yaml              # 依赖与包配置
+└─ README.md                 # 项目说明文档
+```
 
-### 首页
-- Banner 智能推荐：跨模块提取美食图片，评分排序自动生成轮播
-- 食材分类网格：24 个食材分类，三级联动
+## 主要功能模块
 
-### 做菜
-- 多选食材（最多 5 种），智能匹配合适菜谱
-- 分类快速切换标签栏，横向滚动 + 数量统计
-- 分类分组吸顶标题，分组数量标签
-- 做菜步骤图文展示，支持步骤图片全屏浏览
-- **图片长按/菜单保存到系统相册**
-- 视频播放（食材 + 烹饪过程），播放器内一键切换
-- 收藏菜谱到本地
+- `home`：首页推荐与分类列表，支持轮播图和数据列表展示。
+- `cook`：食材选择（PageView 滑动分类）、配菜推荐、菜谱步骤浏览。
+- `book`：书籍/菜谱卡片列表与详情页面，场景背景 + slogan 展示。
+- `mine`：用户收藏、个人设置、主题与语言配置。
+- `search`：关键字搜索，实时建议（防抖 300ms），搜索历史持久化。
+- `player`：视频播放，支持全屏/竖屏切换，多视频切换。
 
-### 菜谱
-- 1460+ 菜谱场景卡片流，分页加载
-- 场景详情页：背景大图 + 菜品列表
-- 点击菜品进入做菜步骤，独立播放按钮弹出视频选择
-- 统一底部弹窗（视频选择/图片保存/主题语言切换）
+## 关键实现点
 
-### 搜索
-- **实时搜索建议**：输入防抖 300ms，缩略图 + 菜谱数量提示
-- **多维度结果**：食材匹配 + 课程推荐分组展示
-- 搜索结果一键跳转配菜
-- 请求竞态处理，过期响应自动丢弃
+### 主题管理：`lib/utils/theme.dart`
+- 使用 `ThemeManager` 统一管理浅色/深色主题配置
+- `_buildTheme(Brightness)` 统一构建，首次构建后缓存，切换不重建
+- `GetMaterialApp` 通过 `Obx` 监听 `ThemeManager.currentThemeMode` 实时切换
 
-### 我的
-- 本地收藏管理
-- 主题切换（亮色/暗色）
-- 多语言（简体中文 / English）
-- 版本信息
+### 路由与状态管理：GetX
+- 控制器通过 `Get.put` / `Get.find` 注册与查找
+- 页面通过 `Get.toNamed` + `RouteNames` 常量进行模块化路由跳转
+- `lib/routers/routers.dart` 统一注册所有路由
+
+### 网络层：`lib/utils/networking/`
+- `DioClient` 单例管理 HTTP 请求（GET/POST/PUT/DELETE）
+- `BaseRepository` 提供统一重试机制（指数退避）
+- 错误分类：`lib/utils/error_handler.dart` — `NetworkException` / `DataException` / `BusinessException`
+- 日志管理：`lib/utils/logger.dart` — 独立日志模块，支持 debug/info/warning/error 分级
+
+### 搜索优化
+- 输入防抖 300ms + 请求序列号丢弃过期响应
+
+### 收藏链路：`lib/module/mine/controller/favorites_controller.dart` + `lib/utils/sqlite/db_manager.dart`
+- 收藏数据使用 `sqflite` 本地持久化，数据库名为 `CookFun`，表名为 `CookConfig`
+- 数据库路径统一使用 `getDatabasesPath()`，不维护 Documents 旧路径或双库迁移逻辑
+- 菜谱详情页加载成功后调用 `isFavorited(dishesId)` 判断收藏状态
+- 收藏写入链路：详情数据转换为 `CookConfigListModel` → `addToFavorites()` → `DBManager.saveData()`
+- 取消收藏链路：`removeFromFavorites(dishesId)` → `DBManager.delete()` → 同步移除内存列表
+- 收藏页通过 `favoritesList` 响应式列表展示，进入详情时传递 `pushPage: 'myFavorites'`
+
+### 空状态组件：`lib/base/empty_state_view.dart`
+- 统一处理空数据、加载中、错误三种占位视图
+- 支持文本、图标、按钮和自定义内容
+
+### 通用 UI 组件：`lib/base/widgets/`
+| 组件 | 用途 |
+|------|------|
+| `AppNetworkImage` | 网络图片，内置 loading/error 占位 |
+| `AppDialog.show()` | 双按钮确认弹窗 |
+| `AppDialog.alert()` | 单按钮提示弹窗 |
+| `AppBottomSheet.show()` | 底部弹窗，自动圆角 + 安全区 |
+| `AppSheetAction` | 底部弹窗操作项 |
+
+### 图片与列表体验优化
+- `AppNetworkImage` 统一处理网络图片加载、失败占位、圆角裁切和解码尺寸控制
+- 图片解码只传单轴尺寸提示，避免部分网络图片被预解码成错误比例
+- `gaplessPlayback` 保留上一帧图片，减少父级重建时的占位闪烁
+- 首页、分类、菜谱、收藏、搜索等高频列表统一卡片间距和边界节奏
+- 配菜页食材 Cell 的选中态只刷新边框、勾选和底部标题区域，避免图片区域跟随选中状态重建
+
+## 开发约定
+
+### 代码规范
+- 主题色优先使用 `Theme.of(context)` 或 `ThemeManager`；**禁止硬编码颜色**。
+- 网络请求与业务逻辑由模块 Controller 管理，Page 负责渲染与交互。
+- 新页面必须处理 **loading / empty / error** 三态。
+- JSON Model 修改后运行 `flutter pub run build_runner build --delete-conflicting-outputs`。
+
+### 防 Crash 规范
+- **RxList 快照**：`Obx` builder 内，若 `itemCount`/`childCount` 和 `itemBuilder` 都读同一个 `.obs` 列表，入口处必须 `toList()` 快照。否则异步回调修改列表会导致 `RangeError`。
+- **空安全**：`Get.arguments` 必须 `as Map<String, dynamic>?` 空判断后再取值。
+- **类型安全**：优先用 `is` 类型守卫代替 `as` 强转，防止 API 返回异常数据时 `TypeError`。
+- **late 慎用**：优先声明时赋默认值；必须用 `late` 的场景确保 `initState` 中赋值。
+- **本地数据验证**：验证收藏链路时使用覆盖安装；卸载 App 会删除 iOS 沙盒，收藏数据库会被系统清除。
+
+### 模块目录规范
+```
+module/<name>/
+├─ controller/    # GetX Controller
+├─ model/         # 数据模型 + .g.dart
+├─ views/         # UI 组件（Cell、Header 等）
+├─ repository/    # 网络请求层
+└─ <name>_page.dart  # 主页面
+```
+
+## 运行方式
+
+1. 安装依赖：
+   ```bash
+   flutter pub get
+   ```
+
+2. 运行应用：
+   ```bash
+   flutter run
+   ```
+
+3. 发布前检查：
+   ```bash
+   flutter analyze
+   flutter test
+   flutter build ios --simulator
+   ```
+
+4. Android Release APK 打包：
+   ```bash
+   flutter build apk --release
+   ```
+
+   默认产物路径：
+   ```text
+   build/app/outputs/flutter-apk/app-release.apk
+   ```
+
+   如果开启 ABI 拆分，产物会按架构输出到同一目录，例如：
+   ```text
+   build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+   build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+   build/app/outputs/flutter-apk/app-x86_64-release.apk
+   ```
+
+   查看 APK 文件：
+   ```bash
+   ls -lh build/app/outputs/flutter-apk/
+   ```
 
 ## 技术栈
 
 | 分类 | 技术 |
 |------|------|
-| 框架 | Flutter (SDK >=3.2.3) |
-| 状态管理 | **GetX** — Obx / GetBuilder / GetPage |
-| 路由 | GetX 路由 + 中间件 |
-| 网络 | **Dio** — 单例 DioClient，统一拦截器、重试机制 |
-| 本地存储 | **sqflite**（收藏） + **shared_preferences**（主题/语言） |
+| 框架 | Flutter (SDK >=3.2.3 <4.0.0) |
+| 状态管理 | GetX — `Obx` / `GetPage` / `.obs` |
+| 网络 | Dio — `DioClient` 单例 + `BaseRepository` 重试 |
+| 本地存储 | sqflite（收藏） + shared_preferences（设置/搜索历史） |
 | JSON | json_annotation + json_serializable + build_runner |
-| UI 组件 | getwidget, carousel_slider, photo_view, easy_refresh, flutter_sticky_header |
+| UI 组件 | carousel_slider, photo_view, easy_refresh |
 | 视频 | flick_video_player + video_player |
-| WebView | webview_flutter |
-| 国际化 | GetX Translations（zh_CN 主语言，en_US 后备） |
-| 相册保存 | gal |
-| 文件路径 | path_provider |
+| 图片 | gal（相册保存）+ path_provider |
+| 国际化 | GetX Translations（zh_CN 主，en_US 备） |
 
-## 项目结构
+## iOS 适配状态
 
-```
-lib/
-├── main.dart                   # 入口：GetMaterialApp + ThemeManager
-├── base/                       # 公共基础组件
-│   ├── tabs.dart              # 底部 Tab 导航
-│   ├── web.dart               # WebView 页面
-│   ├── image_viewer.dart       # 图片浏览器
-│   ├── empty_state_view.dart   # 统一空状态/加载/错误视图
-│   └── widgets/               # 通用 UI 组件
-│       ├── app_network_image.dart  # 网络图片（loading/error）
-│       ├── app_dialog.dart         # 统一弹窗
-│       └── app_bottom_sheet.dart   # 统一底部弹窗
-├── binding/                    # GetX 全局依赖注入
-├── routers/                    # 路由配置（iOS 风格过渡动画）
-├── middlewares/                # 路由中间件
-├── utils/                      # 工具类
-│   ├── constants.dart          # API/Ui/业务常量
-│   ├── theme.dart              # 主题管理（亮/暗色自动切换）
-│   ├── networking/             # Dio 网络客户端（单例 + 重试）
-│   ├── error_handler.dart      # 统一错误处理
-│   ├── sqlite/                 # sqflite 数据库管理
-│   ├── language/               # 多语言翻译文件
-│   └── toast.dart              # Toast/SnackBar 封装
-└── module/                     # 功能模块
-    ├── home/                   # 首页（Banner推荐 + 食材分类）
-    ├── cook/                   # 做菜（食材选择 → 配菜 → 步骤 → 收藏）
-    ├── book/                   # 菜谱（场景列表 → 详情 → 视频）
-    ├── search/                 # 搜索（实时建议 + 多维度结果）
-    ├── player/                 # 视频播放器
-    ├── mine/                   # 个人中心（收藏 + 设置）
-    └── setting/                # 主题/语言设置
-```
+- 当前已在 Xcode 26.6 环境下验证 iOS 模拟器构建：
+  ```bash
+  flutter build ios --simulator
+  ```
+- 收藏数据库使用 `sqflite` 的 `getDatabasesPath()`，避免依赖 `path_provider` 获取 Documents 目录造成的 iOS 26 运行时兼容风险。
+- 相册保存、临时文件下载等仍使用 `path_provider`，相关权限说明由 iOS 原生配置维护。
 
-每个模块遵循统一结构：`controller/` → `model/` → `views/` → `repository/`
+## 已知 API 特性
 
-## 快速开始
+| 接口 | 注意 |
+|------|------|
+| `SceneInfo` | 不支持分页，page 参数无效，`size: 200` 一次拉全量 |
+| `SearchHome` | 返回 `{material, course, dishes}`，不能直接给 cookConfig 用 |
+| `SearchKeyword` | 建议数据在 `top.data[]` 不是 `data[]` |
+| `CategoryIndex` | 首页列表不支持分页，每次返回全量数据 |
 
-```bash
-# 克隆仓库
-git clone https://github.com/developerjet/FlutterCookFun.git
-cd FlutterCookFun/flutter_cook
+## 贡献与维护
 
-# 安装依赖
-flutter pub get
-
-# 代码生成（修改 model 后执行）
-flutter pub run build_runner build --delete-conflicting-outputs
-
-# 运行
-flutter run
-
-# 静态分析
-flutter analyze
-```
-
-## 构建
-
-```bash
-# Android APK
-flutter build apk --release
-
-# iOS
-flutter build ios --release
-```
-
-> iOS 构建前需执行 `cd ios && pod install`
-
-## License
-
-MIT
+扩展功能请按模块分离，遵循上述目录规范。每个模块独立 controller/model/views/repository，保持低耦合。
