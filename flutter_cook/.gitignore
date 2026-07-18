@@ -1,9 +1,12 @@
-# Miscellaneous
+# 通用本地文件
 *.class
 *.log
 *.pyc
 *.swp
+*.swo
+*.tmp
 .DS_Store
+**/.DS_Store
 .atom/
 .build/
 .buildlog/
@@ -12,18 +15,21 @@
 .swiftpm/
 migrate_working_dir/
 
-# IntelliJ related
+# IDE 与编辑器本地配置
 *.iml
 *.ipr
 *.iws
 .idea/
+.vscode/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Codex / 本地分析工具缓存
+.superpowers/
+.codegraph/
 
-# Flutter/Dart/Pub related
+# 项目文档与设计过程产物
+docs/
+
+# Flutter / Dart / Pub 生成产物
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
@@ -31,15 +37,32 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+.kotlin/
 /build/
+coverage/
 
-# Symbolication related
+# Flutter 构建符号与混淆映射
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
+*.dSYM/
+*.dSYM.zip
 
-# Android Studio will place build artifacts here
+# 本地环境变量与密钥文件
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.mobileprovision
+
+# Android Studio 构建产物
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# 移动端发布包
+*.apk
+*.aab
+*.ipa

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/base/widgets/app_nav_bar.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:video_player/video_player.dart';
@@ -81,10 +83,7 @@ class PlayerVideoPageState extends State<PlayerVideoPage> {
         : 'play_video'.tr;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
+      appBar: AppNavBar(title: title),
       body: SafeArea(
         top: false,
         bottom: false,
@@ -128,8 +127,9 @@ class PlayerVideoPageState extends State<PlayerVideoPage> {
       width: double.infinity,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(CookTokens.dialogRadius),
+        ),
       ),
       padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPadding),
       child: Row(
@@ -150,11 +150,12 @@ class PlayerVideoPageState extends State<PlayerVideoPage> {
                       : Theme.of(context).textTheme.bodyLarge?.color,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(
+                      CookTokens.controlRadius,
+                    ),
                     side: isActive
                         ? BorderSide.none
-                        : BorderSide(
-                            color: Theme.of(context).dividerColor),
+                        : BorderSide(color: Theme.of(context).dividerColor),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),

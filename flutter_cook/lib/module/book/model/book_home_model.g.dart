@@ -8,6 +8,7 @@ part of 'book_home_model.dart';
 
 BookListModel _$BookListModelFromJson(Map<String, dynamic> json) =>
     BookListModel(
+      dishesName: json['dishes_name'] as String?,
       dishCount: (json['dish_count'] as num?)?.toInt(),
       isNew: (json['is_new'] as num?)?.toInt(),
       sceneBackground: json['scene_background'] as String?,
@@ -20,6 +21,7 @@ BookListModel _$BookListModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$BookListModelToJson(BookListModel instance) =>
     <String, dynamic>{
+      'dishes_name': instance.dishesName,
       'dish_count': instance.dishCount,
       'is_new': instance.isNew,
       'scene_background': instance.sceneBackground,

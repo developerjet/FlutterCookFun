@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:flutter_cook/design_system/cook_assets.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 import 'package:get/get.dart';
 
 class CusotmCarouselSlider extends StatefulWidget {
@@ -13,7 +15,8 @@ class CusotmCarouselSlider extends StatefulWidget {
   final void Function(int)? onTap;
 
   const CusotmCarouselSlider(
-      {super.key, required this.imageList,
+      {super.key,
+      required this.imageList,
       this.autoPlay = true,
       this.aspectRatio = 16 / 9,
       this.intervalDuration = 5000,
@@ -65,14 +68,14 @@ class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
                 child: InkWell(
                   onTap: () => widget.onTap?.call(index),
                   child: isNetwork
-                    ? AppNetworkImage(url: imagePath)
-                    : Image.asset(
-                        imagePath.isNotEmpty
-                            ? imagePath
-                            : 'assets/images/banner_placeholder.png',
-                        fit: BoxFit.cover,
-                      ),
-              ),
+                      ? AppNetworkImage(url: imagePath)
+                      : Image.asset(
+                          imagePath.isNotEmpty
+                              ? imagePath
+                              : CookAssets.bannerPlaceholder,
+                          fit: BoxFit.cover,
+                        ),
+                ),
               );
             },
           ),
@@ -91,7 +94,7 @@ class CusotmCarouselSliderState extends State<CusotmCarouselSlider> {
                     color: _currentIndex == index
                         ? Theme.of(context).colorScheme.primary
                         : Colors.white,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(CookTokens.radiusXs),
                   ),
                 );
               }),

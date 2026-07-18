@@ -1,14 +1,21 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_cook/services/banner_service.dart';
 import 'package:flutter_cook/module/home/model/home_banner_model.dart';
+import 'package:flutter_cook/utils/language/language.dart';
+import 'package:get/get.dart';
 
 void main() {
   group('BannerService', () {
     late BannerService service;
 
     setUp(() {
+      Get.addTranslations(Messages().keys);
+      Get.locale = const Locale('zh', 'CN');
       service = BannerService();
     });
+
+    tearDown(Get.reset);
 
     test('buildCrossModuleBanner returns null for null data', () {
       final model = HomeBannerModel(data: null);

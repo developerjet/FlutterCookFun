@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/base/widgets/app_nav_bar.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -33,17 +34,10 @@ class ImageViewerState extends State<ImageViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
-        ),
+      appBar: AppNavBar(
         centerTitle: true,
-        title: Text(
-          '${'image_browse_title'.tr} (${_currentIndex + 1}/${imageUrls.length})',
-          overflow: TextOverflow.ellipsis,
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        title:
+            '${'image_browse_title'.tr} (${_currentIndex + 1}/${imageUrls.length})',
       ),
       body: PhotoViewGallery.builder(
         itemCount: imageUrls.length,

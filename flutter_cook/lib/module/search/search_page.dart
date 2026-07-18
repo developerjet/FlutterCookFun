@@ -3,7 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:flutter_cook/base/widgets/app_nav_bar.dart';
+import 'package:flutter_cook/design_system/cook_assets.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 import 'package:flutter_cook/module/search/model/search_data_model.dart';
+import 'package:flutter_cook/utils/error_handler.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:get/get.dart';
@@ -57,13 +61,25 @@ class _SearchPageState extends State<SearchPage> {
   Future<void> _loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_historyKey);
-    if (raw != null) {
+    if (raw == null || !mounted) {
+      return;
+    }
+
+    try {
       final decoded = jsonDecode(raw);
-      if (decoded is List) {
-        setState(() {
-          _searchHistory = decoded.map((e) => e.toString()).toList();
-        });
+      if (decoded is! List || !mounted) {
+        return;
       }
+      setState(() {
+        _searchHistory = decoded.map((e) => e.toString()).toList();
+      });
+    } catch (error) {
+      AppLogger.error(
+        'SearchPage',
+        'Failed to decode local search history',
+        error is Exception ? error : null,
+      );
+      await prefs.remove(_historyKey);
     }
   }
 
@@ -102,6 +118,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _doFetchSuggestions(String keyword) async {
+    if (!mounted) {
+      return;
+    }
     if (keyword.isEmpty) {
       setState(() {
         _suggestions = [];
@@ -216,6 +235,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void dispose() {
+    _requestSeq += 1;
     _debounce?.cancel();
     _focusNode.dispose();
     _searchController.dispose();
@@ -225,15 +245,15 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppNavBar(
+        title: 'search'.tr,
+        titleWidget: _buildSearchBar(context),
+        centerTitle: false,
+        titleSpacing: 0,
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // 搜索栏
-            _buildSearchBar(context),
-            // 主内容区
-            Expanded(child: _buildBody(context)),
-          ],
-        ),
+        top: false,
+        child: _buildBody(context),
       ),
     );
   }
@@ -332,7 +352,10 @@ class _SearchPageState extends State<SearchPage> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Row(
             children: [
-              Text('搜索历史', style: Theme.of(context).textTheme.titleSmall),
+              Text(
+                'search_history'.tr,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
               const Spacer(),
               GestureDetector(
                 onTap: _clearHistory,
@@ -397,10 +420,11 @@ class _SearchPageState extends State<SearchPage> {
           imageUrl: material.image,
           title: material.title ?? '',
           fallbackIcon: Icons.fastfood,
-          trailing: const Image(
-            image: AssetImage('assets/images/arrow_right.png'),
+          trailing: Image.asset(
+            CookAssets.iconArrowRight,
             width: 20,
             height: 18,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           onTap: () => _onMaterialTap(material),
         );
@@ -432,14 +456,14 @@ class _SearchListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Material(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(CookTokens.listCardRadius),
         child: InkWell(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(CookTokens.listCardRadius),
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(CookTokens.listCardRadius),
               border: Border.all(
                 color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
               ),
@@ -450,7 +474,7 @@ class _SearchListItem extends StatelessWidget {
                   url: imageUrl,
                   width: 48,
                   height: 48,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(CookTokens.radiusMd),
                   fallbackIcon: fallbackIcon,
                 ),
                 const SizedBox(width: 12),
@@ -490,7 +514,7 @@ class _SearchListItem extends StatelessWidget {
   }
 }
 
-/// 搜索栏独立组件 — setState 仅重建自身，不影响父页面
+/// 搜索栏独立组件，输入变化时只重建自身。
 class _SearchBarWidget extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -531,75 +555,62 @@ class _SearchBarWidgetState extends State<_SearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 40,
-              child: TextField(
-                autofocus: true,
-                focusNode: widget.focusNode,
-                controller: widget.controller,
-                textInputAction: TextInputAction.search,
-                onSubmitted: widget.onSubmitted,
-                onTapOutside: (_) => widget.focusNode.unfocus(),
-                decoration: InputDecoration(
-                  hintText: 'search_hint'.tr,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  suffixIcon: _hasText
-                      ? IconButton(
-                          icon: Icon(Icons.clear,
-                              size: 18,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.color),
-                          onPressed: () {
-                            widget.controller.clear();
-                            widget.onClear();
-                          },
-                        )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide:
-                        BorderSide(color: Theme.of(context).dividerColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide:
-                        BorderSide(color: Theme.of(context).dividerColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary),
-                  ),
-                ),
-                onChanged: widget.onChanged,
-              ),
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(right: CookTokens.navContentInset),
+      child: SizedBox(
+        key: const ValueKey('search_nav_field'),
+        height: 40,
+        child: TextField(
+          autofocus: true,
+          focusNode: widget.focusNode,
+          controller: widget.controller,
+          textInputAction: TextInputAction.search,
+          onSubmitted: widget.onSubmitted,
+          onTapOutside: (_) => widget.focusNode.unfocus(),
+          decoration: InputDecoration(
+            isDense: true,
+            filled: true,
+            fillColor: colorScheme.surfaceContainerHighest,
+            hintText: 'search_hint'.tr,
+            prefixIcon: const Icon(Icons.search_rounded, size: 20),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 40,
+              minHeight: 40,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            suffixIcon: _hasText
+                ? IconButton(
+                    icon: Icon(
+                      Icons.clear_rounded,
+                      size: 18,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    onPressed: () {
+                      widget.controller.clear();
+                      widget.onClear();
+                    },
+                  )
+                : null,
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 40,
+              minHeight: 40,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(CookTokens.pillRadius),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(CookTokens.pillRadius),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(CookTokens.pillRadius),
+              borderSide: BorderSide(color: colorScheme.primary),
             ),
           ),
-          const SizedBox(width: 8.0),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 64),
-            child: TextButton(
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: const Size(64, 40),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text('cancel'.tr,
-                  style: TextStyle(
-                      fontSize: 17.0,
-                      color: Theme.of(context).colorScheme.primary)),
-              onPressed: () => Get.back(),
-            ),
-          ),
-        ],
+          onChanged: widget.onChanged,
+        ),
       ),
     );
   }

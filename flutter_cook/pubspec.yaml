@@ -70,20 +70,24 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
+
   #配置图片资源
   assets:
     - assets/images/
     - assets/bumble_bee_captions.srt
 
-  #配置字体资源
   fonts:
-   - family: Exo
-     fonts:
-      - asset: assets/fonts/Exo-Bold.ttf
-      - asset: assets/fonts/Exo-Italic.ttf
-      - asset: assets/fonts/Exo-Light.ttf
-      - asset: assets/fonts/Exo-Medium.ttf
-      - asset: assets/fonts/Exo-Regular.ttf
-      - asset: assets/fonts/Exo-Thin.ttf
-      
+    - family: Exo
+      fonts:
+        - asset: assets/fonts/Exo-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Exo-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Exo-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Exo-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Exo-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Exo-Italic.ttf
+          style: italic

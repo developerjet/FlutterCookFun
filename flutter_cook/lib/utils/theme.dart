@@ -1,14 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_cook/design_system/cook_theme.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeManager extends GetxController {
-  static const Color primaryColor = Color(0xFF00CC99);
+  static const Color primaryColor = CookTokens.primary;
   static const Color themeColor = primaryColor;
-  static const Color tabSelectedColor = Color(0xFF00CC99);
-  static const Color tabUnselectedColor = Color(0xFFAAAAAA);
+  static const Color tabSelectedColor = CookTokens.primary;
+  static const Color tabUnselectedColor = CookTokens.textTertiary;
 
   final Rx<ThemeMode> currentThemeMode = ThemeMode.light.obs;
 
@@ -16,17 +17,16 @@ class ThemeManager extends GetxController {
   bool get isDarkMode => currentThemeMode.value == ThemeMode.dark;
 
   Color get surfaceColor =>
-      isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF);
+      isDarkMode ? CookTokens.surfaceDark : CookTokens.surface;
   Color get backgroundColor =>
-      isDarkMode ? const Color(0xFF121212) : const Color(0xFFF5F6F7);
-  Color get cardColor =>
-      isDarkMode ? const Color(0xFF202020) : const Color(0xFFFFFFFF);
+      isDarkMode ? CookTokens.pageDark : CookTokens.page;
+  Color get cardColor => surfaceColor;
   Color get textPrimaryColor =>
-      isDarkMode ? const Color(0xFFFFFFFF) : Colors.black;
+      isDarkMode ? const Color(0xFFF4FBF7) : CookTokens.textPrimary;
   Color get textSecondaryColor =>
-      isDarkMode ? const Color(0xFFB5B5B5) : const Color(0xFF6F777A);
+      isDarkMode ? const Color(0xFFB6C5BE) : CookTokens.textSecondary;
   Color get dividerColor =>
-      isDarkMode ? const Color(0xFF383838) : const Color(0xFFE5E5E5);
+      isDarkMode ? const Color(0xFF2A3832) : CookTokens.border;
   Color get bottomSheetBackground => surfaceColor;
   Color get maskBgColor => const Color(0x60000000);
 
@@ -49,98 +49,7 @@ class ThemeManager extends GetxController {
   }
 
   ThemeData _buildTheme(Brightness brightness) {
-    final isDark = brightness == Brightness.dark;
-    final bg = isDark ? const Color(0xFF121212) : const Color(0xFFF5F6F7);
-    final surface = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF);
-    final card = isDark ? const Color(0xFF202020) : const Color(0xFFFFFFFF);
-    final textPrimary = isDark ? const Color(0xFFFFFFFF) : Colors.black;
-    final textSecondary =
-        isDark ? const Color(0xFFB5B5B5) : const Color(0xFF6F777A);
-    final divider = isDark ? const Color(0xFF383838) : const Color(0xFFE5E5E5);
-
-    return ThemeData(
-      brightness: brightness,
-      primaryColor: primaryColor,
-      primarySwatch: createMaterialColor(primaryColor),
-      scaffoldBackgroundColor: bg,
-      canvasColor: surface,
-      cardColor: card,
-      dividerColor: divider,
-      fontFamily: 'Exo',
-      appBarTheme: const AppBarTheme(
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
-        centerTitle: true,
-        elevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: primaryColor,
-          statusBarIconBrightness: Brightness.light,
-          statusBarBrightness: Brightness.dark,
-        ),
-      ),
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-        ),
-      ),
-      dividerTheme: DividerThemeData(color: divider, thickness: 0.5),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primaryColor,
-          side: const BorderSide(color: primaryColor),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: primaryColor),
-      ),
-      iconTheme: IconThemeData(color: textPrimary),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, height: 1.3, color: textPrimary),
-        displayMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, height: 1.3, color: textPrimary),
-        headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, height: 1.35, color: textPrimary),
-        headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.35, color: textPrimary),
-        headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, height: 1.4, color: textPrimary),
-        titleLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, height: 1.4, color: textPrimary),
-        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, height: 1.4, color: textPrimary),
-        titleSmall: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, height: 1.4, color: textPrimary),
-        bodyLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, height: 1.5, color: textPrimary),
-        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 1.5, color: textSecondary),
-        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, height: 1.4, color: textSecondary),
-        labelLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, height: 1.4, color: textPrimary),
-        labelMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, height: 1.3, color: textPrimary),
-        labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, height: 1.3, color: textSecondary),
-      ),
-      colorScheme: isDark
-          ? ColorScheme.dark(
-              primary: primaryColor,
-              secondary: primaryColor,
-              surface: surface,
-              onPrimary: Colors.white,
-              onSecondary: Colors.white,
-              onSurface: textPrimary,
-            )
-          : ColorScheme.light(
-              primary: primaryColor,
-              secondary: primaryColor,
-              surface: surface,
-              onPrimary: Colors.white,
-              onSecondary: Colors.white,
-              onSurface: textPrimary,
-            ),
-    );
+    return brightness == Brightness.dark ? CookTheme.dark() : CookTheme.light();
   }
 
   static MaterialColor createMaterialColor(Color color) {
@@ -179,7 +88,7 @@ class ThemeManager extends GetxController {
 
   Color textMainColor() => textPrimaryColor;
   Color textGrayColor() => textSecondaryColor;
-  Color redMainColor() => const Color(0xFFFF4F4F);
+  Color redMainColor() => CookTokens.danger;
   Color lineBoardColor() => dividerColor;
   Color bg1Color() => surfaceColor;
   Color bg2Color() => backgroundColor;

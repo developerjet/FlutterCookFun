@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/module/book/model/book_home_model.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
+import 'package:flutter_cook/design_system/widgets/cook_card.dart';
+import 'package:flutter_cook/module/book/model/book_home_model.dart';
+import 'package:get/get.dart';
 
 class BookHomeCell extends StatelessWidget {
   final BookListModel model;
@@ -10,60 +13,91 @@ class BookHomeCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    final title = _displayTitle();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return CookCard(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6.0),
-          color: Theme.of(context).cardColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha((0.04 * 255).round()),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(6.0),
-                topRight: Radius.circular(6.0),
-              ),
-              child: SizedBox(
-                height: 110,
-                width: double.infinity,
-                child: AppNetworkImage(
-                  url: model.sceneBackground,
+      padding: EdgeInsets.zero,
+      borderRadius: CookTokens.listCardRadius,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                AppNetworkImage(
+                  url: model.sceneBackground ?? model.thumbnail,
+                  fit: BoxFit.cover,
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                children: [
-                  Text(
-                    maxLines: 1, overflow: TextOverflow.ellipsis,
-                    model.sceneTitle ?? '',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium,
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.44),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 6.0),
-                  Text(
-                    maxLines: 1, overflow: TextOverflow.ellipsis,
-                    model.sceneDesc ?? '',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(
+                      CookTokens.controlRadius,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    child: Text(
+                      'book_enter_topic'.tr,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  String _displayTitle() {
+    final candidates = [
+      model.dishesName,
+      model.sceneTitle,
+      'book_scene_fallback'.tr,
+    ];
+
+    return candidates
+        .map((value) => value?.trim() ?? '')
+        .firstWhere((value) => value.isNotEmpty);
   }
 }

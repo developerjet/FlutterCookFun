@@ -13,6 +13,8 @@ import 'package:flutter_cook/module/mine/favorites_page.dart';
 import 'package:flutter_cook/module/player/player_page.dart';
 import 'package:flutter_cook/module/setting/controller/setting_controller.dart';
 import 'package:flutter_cook/module/setting/setting_page.dart';
+import 'package:flutter_cook/module/setting/theme_setting_page.dart';
+import 'package:flutter_cook/module/setting/language_setting_page.dart';
 import 'package:flutter_cook/services/book_service.dart';
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/networking/networking.dart';
@@ -65,6 +67,18 @@ class AppRouter {
     GetPage(
       name: RouteNames.setting,
       page: () => const SettingPage(),
+      binding: BindingsBuilder(_bindSettingRoute),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: RouteNames.themeSetting,
+      page: () => const ThemeSettingPage(),
+      binding: BindingsBuilder(_bindSettingRoute),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: RouteNames.languageSetting,
+      page: () => const LanguageSettingPage(),
       binding: BindingsBuilder(_bindSettingRoute),
       transition: Transition.cupertino,
     ),

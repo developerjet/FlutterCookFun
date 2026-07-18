@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/book/model/book_detail_model.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 
 class BookDetialCell extends StatelessWidget {
   final BookDishesListModel model;
@@ -26,7 +27,7 @@ class BookDetialCell extends StatelessWidget {
               url: model.image,
               width: 120,
               height: 90,
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(CookTokens.radiusMd),
             ),
           ),
           const SizedBox(width: 10.0),
@@ -37,11 +38,13 @@ class BookDetialCell extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(model.dishesName ?? '—',
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 6.0),
                   Text(model.dishesDesc ?? '—',
-                      maxLines: 3, overflow: TextOverflow.ellipsis,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium),
                 ],
               ),

@@ -1,5 +1,5 @@
 /// 项目全局常量管理文件
-/// 
+///
 /// 用途：集中管理 API 配置、UI 常数、业务常数等
 /// 避免硬编码，提高代码可维护性
 
@@ -44,6 +44,8 @@ abstract class RouteNames {
   static const String bookDetail = '/bookDetail';
   static const String playerVideo = '/player';
   static const String setting = '/setting';
+  static const String themeSetting = '/setting/theme';
+  static const String languageSetting = '/setting/language';
   static const String favorites = '/favorite';
   static const String search = '/search';
   static const String web = '/webPage';
@@ -58,11 +60,6 @@ abstract class UiConstants {
   static const double spacingSmall = 8.0;
   static const double spacingMedium = 16.0;
   static const double spacingLarge = 24.0;
-
-  /// 圆角半径
-  static const double radiusSmall = 4.0;
-  static const double radiusMedium = 8.0;
-  static const double radiusLarge = 16.0;
 
   /// 最小触摸区域
   static const double minTouchSize = 48.0;

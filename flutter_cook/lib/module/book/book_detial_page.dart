@@ -1,11 +1,15 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/widgets/app_bottom_sheet.dart';
+import 'package:flutter_cook/base/widgets/app_nav_bar.dart';
+import 'package:flutter_cook/base/widgets/app_refresh.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 import 'package:flutter_cook/module/book/book_route_args.dart';
-import 'package:flutter_cook/module/book/controller/book_controller.dart';
+import 'package:flutter_cook/module/book/controller/book_detail_controller.dart';
 import 'package:flutter_cook/module/book/model/book_detail_model.dart';
 import 'package:flutter_cook/module/book/views/book_detial_cell.dart';
+import 'package:flutter_cook/services/book_service.dart';
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
 import 'package:get/get.dart';
@@ -18,28 +22,29 @@ class BookDetailPage extends StatefulWidget {
 }
 
 class _BookDetailPageState extends State<BookDetailPage> {
-  late final BookController controller;
+  BookDetailController? _controller;
   late final BookDetailArguments arguments;
   final EasyRefreshController _refreshController = EasyRefreshController();
 
   @override
   void initState() {
     super.initState();
-    controller = Get.find<BookController>();
-
     arguments = BookDetailArguments.fromMap(
       Get.arguments as Map<String, dynamic>?,
     );
 
     if (arguments.isValid) {
-      controller.loadBookDetail(arguments.sceneId, page: 1);
-    } else {
-      controller.detailErrorMessage.value = 'missing_book_param'.tr;
+      _controller = BookDetailController(
+        service: Get.find<BookService>(),
+        sceneId: arguments.sceneId,
+      );
+      _controller!.load();
     }
   }
 
   @override
   void dispose() {
+    _controller?.dispose();
     _refreshController.dispose();
     super.dispose();
   }
@@ -47,10 +52,9 @@ class _BookDetailPageState extends State<BookDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(arguments.title),
-      ),
-      body: Obx(() {
+      appBar: AppNavBar(title: arguments.title),
+      body: Obx(
+        () {
           if (!arguments.isValid) {
             return EmptyState.error(
               title: 'parameter_error'.tr,
@@ -60,25 +64,22 @@ class _BookDetailPageState extends State<BookDetailPage> {
               },
             );
           }
+          final controller = _controller!;
 
           // 本地快照，防止 childCount 和 builder 之间列表被修改导致越界
-          final detailList = controller.bookDetailList.toList();
+          final detailList = controller.dishes.toList();
 
-          return EasyRefresh(
-            onRefresh: () async {
-              await controller.loadBookDetail(arguments.sceneId, page: 1);
-            },
+          return AppRefresh(
+            onRefresh: controller.load,
             controller: _refreshController,
-            child: controller.isDetailLoading.value && detailList.isEmpty
+            child: controller.isLoading.value && detailList.isEmpty
                 ? EmptyState.loading(title: 'loading'.tr)
-                : controller.bookDetail.value == null && detailList.isEmpty
+                : controller.detail.value == null && detailList.isEmpty
                     ? EmptyState.error(
                         title: 'load_failed'.tr,
-                        description:
-                            controller.detailErrorMessage.value ?? 'unable_get_recipe_steps'.tr,
-                        onRetry: () async {
-                          await controller.loadBookDetail(arguments.sceneId, page: 1);
-                        },
+                        description: controller.errorMessage.value ??
+                            'unable_get_recipe_steps'.tr,
+                        onRetry: controller.load,
                       )
                     : detailList.isEmpty
                         ? EmptyState.empty(
@@ -86,70 +87,109 @@ class _BookDetailPageState extends State<BookDetailPage> {
                             description: 'no_recipe_data'.tr,
                           )
                         : CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 200,
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              AppNetworkImage(
-                                url: controller.bookDetail.value?.data?.sceneBackground,
-                                height: 200,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.transparent,
-                                      Colors.black.withValues(alpha: 0.45),
+                            slivers: [
+                              SliverToBoxAdapter(
+                                child: SizedBox(
+                                  height: 200,
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      AppNetworkImage(
+                                        url: controller.detail.value?.data
+                                            ?.sceneBackground,
+                                        height: 200,
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Colors.transparent,
+                                              Colors.black
+                                                  .withValues(alpha: 0.45),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 16,
+                                        right: 16,
+                                        child: Text(
+                                          controller.detail.value?.data
+                                                  ?.sceneDesc ??
+                                              '',
+                                          textAlign: TextAlign.right,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                bottom: 16,
-                                right: 16,
-                                child: Text(
-                                  controller.bookDetail.value?.data?.sceneDesc ?? '',
-                                  textAlign: TextAlign.right,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer,
+                                      borderRadius: BorderRadius.circular(
+                                        CookTokens.controlRadius,
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 9,
+                                      ),
+                                      child: Text(
+                                        'recipe_actual_count'.trArgs(
+                                            [detailList.length.toString()]),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimaryContainer,
+                                            ),
+                                      ),
+                                    ),
                                   ),
+                                ),
+                              ),
+                              SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                                    final item = detailList[index];
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        BookDetialCell(
+                                          model: item,
+                                          onTap: () => _goToCookSteps(item),
+                                          onPlayTap: () =>
+                                              _showPlaySheetBottom(item),
+                                        ),
+                                        Divider(
+                                          height: 0.5,
+                                          color: Theme.of(context).dividerColor,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                  childCount: detailList.length,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (BuildContext context, int index) {
-                            final item = detailList[index];
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                BookDetialCell(
-                                  model: item,
-                                  onTap: () => _goToCookSteps(item),
-                                  onPlayTap: () => _showPlaySheetBottom(item),
-                                ),
-                                Divider(
-                                  height: 0.5,
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                              ],
-                            );
-                          },
-                          childCount: detailList.length,
-                        ),
-                      ),
-                    ],
-                  ),
           );
         },
       ),
@@ -179,8 +219,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
         child: Text(
           'choose_video'.tr,
           textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Theme.of(context).textTheme.bodyLarge?.color),
+          style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
         ),
       ),
       AppSheetAction(
@@ -188,8 +227,8 @@ class _BookDetailPageState extends State<BookDetailPage> {
         label: 'video_one'.tr,
         onTap: () {
           Navigator.pop(context);
-          Future.delayed(const Duration(milliseconds: 300),
-              () => _playCookVideo(data, 0));
+          Future.delayed(
+              const Duration(milliseconds: 300), () => _playCookVideo(data, 0));
         },
       ),
       AppSheetAction(
@@ -197,8 +236,8 @@ class _BookDetailPageState extends State<BookDetailPage> {
         label: 'video_two'.tr,
         onTap: () {
           Navigator.pop(context);
-          Future.delayed(const Duration(milliseconds: 300),
-              () => _playCookVideo(data, 1));
+          Future.delayed(
+              const Duration(milliseconds: 300), () => _playCookVideo(data, 1));
         },
       ),
     ]);

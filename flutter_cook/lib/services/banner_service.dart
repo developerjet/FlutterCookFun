@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'package:flutter_cook/design_system/cook_assets.dart';
 import 'package:flutter_cook/module/home/model/home_banner_model.dart';
+import 'package:get/get.dart';
 
 /// Banner 跨模块推荐服务
 ///
@@ -68,7 +70,7 @@ class BannerService {
         moduleList: [
           ModuleList(
             moduleId: '999',
-            moduleName: '智能推荐',
+            moduleName: 'smart_recommendation'.tr,
             moduleData: moduleDataList,
           ),
         ],
@@ -84,13 +86,13 @@ class BannerService {
           ModuleList(
             moduleData: [
               ModuleData(
-                bannerTitle: '精选菜谱',
-                bannerPicture: 'assets/images/banner_placeholder.png',
+                bannerTitle: 'featured_recipes'.tr,
+                bannerPicture: CookAssets.bannerPlaceholder,
                 bannerLink: 'https://flutter.cn',
               ),
               ModuleData(
-                bannerTitle: '热门推荐',
-                bannerPicture: 'assets/images/banner_placeholder.png',
+                bannerTitle: 'popular_recommendations'.tr,
+                bannerPicture: CookAssets.bannerPlaceholder,
                 bannerLink: 'https://flutter.cn',
               ),
             ],

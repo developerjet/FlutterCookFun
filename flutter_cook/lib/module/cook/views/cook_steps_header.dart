@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:flutter_cook/design_system/cook_assets.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 
 class CookStepsHeader extends StatelessWidget {
   final CookStepDataModel model;
@@ -25,7 +27,7 @@ class CookStepsHeader extends StatelessWidget {
               ),
               Center(
                 child: IconButton(
-                  icon: Image.asset('assets/images/video_play.png',
+                  icon: Image.asset(CookAssets.iconVideoPlay,
                       width: 80, height: 80),
                   onPressed: onTap,
                 ),
@@ -44,7 +46,8 @@ class CookStepsHeader extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(15, 6, 15, 0),
           child: Text(
             model.materialDesc ?? '',
-            maxLines: 3, overflow: TextOverflow.ellipsis,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
@@ -54,12 +57,11 @@ class CookStepsHeader extends StatelessWidget {
             spacing: 16,
             runSpacing: 4,
             children: [
-              _buildTag(
-                  context, '${'cooking_time_label'.tr}${model.cookeTime ?? ""}'),
+              _buildTag(context,
+                  '${'cooking_time_label'.tr}${model.cookeTime ?? ""}'),
               _buildTag(
                   context, '${'difficulty_label'.tr}${model.hardLevel ?? ""}'),
-              _buildTag(
-                  context, '${'taste_label'.tr}${model.taste ?? ""}'),
+              _buildTag(context, '${'taste_label'.tr}${model.taste ?? ""}'),
             ],
           ),
         ),
@@ -79,7 +81,7 @@ class CookStepsHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(CookTokens.pillRadius),
       ),
       child: Text(
         text,

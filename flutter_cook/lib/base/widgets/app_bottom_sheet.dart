@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 
 /// 统一底部弹窗 — 顶部圆角 + 底部安全区适配
 class AppBottomSheet extends StatelessWidget {
@@ -13,15 +14,16 @@ class AppBottomSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).bottomSheetTheme.backgroundColor ??
             Theme.of(context).cardColor,
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(12)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(CookTokens.dialogRadius),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Container(
-            width: 36,
+            width: 40,
             height: 4,
             decoration: BoxDecoration(
               color: Theme.of(context)
@@ -29,11 +31,12 @@ class AppBottomSheet extends StatelessWidget {
                   .bodySmall
                   ?.color
                   ?.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(CookTokens.radiusXs),
             ),
           ),
+          const SizedBox(height: 6),
           ...children,
-          SizedBox(height: bottom > 0 ? bottom : 16),
+          SizedBox(height: bottom > 0 ? bottom : 18),
         ],
       ),
     );
@@ -74,23 +77,30 @@ class AppSheetAction extends StatelessWidget {
         : Theme.of(context).textTheme.bodyLarge?.color;
     return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 22, color: fgColor),
-              const SizedBox(width: 12),
-            ],
-            Expanded(
-              child: Text(label,
+      child: SizedBox(
+        height: 56,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: CookTokens.pagePadding,
+          ),
+          child: Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 22, color: fgColor),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: Text(
+                  label,
                   textAlign: icon == null && trailing == null
                       ? TextAlign.center
                       : TextAlign.start,
-                  style: TextStyle(fontSize: 16, color: fgColor)),
-            ),
-            if (trailing != null) trailing!,
-          ],
+                  style: TextStyle(fontSize: 16, color: fgColor),
+                ),
+              ),
+              if (trailing != null) trailing!,
+            ],
+          ),
         ),
       ),
     );

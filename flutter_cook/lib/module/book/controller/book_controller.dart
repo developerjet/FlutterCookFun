@@ -1,27 +1,18 @@
 import 'package:get/get.dart';
 import 'package:flutter_cook/module/book/model/book_home_model.dart';
-import 'package:flutter_cook/module/book/model/book_detail_model.dart';
 import 'package:flutter_cook/services/book_service.dart';
-import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/error_handler.dart';
 
 class BookController extends GetxController {
   final BookService service;
 
   final RxList<BookListModel> bookList = <BookListModel>[].obs;
+  final RxInt totalCount = 0.obs;
   final RxInt pageIndex = 1.obs;
   final RxBool bookHasMore = true.obs;
 
-  final Rx<BookDetailModel?> bookDetail = Rx<BookDetailModel?>(null);
-  final RxList<BookDishesListModel> bookDetailList =
-      <BookDishesListModel>[].obs;
-  final RxInt detailPageIndex = 1.obs;
-  final RxBool detailHasMore = true.obs;
-
   final RxBool isLoading = false.obs;
-  final RxBool isDetailLoading = false.obs;
   final Rxn<String> errorMessage = Rxn<String>();
-  final Rxn<String> detailErrorMessage = Rxn<String>();
 
   BookController({required this.service});
 
@@ -40,9 +31,10 @@ class BookController extends GetxController {
       isLoading.value = true;
       errorMessage.value = null;
 
-      final items = await service.fetchBookList(page: requestPage);
-      final hasMore = items.length >= BusinessConstants.pageSize;
-      bookHasMore.value = hasMore;
+      final result = await service.fetchBookList(page: requestPage);
+      final items = result.items;
+      totalCount.value = result.totalCount;
+      bookHasMore.value = result.hasMore;
 
       if (requestPage == 1) {
         bookList.assignAll(items);
@@ -66,51 +58,7 @@ class BookController extends GetxController {
     }
   }
 
-  Future<bool> loadBookDetail(int sceneId, {int? page}) async {
-    final requestPage = page ?? 1;
-    if (requestPage > 1 && !detailHasMore.value) return false;
-
-    if (sceneId <= 0) {
-      detailErrorMessage.value = 'Invalid scene ID';
-      return false;
-    }
-
-    try {
-      isDetailLoading.value = true;
-      detailErrorMessage.value = null;
-
-      final model = await service.fetchBookDetail(sceneId, page: requestPage);
-      bookDetail.value = model;
-
-      final newItems = model.data?.dishesList ?? [];
-      // SceneInfo 不支持分页
-      const hasMore = false;
-      detailHasMore.value = hasMore;
-
-      if (requestPage == 1) {
-        bookDetailList.assignAll(newItems);
-        detailPageIndex.value = 1;
-      } else {
-        bookDetailList.addAll(newItems);
-        detailPageIndex.value = requestPage;
-      }
-
-      AppLogger.info('BookController',
-          'Loaded book detail: $sceneId, ${newItems.length} items');
-      return true;
-    } catch (e) {
-      detailErrorMessage.value =
-          e is AppException ? e.message : 'load_failed_try_again'.tr;
-      AppLogger.error('BookController', 'Failed to load book detail',
-          e is Exception ? e : null);
-      return false;
-    } finally {
-      isDetailLoading.value = false;
-    }
-  }
-
   void clearError() {
     errorMessage.value = null;
-    detailErrorMessage.value = null;
   }
 }

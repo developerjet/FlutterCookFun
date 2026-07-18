@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:flutter_cook/design_system/cook_assets.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
+import 'package:flutter_cook/design_system/widgets/cook_card.dart';
+import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
 import 'package:get/get.dart';
 
 class CookHomeCell extends StatefulWidget {
@@ -46,38 +49,23 @@ class _CookHomeCellState extends State<CookHomeCell>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return InkWell(
-      onTap: widget.onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.35),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _imageSection,
-                Expanded(child: _CookHomeTitleSection(model: widget.model)),
-              ],
-            ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        CookCard(
+          onTap: widget.onTap,
+          padding: EdgeInsets.zero,
+          borderRadius: CookTokens.listCardRadius,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _imageSection,
+              Expanded(child: _CookHomeTitleSection(model: widget.model)),
+            ],
           ),
-          _CookHomeSelectionBorder(model: widget.model),
-        ],
-      ),
+        ),
+        _CookHomeSelectionBorder(model: widget.model),
+      ],
     );
   }
 }
@@ -91,8 +79,8 @@ class _CookHomeImageSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(9),
-        topRight: Radius.circular(9),
+        topLeft: Radius.circular(CookTokens.listCardRadius),
+        topRight: Radius.circular(CookTokens.listCardRadius),
       ),
       child: SizedBox(
         height: 110,
@@ -123,10 +111,10 @@ class _CookHomeSelectionBorder extends StatelessWidget {
       return IgnorePointer(
         child: DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(CookTokens.listCardRadius),
             border: Border.all(
-              color: Theme.of(context).colorScheme.primary,
-              width: 1.5,
+              color: CookTokens.primary,
+              width: 2,
             ),
           ),
         ),
@@ -148,25 +136,27 @@ class _CookHomeSelectionOverlay extends StatelessWidget {
       }
 
       return Positioned(
-        top: 8,
-        right: 8,
-        child: Container(
-          padding: const EdgeInsets.all(4),
+        top: 10,
+        right: 10,
+        child: DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.92),
+            color: Colors.white.withValues(alpha: 0.94),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: Image.asset(
-            'assets/images/checked.png',
-            width: 18,
-            height: 18,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Image.asset(
+              CookAssets.iconCheck,
+              width: 20,
+              height: 20,
+            ),
           ),
         ),
       );
@@ -183,17 +173,17 @@ class _CookHomeTitleSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final isSelected = model.isSelected.value;
+      final colorScheme = Theme.of(context).colorScheme;
       return Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
-          color: Theme.of(context)
-              .colorScheme
-              .primary
-              .withValues(alpha: isSelected ? 0.14 : 0.07),
+          color: isSelected
+              ? colorScheme.primaryContainer
+              : colorScheme.surfaceContainerHighest,
           borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(9),
-            bottomRight: Radius.circular(9),
+            bottomLeft: Radius.circular(CookTokens.listCardRadius),
+            bottomRight: Radius.circular(CookTokens.listCardRadius),
           ),
         ),
         child: Text(
@@ -202,9 +192,8 @@ class _CookHomeTitleSection extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
-                    ? Theme.of(context).colorScheme.primary
+                    ? colorScheme.onPrimaryContainer
                     : Theme.of(context).textTheme.titleSmall?.color,
               ),
         ),

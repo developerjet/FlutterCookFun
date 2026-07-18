@@ -17,7 +17,7 @@ class CookStepsController extends GetxController {
     if (isLoading.value) return false;
 
     if (dishesId.isEmpty) {
-      errorMessage.value = '缺少菜品ID'.tr;
+      errorMessage.value = 'missing_dish_id'.tr;
       return false;
     }
 

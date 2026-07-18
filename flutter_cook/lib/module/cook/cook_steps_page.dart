@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/base/widgets/app_nav_bar.dart';
 import 'package:flutter_cook/base/widgets/app_bottom_sheet.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/design_system/cook_assets.dart';
 import 'package:flutter_cook/module/cook/cook_route_args.dart';
 import 'package:flutter_cook/module/cook/controller/cook_steps_controller.dart';
 import 'package:flutter_cook/module/cook/model/cook_config_model.dart';
@@ -124,8 +126,8 @@ class _CookStepsPageState extends State<CookStepsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('cook_steps_title'.tr),
+      appBar: AppNavBar(
+        title: 'cook_steps_title'.tr,
         actions: [
           Obx(() {
             final loaded = cookController.cookStepsData.value;
@@ -133,18 +135,22 @@ class _CookStepsPageState extends State<CookStepsPage> {
               label: 'semantics_favorite'.tr,
               button: true,
               child: IconButton(
-                icon: Icon(_isFavorite.value == true
-                    ? Icons.favorite_outlined
-                    : Icons.favorite_border),
-              onPressed: loaded == null
-                  ? null
-                  : () {
-                      if (_isFavorite.value) {
-                        _clearFavoriteCook();
-                      } else {
-                        _beginFavoriteCook();
-                      }
-                    },
+                icon: Image.asset(
+                  _isFavorite.value
+                      ? CookAssets.iconFavoriteActive
+                      : CookAssets.iconFavorite,
+                  width: 30,
+                  height: 30,
+                ),
+                onPressed: loaded == null
+                    ? null
+                    : () {
+                        if (_isFavorite.value) {
+                          _clearFavoriteCook();
+                        } else {
+                          _beginFavoriteCook();
+                        }
+                      },
               ),
             );
           })
@@ -227,7 +233,8 @@ class _CookStepsPageState extends State<CookStepsPage> {
       return;
     }
 
-    final PageController pageController = PageController(initialPage: initialIndex);
+    final PageController pageController =
+        PageController(initialPage: initialIndex);
     int currentIndex = initialIndex;
 
     showGeneralDialog(
@@ -241,8 +248,8 @@ class _CookStepsPageState extends State<CookStepsPage> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return GestureDetector(
-              onLongPress: () => _showImageActionSheet(
-                  context, imageUrls[currentIndex]),
+              onLongPress: () =>
+                  _showImageActionSheet(context, imageUrls[currentIndex]),
               child: Material(
                 color: Colors.black,
                 child: SafeArea(
@@ -296,7 +303,7 @@ class _CookStepsPageState extends State<CookStepsPage> {
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.w600),
                                   ),
                                 ),
                               ),
@@ -367,7 +374,8 @@ class _CookStepsPageState extends State<CookStepsPage> {
       String ext;
       try {
         final uri = Uri.parse(imageUrl);
-        final segments = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
+        final segments =
+            uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
         ext = segments.contains('.') ? segments.split('.').last : '';
         if (!['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(ext)) {
           ext = 'jpg';
@@ -375,7 +383,8 @@ class _CookStepsPageState extends State<CookStepsPage> {
       } catch (_) {
         ext = 'jpg';
       }
-      filePath = '${dir.path}/cook_save_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      filePath =
+          '${dir.path}/cook_save_${DateTime.now().millisecondsSinceEpoch}.$ext';
       final file = File(filePath);
 
       final dioClient = Get.find<DioClient>();
@@ -422,16 +431,16 @@ class _CookStepsPageState extends State<CookStepsPage> {
         padding: const EdgeInsets.all(15),
         child: Text('choose_video'.tr,
             textAlign: TextAlign.center,
-            style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color)),
+            style:
+                TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
       ),
       AppSheetAction(
         icon: Icons.video_call_sharp,
         label: 'video_one'.tr,
         onTap: () {
           Navigator.pop(context);
-          Future.delayed(const Duration(milliseconds: 300),
-              () => _beginPlayVideo(0));
+          Future.delayed(
+              const Duration(milliseconds: 300), () => _beginPlayVideo(0));
         },
       ),
       AppSheetAction(
@@ -439,9 +448,10 @@ class _CookStepsPageState extends State<CookStepsPage> {
         label: 'video_two'.tr,
         onTap: () {
           Navigator.pop(context);
-          Future.delayed(const Duration(milliseconds: 300),
-              () => _beginPlayVideo(1));
+          Future.delayed(
+              const Duration(milliseconds: 300), () => _beginPlayVideo(1));
         },
       ),
     ]);
-  }}
+  }
+}

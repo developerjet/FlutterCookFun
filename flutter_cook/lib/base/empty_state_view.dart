@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
+import 'package:flutter_cook/design_system/widgets/cook_button.dart';
 import 'package:get/get.dart';
 
 /// 空状态视图类型枚举
@@ -93,8 +95,8 @@ class EmptyStateView extends StatelessWidget {
           padding: EdgeInsets.only(
             top: topPadding,
             bottom: bottomPadding,
-            left: 20,
-            right: 20,
+            left: CookTokens.pagePadding,
+            right: CookTokens.pagePadding,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -102,22 +104,22 @@ class EmptyStateView extends StatelessWidget {
             children: [
               // 图标或加载指示器
               _buildIconOrLoading(context),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
 
               // 标题
               if (title != null)
                 Text(
                   title!,
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                   textAlign: TextAlign.center,
                 ),
 
               if (title != null && description != null)
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
               // 描述
               if (description != null)
@@ -130,7 +132,7 @@ class EmptyStateView extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
 
               // 按钮组
               if (onAction != null || onSecondaryAction != null)
@@ -147,13 +149,12 @@ class EmptyStateView extends StatelessWidget {
     final Color accentColor = switch (type) {
       EmptyStateType.loading => Theme.of(context).colorScheme.primary,
       EmptyStateType.error => Theme.of(context).colorScheme.error,
-      EmptyStateType.empty => Theme.of(context).textTheme.bodyMedium?.color ??
-          Theme.of(context).colorScheme.primary,
+      EmptyStateType.empty => Theme.of(context).colorScheme.primary,
     };
 
     return Container(
-      width: 72,
-      height: 72,
+      width: 84,
+      height: 84,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: accentColor.withValues(alpha: 0.10),
@@ -167,8 +168,8 @@ class EmptyStateView extends StatelessWidget {
     switch (type) {
       case EmptyStateType.loading:
         return SizedBox(
-          width: 34,
-          height: 34,
+          width: 30,
+          height: 30,
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(accentColor),
             strokeWidth: 3,
@@ -198,82 +199,46 @@ class EmptyStateView extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Expanded(child: _buildPrimaryAction(context, mainButtonText)),
+          const SizedBox(width: 12),
           Expanded(
-            child: ElevatedButton(
-              style: actionButtonStyle ??
-                  ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-              onPressed: onAction,
-              child: Text(
-                mainButtonText,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 1,
-                ),
-                foregroundColor: Theme.of(context).colorScheme.primary,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+            child: CookButton.context(
+              label: secondaryButtonText ?? 'cancel'.tr,
               onPressed: onSecondaryAction,
-              child: Text(
-                secondaryButtonText ?? 'cancel'.tr,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
             ),
           ),
         ],
       );
     }
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: actionButtonStyle ??
-            ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(
-                vertical: 14,
-                horizontal: 30,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-        onPressed: onAction,
-        child: Text(
-          mainButtonText,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
+    return _buildPrimaryAction(context, mainButtonText);
+  }
+
+  Widget _buildPrimaryAction(BuildContext context, String mainButtonText) {
+    if (actionButtonStyle != null) {
+      return SizedBox(
+        width: double.infinity,
+        height: type == EmptyStateType.error
+            ? CookTokens.dangerButtonHeight
+            : CookTokens.contextButtonHeight,
+        child: ElevatedButton(
+          style: actionButtonStyle,
+          onPressed: onAction,
+          child: Text(mainButtonText),
         ),
-      ),
+      );
+    }
+
+    if (type == EmptyStateType.error) {
+      return CookButton.danger(
+        label: mainButtonText,
+        onPressed: onAction,
+      );
+    }
+
+    return CookButton.context(
+      label: mainButtonText,
+      onPressed: onAction,
     );
   }
 }

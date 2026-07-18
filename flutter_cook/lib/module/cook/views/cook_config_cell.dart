@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_cook/module/cook/model/cook_config_model.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 
 class CookConfigCell extends StatelessWidget {
   final CookConfigListModel model;
@@ -15,7 +16,7 @@ class CookConfigCell extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(CookTokens.listCardRadius),
           border: Border.all(
             color: Theme.of(context).dividerColor.withValues(alpha: 0.55),
           ),
@@ -36,7 +37,7 @@ class CookConfigCell extends StatelessWidget {
                 url: model.image,
                 height: 104,
                 width: 126,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(CookTokens.radiusMd),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -48,7 +49,7 @@ class CookConfigCell extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                           ),
                     ),
                     const SizedBox(height: 8),
@@ -109,7 +110,7 @@ class _InfoPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(CookTokens.pillRadius),
       ),
       child: Text(
         text,

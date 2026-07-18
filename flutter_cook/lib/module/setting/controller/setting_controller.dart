@@ -20,14 +20,10 @@ class SettingController extends GetxController {
   final isLoading = false.obs;
   final errorMessage = Rx<String?>(null);
 
-  // 设置项列表
-  final settingsItems = <String>[].obs;
-
   @override
   void onInit() {
     super.onInit();
     _loadSettings();
-    updateSettingsItems();
   }
 
   /// 加载设置数据
@@ -38,7 +34,7 @@ class SettingController extends GetxController {
     try {
       final themeManager = Get.find<ThemeManager>();
       selectedTheme.value = themeManager.isDarkMode ? 1 : 0;
-      selectedLanguage.value = await LanguageManager.fetchLastLanguage() ?? 0;
+      selectedLanguage.value = await LanguageManager.fetchLastLanguage();
 
       AppLogger.info(_tag,
           'Settings loaded successfully: theme=$selectedTheme, language=$selectedLanguage');
@@ -48,14 +44,6 @@ class SettingController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  /// 更新设置项列表（支持多语言）
-  void updateSettingsItems() {
-    settingsItems.assignAll([
-      'change_theme'.tr,
-      'setting_language'.tr,
-    ]);
   }
 
   /// 切换主题
@@ -73,17 +61,8 @@ class SettingController extends GetxController {
   /// 切换语言
   Future<void> changeLanguage(int languageIndex) async {
     try {
-      selectedLanguage.value = languageIndex;
-      await LanguageManager.saveLanguage(languageIndex);
-
-      // 更新语言
-      final locale = languageIndex == 0
-          ? const Locale('zh', 'CN')
-          : const Locale('en', 'US');
-
-      Get.updateLocale(locale);
-      updateSettingsItems(); // 更新设置项文本
-
+      selectedLanguage.value =
+          await LanguageManager.saveLanguage(languageIndex);
       AppLogger.info(_tag, 'Language changed successfully: $languageIndex');
     } catch (e) {
       errorMessage.value = 'change_language_failed'.tr;

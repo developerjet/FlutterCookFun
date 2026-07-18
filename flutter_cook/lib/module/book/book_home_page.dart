@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/base/widgets/app_nav_bar.dart';
+import 'package:flutter_cook/base/widgets/app_refresh.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_cook/base/widgets/tab_scroll_padding.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 import 'package:flutter_cook/module/book/controller/book_controller.dart';
 import 'package:flutter_cook/module/book/views/book_home_cell.dart';
 import 'package:flutter_cook/utils/constants.dart';
 import 'package:flutter_cook/utils/toast.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:get/get.dart';
 
 class BookPage extends StatefulWidget {
@@ -34,55 +37,79 @@ class _BookPageState extends State<BookPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('tab_book_title'.tr),
+      appBar: AppNavBar(
+        title: 'book_library_title'.tr,
+        automaticallyImplyLeading: false,
+        centerTitle: false,
       ),
       body: SafeArea(
+        top: false,
         bottom: false,
         child: Obx(() {
-          // 本地快照，避免 itemCount 和 itemBuilder 之间列表被修改导致越界
           final books = controller.bookList.toList();
 
-          return EasyRefresh(
+          return AppRefresh(
+            controller: _refreshController,
             onRefresh: () async {
               await controller.loadBookList(page: 1);
             },
-            onLoad: () async {
-              if (!controller.bookHasMore.value) return;
-              final nextPage = controller.pageIndex.value + 1;
-              final success = await controller.loadBookList(page: nextPage);
-              if (!success) {
-                ToastUtils.showShortToast('load_failed_try_again'.tr);
-              }
-            },
-            controller: _refreshController,
-            child: books.isEmpty
-                ? _buildEmptyState()
-                : GridView.builder(
+            onLoad: controller.bookHasMore.value
+                ? () async {
+                    final nextPage = controller.pageIndex.value + 1;
+                    final success =
+                        await controller.loadBookList(page: nextPage);
+                    if (!success) {
+                      ToastUtils.showShortToast('load_failed_try_again'.tr);
+                    }
+                  }
+                : null,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                if (books.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _buildEmptyState(),
+                  )
+                else ...[
+                  SliverPadding(
                     padding: resolveTabScrollPadding(
                       context,
-                      const EdgeInsets.all(8.0),
+                      const EdgeInsets.fromLTRB(
+                        CookTokens.pagePadding,
+                        12,
+                        CookTokens.pagePadding,
+                        8,
+                      ),
                     ),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
-                    ),
-                    itemCount: books.length,
-                    itemBuilder: (context, index) {
-                      final item = books[index];
-                      return BookHomeCell(
-                        model: item,
-                        onTap: () {
-                          Get.toNamed(RouteNames.bookDetail, arguments: {
-                            'scene_id': item.sceneId,
-                            'title': item.sceneTitle,
-                          });
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 0.78,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final item = books[index];
+                          return BookHomeCell(
+                            model: item,
+                            onTap: () {
+                              Get.toNamed(RouteNames.bookDetail, arguments: {
+                                'scene_id': item.sceneId,
+                                'title': item.sceneTitle,
+                              });
+                            },
+                          );
                         },
-                      );
-                    },
+                        childCount: books.length,
+                      ),
+                    ),
                   ),
+                ],
+              ],
+            ),
           );
         }),
       ),

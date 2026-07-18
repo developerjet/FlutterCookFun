@@ -10,13 +10,32 @@ import 'package:flutter_cook/utils/error_handler.dart';
 import 'package:flutter_cook/utils/sqlite/db_manager.dart';
 import 'package:get/get.dart';
 
+class FavoritesDataStore {
+  Future<List<CookConfigListModel>?> findAll() => DBManager().findAll();
+
+  Future<dynamic> saveData(CookConfigListModel item) =>
+      DBManager().saveData(item);
+
+  Future<int> delete(String dishesId) => DBManager().delete(dishesId);
+
+  Future<List<CookConfigListModel>?> find(String dishesId) =>
+      DBManager().find(dishesId);
+
+  Future<int> deleteAll() => DBManager().deleteAll();
+}
+
 class FavoritesController extends GetxController {
   static const String _tag = 'FavoritesController';
+
+  final FavoritesDataStore dataStore;
 
   // 响应式状态
   final favoritesList = RxList<CookConfigListModel>();
   final isLoading = false.obs;
   final errorMessage = Rx<String?>(null);
+
+  FavoritesController({FavoritesDataStore? dataStore})
+      : dataStore = dataStore ?? FavoritesDataStore();
 
   @override
   void onInit() {
@@ -30,7 +49,7 @@ class FavoritesController extends GetxController {
     errorMessage.value = null;
 
     try {
-      final data = await DBManager().findAll();
+      final data = await dataStore.findAll();
       favoritesList.assignAll(data?.reversed.toList() ?? []);
 
       AppLogger.info(
@@ -52,7 +71,7 @@ class FavoritesController extends GetxController {
   /// 添加收藏
   Future<bool> addToFavorites(CookConfigListModel item) async {
     try {
-      await DBManager().saveData(item);
+      await dataStore.saveData(item);
       favoritesList.insert(0, item); // 添加到列表开头
 
       AppLogger.info(_tag, 'Added favorite successfully: ${item.title}');
@@ -67,7 +86,7 @@ class FavoritesController extends GetxController {
   /// 移除收藏
   Future<bool> removeFromFavorites(String id) async {
     try {
-      await DBManager().delete(id);
+      await dataStore.delete(id);
       favoritesList.removeWhere((item) => item.dishesId == id);
 
       AppLogger.info(_tag, 'Removed favorite successfully: $id');
@@ -79,6 +98,35 @@ class FavoritesController extends GetxController {
     }
   }
 
+  /// 批量移除收藏
+  Future<bool> removeFavorites(Set<String> ids) async {
+    final validIds = ids.where((id) => id.isNotEmpty).toSet();
+    if (validIds.isEmpty) {
+      return true;
+    }
+
+    final deletedIds = <String>{};
+    try {
+      for (final id in validIds) {
+        await dataStore.delete(id);
+        deletedIds.add(id);
+      }
+      favoritesList.removeWhere((item) => validIds.contains(item.dishesId));
+
+      AppLogger.info(
+        _tag,
+        'Removed favorites successfully: ${validIds.length} items',
+      );
+      return true;
+    } catch (e) {
+      if (deletedIds.isNotEmpty) {
+        favoritesList.removeWhere((item) => deletedIds.contains(item.dishesId));
+      }
+      AppLogger.error(_tag, 'Failed to remove favorites: $validIds', e);
+      return false;
+    }
+  }
+
   /// 检查是否已收藏
   Future<bool> isFavorited(String id) async {
     if (id.isEmpty) {
@@ -86,7 +134,7 @@ class FavoritesController extends GetxController {
     }
 
     try {
-      final item = await DBManager().find(id);
+      final item = await dataStore.find(id);
       return item != null && item.isNotEmpty;
     } catch (e) {
       AppLogger.error(_tag, 'Failed to check favorite status: $id', e);
@@ -107,7 +155,7 @@ class FavoritesController extends GetxController {
   /// 清空所有收藏
   Future<bool> clearAllFavorites() async {
     try {
-      await DBManager().deleteAll();
+      await dataStore.deleteAll();
       favoritesList.clear();
 
       AppLogger.info(_tag, 'Cleared all favorites successfully');

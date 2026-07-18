@@ -1,8 +1,9 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cook/utils/language/manager.dart';
+import 'package:flutter_cook/base/controller/tab_navigation_controller.dart';
+import 'package:flutter_cook/design_system/cook_assets.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 import 'package:get/get.dart';
 
 import '../module/home/home_data_page.dart';
@@ -22,39 +23,52 @@ class Tabs extends StatefulWidget {
 
   @override
   State<Tabs> createState() => _TabsState();
+
+  static int resolveInitialIndex({
+    required int widgetIndex,
+    required Object? routeArguments,
+    required int pageCount,
+  }) {
+    final requestedIndex = routeArguments is int ? routeArguments : widgetIndex;
+    if (requestedIndex < 0 || requestedIndex >= pageCount) {
+      return widgetIndex.clamp(0, pageCount - 1);
+    }
+    return requestedIndex;
+  }
 }
 
 class _TabsState extends State<Tabs> {
+  static const double _tabIconSize = 24;
   static const List<_TabItemData> _tabItems = [
     _TabItemData(
       labelKey: 'tab_home_title',
-      iconPath: 'assets/images/tab_home_none.png',
-      activeIconPath: 'assets/images/tab_home_selected.png',
-      iconSize: 25,
+      iconPath: CookAssets.tabHome,
+      activeIconPath: CookAssets.tabHomeActive,
+      iconSize: _tabIconSize,
     ),
     _TabItemData(
       labelKey: 'tab_cook_title',
-      iconPath: 'assets/images/tab_cook_none.png',
-      activeIconPath: 'assets/images/tab_cook_selected.png',
-      iconSize: 24,
+      iconPath: CookAssets.tabCook,
+      activeIconPath: CookAssets.tabCookActive,
+      iconSize: _tabIconSize,
     ),
     _TabItemData(
       labelKey: 'tab_book_title',
-      iconPath: 'assets/images/tab_book_none.png',
-      activeIconPath: 'assets/images/tab_book_selected.png',
-      iconSize: 20,
+      iconPath: CookAssets.tabRecipe,
+      activeIconPath: CookAssets.tabRecipeActive,
+      iconSize: _tabIconSize,
     ),
     _TabItemData(
       labelKey: 'tab_mine_title',
-      iconPath: 'assets/images/tab_mine_none.png',
-      activeIconPath: 'assets/images/tab_mine_selected.png',
-      iconSize: 25,
+      iconPath: CookAssets.tabMine,
+      activeIconPath: CookAssets.tabMineActive,
+      iconSize: _tabIconSize,
     ),
   ];
 
-  static const double _iosTabBarHeight = 74;
+  static const double _tabBarHeight = CookTokens.tabBarHeight;
 
-  late int _currentIndex;
+  late final TabNavigationController _navigationController;
   bool _didPrecacheTabIcons = false;
 
   late final List<Widget> _pages = widget.pages ??
@@ -69,8 +83,18 @@ class _TabsState extends State<Tabs> {
   void initState() {
     super.initState();
 
-    _currentIndex = widget.index;
-    _handlerAppData();
+    _navigationController = Get.isRegistered<TabNavigationController>()
+        ? Get.find<TabNavigationController>()
+        : Get.put(TabNavigationController());
+    final initialIndex = Tabs.resolveInitialIndex(
+      widgetIndex: widget.index,
+      routeArguments: Get.arguments,
+      pageCount: _tabItems.length,
+    );
+    if (Get.arguments is int ||
+        widget.index != TabNavigationController.homeIndex) {
+      _navigationController.select(initialIndex);
+    }
   }
 
   @override
@@ -86,28 +110,20 @@ class _TabsState extends State<Tabs> {
     }
   }
 
-  Future<void> _handlerAppData() async {
-    // 主题/语言初始化已由 main.dart 中 AppBindings 和 ThemeManager.initialize() 处理
-    final lastLanguage = await LanguageManager.fetchLastLanguage() ?? 0;
-    LanguageManager.saveLanguage(lastLanguage);
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      return _buildIOSScaffold(context);
-    }
-
-    return Scaffold(
-      bottomNavigationBar: _buildMaterialTabBar(context),
-      body: _buildIndexedPages(),
+    return Obx(
+      () => _buildScaffold(
+        context,
+        _navigationController.currentIndex.value,
+      ),
     );
   }
 
-  Widget _buildIOSScaffold(BuildContext context) {
+  Widget _buildScaffold(BuildContext context, int currentIndex) {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
     final floatingBottom = bottomPadding > 0 ? bottomPadding : 12.0;
-    final scrollBottomInset = _iosTabBarHeight + floatingBottom + 12;
+    final scrollBottomInset = _tabBarHeight + floatingBottom + 12;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -116,15 +132,15 @@ class _TabsState extends State<Tabs> {
         children: [
           _IOS26TabContentInset(
             bottomInset: scrollBottomInset,
-            child: _buildIndexedPages(),
+            child: _buildIndexedPages(currentIndex),
           ),
           Positioned(
             left: 0,
             right: 0,
             bottom: floatingBottom,
-            child: _IOS26FloatingTabBar(
+            child: _CookFloatingTabBar(
               items: _tabItems,
-              currentIndex: _currentIndex,
+              currentIndex: currentIndex,
               onTap: _handleTabTap,
             ),
           ),
@@ -133,50 +149,15 @@ class _TabsState extends State<Tabs> {
     );
   }
 
-  Widget _buildMaterialTabBar(BuildContext context) {
-    return BottomNavigationBar(
-      unselectedItemColor:
-          Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      iconSize: 30,
-      unselectedFontSize: 11,
-      selectedFontSize: 11,
-      currentIndex: _currentIndex,
-      type: BottomNavigationBarType.fixed,
-      onTap: _handleTabTap,
-      items: _tabItems
-          .map((item) => BottomNavigationBarItem(
-                icon: Image.asset(
-                  item.iconPath,
-                  width: item.iconSize,
-                  height: item.iconSize,
-                ),
-                activeIcon: Image.asset(
-                  item.activeIconPath,
-                  width: item.iconSize,
-                  height: item.iconSize,
-                ),
-                label: item.labelKey.tr,
-              ))
-          .toList(),
-    );
-  }
-
-  Widget _buildIndexedPages() {
+  Widget _buildIndexedPages(int currentIndex) {
     return IndexedStack(
-      index: _currentIndex,
+      index: currentIndex,
       children: _pages,
     );
   }
 
   void _handleTabTap(int index) {
-    if (index == _currentIndex) {
-      return;
-    }
-
-    setState(() {
-      _currentIndex = index;
-    });
+    _navigationController.select(index);
   }
 }
 
@@ -226,9 +207,9 @@ class _TabItemData {
   });
 }
 
-class _IOS26FloatingTabBar extends StatelessWidget {
+class _CookFloatingTabBar extends StatelessWidget {
   static const double _maxWidth = 340;
-  static const double _radius = 37;
+  static const double _radius = CookTokens.navigationRadius;
   static const double _selectionHorizontalInset = 3;
   static const double _selectionVerticalInset = 6;
 
@@ -236,7 +217,7 @@ class _IOS26FloatingTabBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const _IOS26FloatingTabBar({
+  const _CookFloatingTabBar({
     required this.items,
     required this.currentIndex,
     required this.onTap,
@@ -247,14 +228,17 @@ class _IOS26FloatingTabBar extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final backgroundColor = isDark
-        ? theme.colorScheme.surface.withValues(alpha: 0.58)
-        : Colors.white.withValues(alpha: 0.84);
+        ? theme.colorScheme.surface.withValues(alpha: 0.76)
+        : Colors.white.withValues(alpha: 0.92);
     final borderColor =
-        theme.colorScheme.onSurface.withValues(alpha: isDark ? 0.18 : 0.08);
+        theme.colorScheme.onSurface.withValues(alpha: isDark ? 0.16 : 0.08);
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: _maxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: _maxWidth,
+          minHeight: CookTokens.tabBarHeight,
+        ),
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_radius),
@@ -271,22 +255,21 @@ class _IOS26FloatingTabBar extends StatelessWidget {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
               child: DecoratedBox(
-                key: const ValueKey('ios26_floating_tab_bar'),
+                key: const ValueKey('cook_floating_tab_bar'),
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(_radius),
                   border: Border.all(color: borderColor),
                 ),
                 child: SizedBox(
-                  height: _TabsState._iosTabBarHeight,
+                  height: _TabsState._tabBarHeight,
                   child: Padding(
                     padding: const EdgeInsets.all(5),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final itemWidth = constraints.maxWidth / items.length;
-                        final selectionColor = isDark
-                            ? Colors.white.withValues(alpha: 0.12)
-                            : const Color(0xFFE9E9EB).withValues(alpha: 0.86);
+                        final selectionColor =
+                            theme.colorScheme.primaryContainer;
 
                         return Stack(
                           children: [
@@ -300,11 +283,13 @@ class _IOS26FloatingTabBar extends StatelessWidget {
                               width: itemWidth - _selectionHorizontalInset * 2,
                               child: DecoratedBox(
                                 key: const ValueKey(
-                                  'ios26_tab_selection_pill',
+                                  'cook_tab_selection_pill',
                                 ),
                                 decoration: BoxDecoration(
                                   color: selectionColor,
-                                  borderRadius: BorderRadius.circular(32),
+                                  borderRadius: BorderRadius.circular(
+                                    CookTokens.pillRadius,
+                                  ),
                                 ),
                               ),
                             ),
@@ -314,8 +299,8 @@ class _IOS26FloatingTabBar extends StatelessWidget {
                                     index < items.length;
                                     index++)
                                   Expanded(
-                                    child: _IOS26TabButton(
-                                      buttonKey: ValueKey('ios26_tab_$index'),
+                                    child: _CookTabButton(
+                                      buttonKey: ValueKey('cook_tab_$index'),
                                       item: items[index],
                                       selected: index == currentIndex,
                                       onTap: () => onTap(index),
@@ -338,13 +323,13 @@ class _IOS26FloatingTabBar extends StatelessWidget {
   }
 }
 
-class _IOS26TabButton extends StatelessWidget {
+class _CookTabButton extends StatelessWidget {
   final Key buttonKey;
   final _TabItemData item;
   final bool selected;
   final VoidCallback onTap;
 
-  const _IOS26TabButton({
+  const _CookTabButton({
     required this.buttonKey,
     required this.item,
     required this.selected,
@@ -357,7 +342,7 @@ class _IOS26TabButton extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final selectedColor = theme.colorScheme.primary;
     final unselectedColor =
-        theme.colorScheme.onSurface.withValues(alpha: isDark ? 0.70 : 0.68);
+        theme.colorScheme.onSurface.withValues(alpha: isDark ? 0.66 : 0.58);
     final iconColor = selected ? selectedColor : unselectedColor;
 
     return Semantics(
@@ -368,7 +353,7 @@ class _IOS26TabButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           key: buttonKey,
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(CookTokens.pillRadius),
           splashColor: selectedColor.withValues(alpha: 0.10),
           highlightColor: selectedColor.withValues(alpha: 0.06),
           onTap: onTap,
@@ -391,7 +376,7 @@ class _IOS26TabButton extends StatelessWidget {
                   style: TextStyle(
                     color: selected ? selectedColor : unselectedColor,
                     fontSize: 10.5,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     height: 1,
                   ),
                 ),

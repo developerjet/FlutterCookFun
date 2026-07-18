@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/design_system/cook_assets.dart';
 
 /// 统一网络图片组件 — 内置 loading/error 状态、主题适配
 ///
@@ -41,13 +42,14 @@ class AppNetworkImage extends StatelessWidget {
         if (hasImage) {
           imageWidget = Image.network(
             effectiveUrl,
+            key: ValueKey(effectiveUrl),
             fit: fit,
             width: width,
             height: height,
             cacheWidth: decodeHint.width,
             cacheHeight: decodeHint.height,
-            gaplessPlayback: true,
-            filterQuality: FilterQuality.low,
+            gaplessPlayback: false,
+            filterQuality: FilterQuality.medium,
             loadingBuilder: (_, child, progress) {
               if (progress == null) return child;
               return _buildPlaceholder(context, showLoading: true);
@@ -117,16 +119,29 @@ class AppNetworkImage extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
               )
-            : Icon(
-                fallbackIcon,
-                size: 28,
-                color: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.color
-                    ?.withValues(alpha: 0.5),
-              ),
+            : _buildEmptyImage(context),
       ),
+    );
+  }
+
+  Widget _buildEmptyImage(BuildContext context) {
+    if (fallbackIcon != Icons.image_not_supported_outlined) {
+      return Icon(
+        fallbackIcon,
+        size: 28,
+        color: Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.color
+            ?.withValues(alpha: 0.5),
+      );
+    }
+
+    return Image.asset(
+      CookAssets.imagePlaceholder,
+      width: 56,
+      height: 56,
+      fit: BoxFit.contain,
     );
   }
 }

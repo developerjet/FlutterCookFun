@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/module/cook/model/cook_steps_model.dart';
 import 'package:flutter_cook/base/widgets/app_network_image.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 
 class CookStepsCell extends StatelessWidget {
   final StepLitsModel model;
@@ -15,7 +16,7 @@ class CookStepsCell extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(CookTokens.radiusMd),
             child: SizedBox(
               height: 220,
               width: double.infinity,
@@ -29,7 +30,8 @@ class CookStepsCell extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
               model.dishesStepDesc ?? '—',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+              style:
+                  Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
             ),
           ),
         ],

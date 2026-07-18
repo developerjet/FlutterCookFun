@@ -1,7 +1,10 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/widgets/app_dialog.dart';
+import 'package:flutter_cook/base/widgets/app_nav_bar.dart';
+import 'package:flutter_cook/base/widgets/app_refresh.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
 import 'package:flutter_cook/module/cook/cook_route_args.dart';
 import 'package:flutter_cook/module/cook/controller/cook_config_controller.dart';
 import 'package:flutter_cook/utils/constants.dart';
@@ -68,9 +71,14 @@ class _CookConfigPageState extends State<CookConfigPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Obx(() => Text('recipe_count_title'
-            .trArgs([controller.cookConfigList.length.toString()]))),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(AppNavBar.height),
+        child: Obx(
+          () => AppNavBar(
+            title: 'recipe_count_title'
+                .trArgs([controller.cookConfigList.length.toString()]),
+          ),
+        ),
       ),
       body: Obx(() {
         if (!arguments.isValid) {
@@ -112,24 +120,24 @@ class _CookConfigPageState extends State<CookConfigPage> {
           );
         }
 
-        return EasyRefresh(
+        return AppRefresh(
           controller: _refreshController,
           onRefresh: () async {
             await controller.loadCookConfigData(arguments, refresh: true);
           },
-          onLoad: () async {
-            if (!controller.configHasMore.value) {
-              ToastUtils.showShortToast('no_more_recipes'.tr);
-              return;
-            }
-            await _fetchConfigCooking();
-          },
+          onLoad: controller.configHasMore.value
+              ? () async {
+                  await _fetchConfigCooking();
+                }
+              : null,
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 6),
             itemCount: configList.length,
             itemBuilder: (context, index) {
               return InkWell(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(
+                  CookTokens.listCardRadius,
+                ),
                 child: CookConfigCell(model: configList[index]),
                 onTap: () {
                   Get.toNamed(RouteNames.cookSteps, arguments: {

@@ -77,3 +77,20 @@ class FoodSubData {
 
   Map<String, dynamic> toJson() => _$FoodSubDataToJson(this);
 }
+
+/// 首页分类页的强类型路由参数。
+///
+/// [title] 用于页面标题，[categories] 为需要展示的一个或多个完整分类。
+class FoodClassPageArguments {
+  final String title;
+  final List<HomeFoodListData> categories;
+
+  /// Parameters:
+  /// - [title]: 分类页标题。
+  /// - [categories]: 不可为空的分类集合。
+  FoodClassPageArguments({
+    required this.title,
+    required List<HomeFoodListData> categories,
+  })  : assert(categories.isNotEmpty),
+        categories = List.unmodifiable(categories);
+}

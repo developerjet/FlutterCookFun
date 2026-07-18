@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
+import 'package:flutter_cook/design_system/widgets/cook_button.dart';
 
-/// 统一弹窗组件 — 主题适配，按钮左右排列、半高圆角（胶囊形）
+/// 统一弹窗组件，负责主题适配、操作布局和危险语义。
 class AppDialog {
-  static const double _buttonHeight = 44;
-  static const double _buttonRadius = _buttonHeight / 2;
-
   /// 双按钮确认弹窗
   static Future<bool?> show(
     BuildContext context, {
@@ -20,37 +19,59 @@ class AppDialog {
       context: context,
       builder: (ctx) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(CookTokens.dialogRadius),
+        ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+          padding: const EdgeInsets.fromLTRB(24, 30, 24, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: Theme.of(ctx).textTheme.headlineSmall,
               ),
               if (content.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
                   content,
                   textAlign: TextAlign.center,
-                  style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(height: 1.4),
+                  style: Theme.of(ctx).textTheme.bodyMedium,
                 ),
               ],
               const SizedBox(height: 24),
               Row(
                 children: [
                   if (cancelText != null) ...[
-                    Expanded(child: _buildButton(ctx, text: cancelText, isPrimary: false,
-                        onTap: () { Navigator.pop(ctx, false); onCancel?.call(); })),
+                    Expanded(
+                      child: CookButton.context(
+                        label: cancelText,
+                        onPressed: () {
+                          Navigator.pop(ctx, false);
+                          onCancel?.call();
+                        },
+                      ),
+                    ),
                     const SizedBox(width: 12),
                   ],
-                  Expanded(child: _buildButton(ctx, text: confirmText ?? 'OK', isPrimary: true,
-                      onTap: () { Navigator.pop(ctx, true); onConfirm?.call(); })),
+                  Expanded(
+                    child: isDestructive
+                        ? CookButton.danger(
+                            label: confirmText ?? 'OK',
+                            onPressed: () {
+                              Navigator.pop(ctx, true);
+                              onConfirm?.call();
+                            },
+                          )
+                        : CookButton.hero(
+                            label: confirmText ?? 'OK',
+                            onPressed: () {
+                              Navigator.pop(ctx, true);
+                              onConfirm?.call();
+                            },
+                          ),
+                  ),
                 ],
               ),
             ],
@@ -72,68 +93,37 @@ class AppDialog {
       context: context,
       builder: (ctx) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(CookTokens.dialogRadius),
+        ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+          padding: const EdgeInsets.fromLTRB(24, 30, 24, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: Theme.of(ctx).textTheme.headlineSmall,
               ),
               if (content.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
                   content,
                   textAlign: TextAlign.center,
-                  style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(height: 1.4),
+                  style: Theme.of(ctx).textTheme.bodyMedium,
                 ),
               ],
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: _buildButton(ctx, text: actionText ?? 'OK', isPrimary: true,
-                    onTap: () { Navigator.pop(ctx); onAction?.call(); }),
+              CookButton.hero(
+                label: actionText ?? 'OK',
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  onAction?.call();
+                },
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  static Widget _buildButton(
-    BuildContext ctx, {
-    required String text,
-    required VoidCallback onTap,
-    bool isPrimary = true,
-  }) {
-    return SizedBox(
-      height: _buttonHeight,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor:
-              isPrimary ? Theme.of(ctx).colorScheme.primary : Colors.transparent,
-          foregroundColor: isPrimary
-              ? Colors.white
-              : Theme.of(ctx).colorScheme.outline,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_buttonRadius),
-            side: isPrimary
-                ? BorderSide.none
-                : BorderSide(color: Theme.of(ctx).colorScheme.outline),
-          ),
-          padding: EdgeInsets.zero,
-        ),
-        child: Text(
-          text,
-          style: Theme.of(ctx).textTheme.labelLarge,
         ),
       ),
     );

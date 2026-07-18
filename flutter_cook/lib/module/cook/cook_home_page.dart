@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cook/base/empty_state_view.dart';
+import 'package:flutter_cook/base/widgets/app_nav_bar.dart';
+import 'package:flutter_cook/base/widgets/app_refresh.dart';
+import 'package:flutter_cook/design_system/cook_tokens.dart';
+import 'package:flutter_cook/design_system/widgets/cook_button.dart';
+import 'package:flutter_cook/design_system/widgets/cook_card.dart';
+import 'package:flutter_cook/design_system/widgets/cook_chip.dart';
+import 'package:flutter_cook/design_system/widgets/cook_icon_button.dart';
+import 'package:flutter_cook/design_system/cook_assets.dart';
 import 'package:flutter_cook/module/cook/controller/cook_home_controller.dart';
 import 'package:flutter_cook/module/cook/model/cook_data_model.dart';
 import 'package:flutter_cook/module/cook/views/cook_home_cell.dart';
@@ -18,7 +26,7 @@ class CookPage extends StatefulWidget {
 
 class _CookPageState extends State<CookPage> {
   static const int _maxFoodCount = 5;
-  static const double _selectedItemHeight = 40.0;
+  static const double _selectedItemHeight = 34.0;
 
   final CookHomeController controller = Get.find<CookHomeController>();
 
@@ -79,6 +87,7 @@ class _CookPageState extends State<CookPage> {
       content: 'delete_selected_prompt'.tr,
       confirmText: 'confirm'.tr,
       cancelText: 'cancel'.tr,
+      isDestructive: true,
       onConfirm: () => controller.clearSelectedFoods(),
     );
   }
@@ -108,216 +117,215 @@ class _CookPageState extends State<CookPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('tab_cook_title'.tr),
+      appBar: AppNavBar(
+        title: 'cook_page_title'.tr,
+        automaticallyImplyLeading: false,
+        centerTitle: false,
         actions: [
-          const SizedBox(width: 15),
-          Obx(() => Visibility(
-              visible: controller.selectedMaterialNames.value.isNotEmpty,
-              child: Semantics(
-                label: 'semantics_delete'.tr,
-                button: true,
-                child: IconButton(
-                  icon: Image.asset('assets/images/delete_white.png',
-                      width: 25, height: 25),
-                  onPressed: _showDeleteAlert,
-                ),
-              )))
+          Obx(() {
+            if (controller.selectedCookList.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return CookIconButton.asset(
+              key: const ValueKey('cook_delete_action'),
+              tooltip: 'semantics_delete'.tr,
+              assetPath: CookAssets.iconDelete,
+              foregroundColor: Theme.of(context).colorScheme.error,
+              onPressed: _showDeleteAlert,
+            );
+          }),
+          const SizedBox(width: 8),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return EmptyState.loading(
-            title: 'loading'.tr,
-            description: 'loading_ingredients'.tr,
-          );
-        }
-
-        final dataList = controller.cookHomeList.toList();
-        if (dataList.isEmpty) {
-          if (controller.errorMessage.value != null) {
-            return EmptyState.error(
-              title: 'load_failed'.tr,
-              description: controller.errorMessage.value,
-              onRetry: () => controller.loadCookHomeData(),
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return EmptyState.loading(
+              title: 'loading'.tr,
+              description: 'loading_ingredients'.tr,
             );
           }
-          return EmptyState.empty(
-            title: 'no_ingredients'.tr,
-            description: 'unable_load_ingredients'.tr,
-            onRefresh: () => controller.loadCookHomeData(),
-          );
-        }
 
-        if (_activeGroupIndex >= dataList.length) {
-          _activeGroupIndex = 0;
-        }
+          final dataList = controller.cookHomeList.toList();
+          if (dataList.isEmpty) {
+            if (controller.errorMessage.value != null) {
+              return EmptyState.error(
+                title: 'load_failed'.tr,
+                description: controller.errorMessage.value,
+                onRetry: () => controller.loadCookHomeData(),
+              );
+            }
+            return EmptyState.empty(
+              title: 'no_ingredients'.tr,
+              description: 'unable_load_ingredients'.tr,
+              onRefresh: () => controller.loadCookHomeData(),
+            );
+          }
 
-        return Column(
-          children: [
-            _buildSelectionPanel(context),
-            _buildCategoryChips(context, dataList),
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: _onPageChanged,
-                itemCount: dataList.length,
-                itemBuilder: (context, pageIndex) {
-                  final items = dataList[pageIndex].data ?? [];
-                  return GridView.builder(
-                    padding: resolveTabScrollPadding(
-                      context,
-                      const EdgeInsets.fromLTRB(8, 12, 8, 8),
-                    ),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 0.78,
-                    ),
-                    itemCount: items.length,
-                    itemBuilder: (context, index) => CookHomeCell(
-                      model: items[index],
-                      onTap: () => _handlerSelectFood(items[index]),
-                    ),
-                  );
-                },
+          if (_activeGroupIndex >= dataList.length) {
+            _activeGroupIndex = 0;
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildSelectionPanel(context),
+              _buildCategoryChips(context, dataList),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  itemCount: dataList.length,
+                  itemBuilder: (context, pageIndex) {
+                    final items = dataList[pageIndex].data ?? [];
+                    return AppRefresh(
+                      onRefresh: () async {
+                        await controller.loadCookHomeData();
+                      },
+                      child: GridView.builder(
+                        padding: resolveTabScrollPadding(
+                          context,
+                          const EdgeInsets.fromLTRB(
+                            CookTokens.pagePadding,
+                            12,
+                            CookTokens.pagePadding,
+                            8,
+                          ),
+                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 0.78,
+                        ),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) => CookHomeCell(
+                          model: items[index],
+                          onTap: () => _handlerSelectFood(items[index]),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
-        );
-      }),
+            ],
+          );
+        }),
+      ),
     );
   }
 
   /// 分类切换标签栏
   Widget _buildCategoryChips(
       BuildContext context, List<CookHomeListModel> dataList) {
-    return Container(
-      color: Theme.of(context).cardColor,
-      height: 44,
+    return SizedBox(
+      height: 52,
       child: ListView.builder(
         controller: _chipScrollController,
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.fromLTRB(
+          CookTokens.pagePadding,
+          8,
+          CookTokens.pagePadding,
+          8,
+        ),
         itemCount: dataList.length,
         itemBuilder: (context, index) {
           final isActive = index == _activeGroupIndex;
           final group = dataList[index];
           final label = '${group.text ?? ''} ${group.data?.length ?? 0}';
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-            child: Material(
-              color: isActive
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () => _onChipTapped(index),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  alignment: Alignment.center,
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                      color: isActive
-                          ? Colors.white
-                          : Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
+            padding: const EdgeInsets.only(right: 8),
+            child: isActive
+                ? CookChip.selected(
+                    label: label,
+                    onTap: () => _onChipTapped(index),
+                  )
+                : CookChip.neutral(
+                    label: label,
+                    onTap: () => _onChipTapped(index),
                   ),
-                ),
-              ),
-            ),
           );
         },
       ),
     );
   }
 
-  /// 顶部已选食材面板（固定高度 + 横向滚动）
+  /// 顶部已选食材面板。
   Widget _buildSelectionPanel(BuildContext context) {
-    return Container(
-      color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'select_ingredients_prompt'.tr,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        CookTokens.pagePadding,
+        4,
+        CookTokens.pagePadding,
+        8,
+      ),
+      child: CookCard(
+        key: const ValueKey('cook_selection_panel'),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'cook_countertop'.tr,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
-              ),
-              Obx(
-                () => Text(
-                  '${controller.selectedCookList.length}/$_maxFoodCount',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
+                Obx(
+                  () => Text(
+                    '${controller.selectedCookList.length}/$_maxFoodCount',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Obx(() {
-            final items = controller.selectedCookList;
-            return SizedBox(
-              height: _selectedItemHeight,
-              child: items.isEmpty
-                  ? Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'not_selected_ingredients'.tr,
-                        style: Theme.of(context).textTheme.bodyMedium,
+              ],
+            ),
+            const SizedBox(height: 6),
+            Obx(() {
+              final items = controller.selectedCookList;
+              return SizedBox(
+                height: _selectedItemHeight,
+                child: items.isEmpty
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'not_selected_ingredients'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: items.length,
+                        itemBuilder: (context, index) =>
+                            _buildSelectedItem(context, items[index]),
                       ),
-                    )
-                  : ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: items.length,
-                      itemBuilder: (context, index) =>
-                          _buildSelectedItem(context, items[index]),
-                    ),
-            );
-          }),
-          const SizedBox(height: 6),
-          SizedBox(
-            width: double.infinity,
-            child: Obx(
+              );
+            }),
+            const SizedBox(height: 8),
+            Obx(
               () {
                 final selectedCount = controller.selectedCookList.length;
-                return ElevatedButton(
+                return CookButton.hero(
+                  label: selectedCount == 0
+                      ? 'cook_generate_recipes'.tr
+                      : 'cook_generate_recipes_count'
+                          .trArgs([selectedCount.toString()]),
                   onPressed: selectedCount == 0 ? null : _customConfigCook,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    disabledBackgroundColor: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                  ),
-                  child: Text(
-                    selectedCount == 0
-                        ? 'start_cooking'.tr
-                        : '${'start_cooking'.tr} ($selectedCount)',
-                  ),
                 );
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -326,12 +334,13 @@ class _CookPageState extends State<CookPage> {
   Widget _buildSelectedItem(BuildContext context, CookListDataModel item) {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(18),
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(CookTokens.pillRadius),
           border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+            color:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.24),
           ),
         ),
         child: Row(
@@ -340,19 +349,21 @@ class _CookPageState extends State<CookPage> {
             const SizedBox(width: 10),
             Text(
               item.text ?? '',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
             ),
             InkWell(
               onTap: () => _removeFood(item),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(CookTokens.pillRadius),
               child: Padding(
                 padding: const EdgeInsets.all(4),
-                child: Icon(
-                  Icons.close,
-                  size: 16,
+                child: Image.asset(
+                  CookAssets.iconClose,
+                  width: 16,
+                  height: 16,
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),

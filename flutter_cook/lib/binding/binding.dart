@@ -13,6 +13,7 @@ import 'package:flutter_cook/module/cook/controller/cook_steps_controller.dart';
 import 'package:flutter_cook/module/book/controller/book_controller.dart';
 import 'package:flutter_cook/module/mine/controller/favorites_controller.dart';
 import 'package:flutter_cook/module/setting/controller/setting_controller.dart';
+import 'package:flutter_cook/base/controller/tab_navigation_controller.dart';
 
 /// 全局依赖注入配置
 class AppBindings extends Bindings {
@@ -21,6 +22,9 @@ class AppBindings extends Bindings {
     // ── 基础设施 ──
     _lazyPutPermanent<DioClient>(() => DioClient());
     _lazyPutPermanent<ThemeManager>(() => ThemeManager());
+    _lazyPutPermanent<TabNavigationController>(
+      () => TabNavigationController(),
+    );
 
     // ── Services ──
     _lazyPutPermanent<BannerService>(() => BannerService());
